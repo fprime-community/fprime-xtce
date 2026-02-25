@@ -14,6 +14,8 @@ import xmlschema
 def build_xtce_structure(
 	parameter_types: List[Dict[str, Any]],
 	parameters: List[Dict[str, Any]],
+	containers: List[Dict[str, Any]],
+	commands: List[Dict[str, Any]],
 	space_system_name: str,
 ) -> Dict[str, Any]:
 	"""
@@ -22,6 +24,8 @@ def build_xtce_structure(
 	Args:
 		parameter_types: List of XTCE ParameterType dictionaries (already converted).
 		parameters: List of XTCE Parameter dictionaries (already converted).
+		containers: List of XTCE Container dictionaries (already converted).
+		commands: List of XTCE Command dictionaries (already converted).
 		space_system_name: Optional name for the root SpaceSystem.
 
 	Returns:
@@ -36,13 +40,25 @@ def build_xtce_structure(
 			}
 		}
 	"""
+	def convert_parameter_type(parameter_type: Dict[str, Any]) -> Dict[str, Any]:
+		return {
+			list(parameter_type.keys())[0].replace("ParameterType", "ArgumentType"): list(parameter_type.values())[0]
+		}
+
+	command_types = parameter_types.copy()
+	command_types = [convert_parameter_type(command_type) for command_type in command_types]
 	return {
 		"SpaceSystem": {
 			"name": space_system_name,
 			"TelemetryMetaData": {
 				"ParameterTypeSet": parameter_types,
 				"ParameterSet": [{"Parameter": parameter} for parameter in parameters],
+				"ContainerSet": containers
 			},
+			"CommandMetaData": {
+				"ArgumentTypeSet": command_types,
+				"MetaCommandSet": commands
+			}
 		}
 	}
 
@@ -70,29 +86,43 @@ def recurse_xml_dictionary(element: Optional[ET.Element], node_data: Dict[str, A
 	""" Recursively convert a dictionary to XML elements"""
 	global INDENT
 	INDENT += 1
-	for data_key, data_value in node_data.items():
-		# If the value is a list, create multiple child elements
-		if isinstance(data_value, list):
-			element = ET.SubElement(element, data_key)
-			assert data_key[0].capitalize() == data_key[0], f"List keys must be capitalized to create child elements: {data_key}"
-			for item in data_value:
-				assert isinstance(item, dict), "No list items permitted with primitive or list types"
-				key, value = extract_singular_key_value(item)
-				child = ET.SubElement(element, key)
-				recurse_xml_dictionary(child, value)
-		# If the key is capitalized, and maps to a dict, create a child element and recurse
-		elif isinstance(data_value, dict):
-			assert data_key[0].capitalize() == data_key[0], "Dict keys must be capitalized to create child elements"
-			child = ET.SubElement(element, data_key)
-			recurse_xml_dictionary(child, data_value)
-		# If the key is capitalized, and maps to a primitive, create a child element with text
-		elif data_key[0].capitalize() == data_key[0] and isinstance(data_value, (str, int, float, bool)):
-			child = ET.SubElement(element, data_key)
-			child.text = str(data_value)
-		# Otherwise, set attributes on the current element
-		else:
-			assert not isinstance(data_value, (list, dict)), "No list or dict types permitted for attribute keys"
-			element.set(data_key, str(data_value))
+
+	try:
+		for data_key, data_value in node_data.items():
+			# If the value is a list, create multiple child elements
+			if isinstance(data_value, list):
+				list_element = ET.SubElement(element, data_key)
+				assert data_key[0].capitalize() == data_key[0], f"List keys must be capitalized to create child elements: {data_key}"
+				for item in data_value:
+					assert isinstance(item, dict), "No list items permitted with primitive or list types"
+					key, value = extract_singular_key_value(item)
+					child = ET.SubElement(list_element, key)
+					recurse_xml_dictionary(child, value)
+			# If the key is capitalized, and maps to a dict, create a child element and recurse
+			elif isinstance(data_value, dict):
+				assert data_key[0].capitalize() == data_key[0], "Dict keys must be capitalized to create child elements"
+				child = ET.SubElement(element, data_key)
+				recurse_xml_dictionary(child, data_value)
+			# If the key is capitalized, and maps to a primitive, create a child element with text
+			elif data_key[0].capitalize() == data_key[0] and isinstance(data_value, (str, int, float)):
+				child = ET.SubElement(element, data_key)
+				child.text = str(data_value)
+			# If the key is capitalized, and maps to a primitive, create a child element with text
+			elif data_key[0].capitalize() == data_key[0] and isinstance(data_value, (bool)):
+				child = ET.SubElement(element, data_key)
+				child.text = str("true"  if data_value else "false")
+			# If the key is lowercase, and maps to a boolean, set attribute on the current element as "true"/"false"
+			elif isinstance(data_value, (bool)):
+				assert not isinstance(data_value, (list, dict)), "No list or dict types permitted for attribute keys"
+				element.set(data_key, str("true" if data_value else "false"))
+			# Otherwise for not capitalized elements, set attributes on the current element 
+			else:
+				assert data_key[0].islower(), "Attribute keys must be lowercase"
+				assert not isinstance(data_value, (list, dict)), "No list or dict types permitted for attribute keys"
+				element.set(data_key, str(data_value))
+	except Exception as e:
+		print(f"[ERROR] {node_data} {str(e)}")
+		raise
 	INDENT -= 1
 	return element
 

@@ -11,6 +11,7 @@ import sys
 from pathlib import Path
 
 from .convert import convert_fprime_types, convert_fprime_telemetry
+from .type_converter import convert_identifier
 from .xtce import build_xtce_structure, write_xtce_xml, validate_xtce
 
 def exit_on_errors(result):
@@ -95,9 +96,11 @@ def main(args=None):
     result = convert_fprime_telemetry(json_data, result['channel_type_map'])
     exit_on_errors(result)
     xtce_parameters = result['xtce_parameters']
+    xtce_containers = result['xtce_containers']
+    xtce_commands = result['xtce_commands']
 
     # Step 3: Build XTCE structure and write to file
-    structure = build_xtce_structure(xtce_parameter_types, xtce_parameters, deployment)
+    structure = build_xtce_structure(xtce_parameter_types, xtce_parameters, xtce_containers, xtce_commands, convert_identifier(deployment))
     write_xtce_xml(structure, parsed_args.output)
 
     # Step 4: Validate output file

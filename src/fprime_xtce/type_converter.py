@@ -14,6 +14,353 @@
 """Convert F Prime type definitions to XTCE ParameterType equivalents."""
 
 
+BUILT_IN_TYPES = [
+    {
+    "StringParameterType": {
+        "name": "raw_string",
+        "StringDataEncoding": {
+            "encoding": "UTF-8",
+            "Variable": {
+                "maxSizeInBits": 2048,
+                "DynamicValue": {
+                    "ParameterInstanceRef": {
+                        "parameterRef": "length"
+                    },
+                    "LinearAdjustment": {
+                        "slope": 8,
+                        "intercept": 0
+                    }
+                }
+            }
+        }
+    }},
+     {
+   "AggregateParameterType": {
+       "name": "fprime_string",
+       "initialValue": "{length: 0, value: ''}",
+       "MemberList": [
+           {
+                "Member": {
+                    "name": "length",
+                    "typeRef": "FwSizeStoreType"
+                }
+            },
+            {
+                "Member": {
+                    "name": "value",
+                    "typeRef":"raw_string"
+                }
+            }
+        ]},
+    },
+#    {
+#        "StringParameterType": {
+#            "name": "string",
+#            "StringDataEncoding": {
+#                "encoding": "UTF-8",
+#                "Variable": {
+#                    "maxSizeInBits": "2048",
+#                    "DynamicValue": {
+#                        "ParameterInstanceRef": {
+#                            "parameterRef": "FwSizeStoreType"
+#                        },
+#                        "LinearAdjustment": {
+#                            "slope": 8,
+#                            "intercept": 0
+#                        }
+#                    }
+#                }
+#            }
+#        }
+#    },
+{
+    "IntegerParameterType": {
+      "name": "CCSDS_TM_Sc_Id_Type",
+      "signed": "false",
+      "UnitSet": {},
+      "IntegerDataEncoding": {
+        "sizeInBits": "12"
+      }
+    }
+  },
+  {
+    "IntegerParameterType": {
+      "name": "CCSDS_TM_Vc_Id_Type",
+      "signed": "false",
+      "UnitSet": {},
+      "IntegerDataEncoding": {
+        "sizeInBits": "4"
+      }
+    }
+  },
+  {
+    "IntegerParameterType": {
+      "name": "CCSDS_TM_Other_Type",
+      "signed": "false",
+      "UnitSet": {},
+      "IntegerDataEncoding": {
+        "sizeInBits": "32"
+      }
+    }
+  },
+
+  {
+    "AggregateParameterType": {
+      "name": "CCSDS_Packet_ID_Type",
+      "MemberList": [
+        { "Member": { "name": "Version", "typeRef": "CCSDS_Version_Type" } },
+        { "Member": { "name": "Type", "typeRef": "CCSDS_Type_Type" } },
+        { "Member": { "name": "SecHdrFlag", "typeRef": "CCSDS_Sec_Hdr_Flag_Type" } },
+        { "Member": { "name": "APID", "typeRef": "CCSDS_APID_Type" } }
+      ]
+    }
+  },
+  {
+    "IntegerParameterType": {
+      "name": "CCSDS_Version_Type",
+      "signed": "false",
+      "UnitSet": {},
+      "IntegerDataEncoding": {
+        "sizeInBits": "3"
+      }
+    }
+  },
+  {
+    "BooleanParameterType": {
+      "name": "CCSDS_Type_Type",
+      "zeroStringValue": "TM",
+      "oneStringValue": "TC",
+      "UnitSet": {},
+      "IntegerDataEncoding": {
+        "sizeInBits": "1"
+      }
+    }
+  },
+  {
+    "BooleanParameterType": {
+      "name": "CCSDS_Sec_Hdr_Flag_Type",
+      "zeroStringValue": "NotPresent",
+      "oneStringValue": "Present",
+      "UnitSet": {},
+      "IntegerDataEncoding": {
+        "sizeInBits": "1"
+      }
+    }
+  },
+  {
+    "IntegerParameterType": {
+      "name": "CCSDS_APID_Type",
+      "signed": "false",
+      "UnitSet": {},
+      "IntegerDataEncoding": {
+        "sizeInBits": "11"
+      }
+    }
+  },
+
+  {
+    "AggregateParameterType": {
+      "name": "CCSDS_Packet_Sequence_Type",
+      "MemberList": [
+        { "Member": { "name": "GroupFlags", "typeRef": "CCSDS_Group_Flags_Type" } },
+        { "Member": { "name": "Count", "typeRef": "CCSDS_Source_Sequence_Count_Type" } }
+      ]
+    }
+  },
+  {
+    "EnumeratedParameterType": {
+      "name": "CCSDS_Group_Flags_Type",
+      "UnitSet": {},
+      "IntegerDataEncoding": {
+        "sizeInBits": "2"
+      },
+      "EnumerationList": [
+        { "Enumeration": { "value": "0", "label": "Continuation" } },
+        { "Enumeration": { "value": "1", "label": "First" } },
+        { "Enumeration": { "value": "2", "label": "Last" } },
+        { "Enumeration": { "value": "3", "label": "Standalone" } }
+      ]
+    }
+  },
+  {
+    "IntegerParameterType": {
+      "name": "CCSDS_Source_Sequence_Count_Type",
+      "signed": "false",
+      "UnitSet": {},
+      "IntegerDataEncoding": {
+        "sizeInBits": "14"
+      }
+    }
+  },
+
+  {
+    "IntegerParameterType": {
+      "name": "CCSDS_Packet_Length_Type",
+      "signed": "false",
+#      "initialValue": "0",
+      "UnitSet": {
+        "Unit": {
+          "description": "Size",
+          #"text": "Octets"
+        }
+      },
+      "IntegerDataEncoding": {
+        "sizeInBits": "16"
+      }
+    }
+  },
+   {
+     "IntegerParameterType": {
+       "name": "U8",
+       "signed": "false",
+ #      "initialValue": "0",
+       "IntegerDataEncoding": {
+         "encoding": "unsigned",
+         "sizeInBits": "8"
+       }
+     }
+   },
+     {
+     "IntegerParameterType": {
+       "name": "U16",
+       "signed": "false",
+# #      "initialValue": "0",
+       "IntegerDataEncoding": {
+         "encoding": "unsigned",
+         "sizeInBits": "16"
+       }
+     }
+   },
+#   {
+#     "IntegerParameterType": {
+#       "name": "U32",
+#       "signed": "false",
+# #      "initialValue": "0",
+#       "IntegerDataEncoding": {
+#         "encoding": "unsigned",
+#         "sizeInBits": "32"
+#       }
+#     }
+#   },
+#   {
+#     "IntegerParameterType": {
+#       "name": "U64",
+#       "signed": "false",
+# #      "initialValue": "0",
+#       "IntegerDataEncoding": {
+#         "encoding": "unsigned",
+#         "sizeInBits": "64"
+#       }
+#     }
+#   },
+#     {
+#     "IntegerParameterType": {
+#       "name": "char",
+#       "signed": "true",
+# #      "initialValue": "0",
+#       "IntegerDataEncoding": {
+#         "encoding": "twosComplement",
+#         "sizeInBits": "8"
+#       }
+#     }
+#   },
+#   {
+#     "IntegerParameterType": {
+#       "name": "I8",
+#       "signed": "true",
+# #      "initialValue": "0",
+#       "IntegerDataEncoding": {
+#         "encoding": "twosComplement",
+#         "sizeInBits": "8"
+#       }
+#     }
+#   },
+     {
+     "IntegerParameterType": {
+       "name": "I16",
+       "signed": "true",
+ #      "initialValue": "0",
+       "IntegerDataEncoding": {
+         "encoding": "twosComplement",
+         "sizeInBits": "16"
+       }
+     }
+   },  {
+    "IntegerParameterType": {
+      "name": "I32",
+      "signed": "true",
+#      "initialValue": "0",
+      "IntegerDataEncoding": {
+        "encoding": "twosComplement",
+        "sizeInBits": "32"
+      }
+    }
+  },#{
+#     "IntegerParameterType": {
+#       "name": "I64",
+#       "signed": "true",
+# #      "initialValue": "0",
+#       "IntegerDataEncoding": {
+#         "encoding": "twosComplement",
+#         "sizeInBits": "64"
+#       }
+#     }
+#   },
+ {
+     "IntegerParameterType": {
+         "name": "bool",
+ #        "zeroStringValue": "False",
+ #        "oneStringValue": "True",
+ #        "initialValue": "0",
+         "IntegerDataEncoding": {
+             "sizeInBits": 8,
+             "encoding": "unsigned",
+         }
+     }
+   },
+#   {
+#       "FloatParameterType": {
+#             "name": "F32",
+# #            "initialValue": "0.0",
+#             "FloatDataEncoding": {
+#                 "sizeInBits": 32,
+#                 "encoding": "IEEE754_1985",
+#             }
+#       },
+#   },
+#     {
+#       "FloatParameterType": {
+#             "name": "F64",
+# #            "initialValue": "0.0",
+#             "FloatDataEncoding": {
+#                 "sizeInBits": 64,
+#                 "encoding": "IEEE754_1985",
+#             }
+#       },
+#   }
+
+]
+
+
+def convert_identifier(identifier: str) -> str:
+    """Convert F Prime qualified FPP names to XTCE-compatible names.
+    
+    This function replaces dots with slashes and ensures the name starts with a letter.
+    
+    Args:
+        name: Original F Prime qualified name (e.g., "fprime.types.U32")
+        
+    Returns:
+        str: Converted name suitable for XTCE (e.g., "fprime/types/U32")
+    """
+    # F Prime type names
+    assert identifier[0].isalpha(), "Type names must start with a letter w.r.t FPP names"    
+    
+    # Convert dots to slashes for XTCE compatibility
+    converted = identifier.replace('.', '|')
+    return converted
+
+
 def convert_type_definitions(fprime_type_defs):
     """
     Convert a list of F Prime type definitions to XTCE ParameterType equivalents.
@@ -30,7 +377,7 @@ def convert_type_definitions(fprime_type_defs):
     Returns:
         list: List of XTCE ParameterType dictionaries
     """
-    xtce_types = []
+    xtce_types = BUILT_IN_TYPES
     errors = []
 
     for type_def in fprime_type_defs:
@@ -99,7 +446,7 @@ def _convert_integer_type(fprime_type_desc):
     - U8, U16, U32, U64 (unsigned) to IntegerParameterType with unsigned encoding
     - I8, I16, I32, I64 (signed) to IntegerParameterType with signed encoding
     """
-    name = fprime_type_desc["name"]
+    name = convert_identifier(fprime_type_desc["name"])
     size_in_bits = fprime_type_desc["size"]
     signed = fprime_type_desc.get("signed", False)
     
@@ -127,7 +474,7 @@ def _convert_float_type(fprime_type_desc):
     - F32 (32-bit float) to FloatParameterType with IEEE754 encoding
     - F64 (64-bit float) to FloatParameterType with IEEE754 encoding
     """
-    name = fprime_type_desc["name"]
+    name = convert_identifier(fprime_type_desc["name"])
     size_in_bits = fprime_type_desc["size"]
     
     xtce_type = {
@@ -152,7 +499,7 @@ def _convert_boolean_type(fprime_type_desc):
     Maps:
     - bool (8-bit boolean) to BooleanParameterType
     """
-    name = fprime_type_desc["name"]
+    name = convert_identifier(fprime_type_desc["name"])
     size_in_bits = fprime_type_desc.get("size", 8)
     
     xtce_type = {
@@ -178,7 +525,7 @@ def _convert_string_type(fprime_type_desc):
     Maps:
     - string with size to StringParameterType with fixed or variable length
     """
-    name = fprime_type_desc["name"]
+    name = convert_identifier(fprime_type_desc["name"])
     size_in_bytes = fprime_type_desc["size"]
     size_in_bits = size_in_bytes * 8
     
@@ -187,9 +534,14 @@ def _convert_string_type(fprime_type_desc):
             "name": name,
             "StringDataEncoding": {
                 "encoding": "UTF-8",
-                "SizeInBits": {
-                    "fixed": size_in_bits,
-                    "terminationChar": "00"
+                "DynamicValue": {
+                    "ParameterInstanceRef": {
+                        "parameterRef": "FwSizeStoreType"
+                    },
+                    "LinearAdjustment": {
+                        "slope": 8,
+                        "intercept": 0
+                    }
                 }
             }
         }
@@ -205,7 +557,7 @@ def _convert_qualified_identifier_type(fprime_type_desc):
     This creates a reference that needs to be resolved later against
     the type definitions in the F Prime dictionary.
     """
-    name = fprime_type_desc["name"]
+    name = convert_identifier(fprime_type_desc["name"])
     
     # This is a reference type - the actual conversion depends on what it references
     xtce_type = {
@@ -234,7 +586,7 @@ def convert_enum_definition(fprime_enum_def):
     Returns:
         dict: XTCE EnumeratedParameterType structure
     """
-    name = fprime_enum_def["qualifiedName"]
+    name = convert_identifier(fprime_enum_def["qualifiedName"])
     repr_type = fprime_enum_def["representationType"]
     constants = fprime_enum_def["enumeratedConstants"]
     
@@ -254,21 +606,20 @@ def convert_enum_definition(fprime_enum_def):
     xtce_type = {
         "EnumeratedParameterType": {
             "name": name,
-            "EnumerationList": enum_list,
             "IntegerDataEncoding": {
                 "sizeInBits": repr_type["size"],
                 "encoding": "twosComplement" if repr_type.get("signed", False) else "unsigned",
                 "byteOrder": "mostSignificantByteFirst"
-            }
+            },
+            "EnumerationList": enum_list,
         }
     }
     
     if "annotation" in fprime_enum_def:
         xtce_type["EnumeratedParameterType"]["shortDescription"] = fprime_enum_def["annotation"]
     
-    if "default" in fprime_enum_def:
-        xtce_type["EnumeratedParameterType"]["initialValue"] = fprime_enum_def["default"]
-    
+#    if "default" in fprime_enum_def:
+#        xtce_type["EnumeratedParameterType"]["initialValue"] = fprime_enum_def["default"]
     return xtce_type
 
 
@@ -288,20 +639,23 @@ def convert_array_definition(fprime_array_def):
     Returns:
         dict: XTCE ArrayParameterType structure
     """
-    name = fprime_array_def["qualifiedName"]
+    name = convert_identifier(fprime_array_def["qualifiedName"])
     array_size = fprime_array_def["size"]
     element_type = fprime_array_def["elementType"]
     
     # Convert element type
-    element_type_name = element_type["name"]
+    element_type_name = convert_identifier(element_type["name"])
     
     xtce_type = {
         "ArrayParameterType": {
             "name": name,
             "arrayTypeRef": element_type_name,
-            "Dimensions": {
-                    "startingIndex": 0,
-                    "endingIndex": array_size - 1
+            "DimensionList": {
+                # Note: XTCE supports multi-dimensional arrays, F-Prime has 1D arrays
+                "Dimension": {
+                    "StartingIndex": {"FixedValue": 0},
+                    "EndingIndex": {"FixedValue": array_size - 1}
+                }
             }
         }
     }
@@ -331,14 +685,14 @@ def convert_struct_definition(fprime_struct_def):
     Returns:
         dict: XTCE AggregateParameterType structure
     """
-    name = fprime_struct_def["qualifiedName"]
+    name = convert_identifier(fprime_struct_def["qualifiedName"])
     members = fprime_struct_def["members"]
     
     # Build member list - sort by index to maintain order
     member_list = []
     for member_name, member_desc in members.items():
         member_type = member_desc["type"]
-        member_type_name = member_type["name"]
+        member_type_name = convert_identifier(member_type["name"])
         
         member_entry = {
             "name": member_name,
@@ -347,8 +701,12 @@ def convert_struct_definition(fprime_struct_def):
         
         if "annotation" in member_desc:
             member_entry["shortDescription"] = member_desc["annotation"]
-        if "default" in fprime_struct_def and isinstance(fprime_struct_def["default"][member_name], (int, str, bool)):
-            member_entry["initialValue"] = fprime_struct_def["default"][member_name]
+#        if "default" in fprime_struct_def and member_type["kind"] == "enum":
+#            member_entry["initialValue"] = fprime_struct_def["default"][member_name]
+#        if "default" in fprime_struct_def and member_type["kind"] == "string":
+#            member_entry["initialValue"] = f'{{"length": {len(fprime_struct_def["default"][member_name])}, "value": "{fprime_struct_def["default"][member_name]}"}}'
+#        if "default" in fprime_struct_def and isinstance(fprime_struct_def["default"][member_name], (int, bool)):
+#            member_entry["initialValue"] = fprime_struct_def["default"][member_name]
         
         
         member_list.append((member_desc["index"], member_entry))
@@ -392,7 +750,7 @@ def convert_alias_definition(fprime_alias_def):
     Returns:
         dict: XTCE type structure with baseType reference
     """
-    name = fprime_alias_def["qualifiedName"]
+    name = convert_identifier(fprime_alias_def["qualifiedName"])
     aliased_type = fprime_alias_def["type"]
     underlying_type = fprime_alias_def["underlyingType"]
     
@@ -426,9 +784,9 @@ def convert_alias_definition(fprime_alias_def):
         }
     elif underlying_kind == "string":
         xtce_type = {
-            "StringParameterType": {
+            "TypeAlias": {
                 "name": name,
-                "baseType": aliased_type["name"]
+                "baseType": "string"
             }
         }
     else:
@@ -471,6 +829,7 @@ def convert_telemetry_channel_types(fprime_telemetry_channels, existing_type_nam
     """
     xtce_types = []
     created_types = set()
+    created_types.add("string")
     errors = []
     channel_type_map = {}
     for channel in fprime_telemetry_channels:
@@ -478,13 +837,13 @@ def convert_telemetry_channel_types(fprime_telemetry_channels, existing_type_nam
 
         try:
             channel_type = channel["type"]
-            channel_name = channel["name"]
+            channel_name = convert_identifier(channel["name"])
             # Read the channel type descriptor
             if not channel_type:
                 raise Exception(f"Channel {channel_name} has no type defined")
 
             # Get type name - can be either direct type or qualified identifier
-            type_name = channel_type.get("name")
+            type_name = convert_identifier(channel_type.get("name"))
             if not type_name:
                 raise Exception(f"Channel {channel_name} type has no name defined")
             channel_type_map[channel_name] = type_name
