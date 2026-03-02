@@ -40,10 +40,7 @@ def build_xtce_structure(
 			}
 		}
 	"""
-	def convert_parameter_type(parameter_type: Dict[str, Any]) -> Dict[str, Any]:
-		return {
-			list(parameter_type.keys())[0].replace("ParameterType", "ArgumentType"): list(parameter_type.values())[0]
-		}
+
 
 	command_types = parameter_types.copy()
 	command_types = [convert_parameter_type(command_type) for command_type in command_types]

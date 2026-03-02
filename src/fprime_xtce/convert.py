@@ -12,180 +12,19 @@
 # limitations under the License.
 
 """Convert F' (F-Prime) definitions to XTCE format."""
+import itertools
+from collections.abc import Mapping
+from .type_converter import convert_identifier, convert_type_definitions
+from .primitive_types import BASE_FPRIME_TYPES, SPACE_PACKET_TYPES, BASE_PARAMETERS
+from .utilities import safe_combine, formal_parameter_types, xtce_names
 
-from fprime_xtce.packet_convert import convert_packet_definitions
 
-from . import type_converter
-
-built_ins = [
-    { "name": "FPrimePacketId",        "parameterTypeRef": "FwTlmPacketizeIdType" },
-    { "name": "FPrimeEventId",         "parameterTypeRef": "U32" },
-    { "name": "FPrimeTime",            "parameterTypeRef": "Fw|TimeValue" },
-    { "name": "DataDescType",          "parameterTypeRef": "U16" },
-    { "name": "CCSDS_TM_Sc_Id",        "parameterTypeRef": "CCSDS_TM_Sc_Id_Type" },
-    { "name": "CCSDS_TM_Vc_Id",        "parameterTypeRef": "CCSDS_TM_Vc_Id_Type" },
-    { "name": "CCSDS_TM_Other",        "parameterTypeRef": "CCSDS_TM_Other_Type" },
-    { "name": "CCSDS_Packet_ID",       "parameterTypeRef": "CCSDS_Packet_ID_Type" },
-    { "name": "CCSDS_Packet_Sequence", "parameterTypeRef": "CCSDS_Packet_Sequence_Type" },
-    { "name": "CCSDS_Packet_Length",   "parameterTypeRef": "CCSDS_Packet_Length_Type" },
-]
 built_ins_commands = [
-  {
-    "MetaCommand": {
-      "name": "CCSDSPacket",
-      "abstract": "true",
-      "ArgumentList": [
-        {
-          "Argument": {
-            "name": "CCSDS_Version",
-            "argumentTypeRef": "CCSDS_Version_Type"
-          }
-        },
-        {
-          "Argument": {
-            "name": "CCSDS_Type",
-            "argumentTypeRef": "CCSDS_Type_Type"
-          }
-        },
-        {
-          "Argument": {
-            "name": "CCSDS_Sec_Hdr_Flag",
-            "argumentTypeRef": "CCSDS_Sec_Hdr_Flag_Type"
-          }
-        },
-        {
-          "Argument": {
-            "name": "CCSDS_APID",
-            "argumentTypeRef": "CCSDS_APID_Type"
-          }
-        },
-        {
-          "Argument": {
-            "name": "CCSDS_Group_Flags",
-            "argumentTypeRef": "CCSDS_Group_Flags_Type"
-          }
-        }
-      ],
-      "CommandContainer": {
-        "name": "CCSDSPacket",
-        "EntryList": [
-          {
-            "ArgumentRefEntry": {
-              "argumentRef": "CCSDS_Version"
-            }
-          },
-          {
-            "ArgumentRefEntry": {
-              "argumentRef": "CCSDS_Type"
-            }
-          },
-          {
-            "ArgumentRefEntry": {
-              "argumentRef": "CCSDS_Sec_Hdr_Flag"
-            }
-          },
-          {
-            "ArgumentRefEntry": {
-              "argumentRef": "CCSDS_APID"
-            }
-          },
-          {
-            "ArgumentRefEntry": {
-              "argumentRef": "CCSDS_Group_Flags"
-            }
-          },
-          {
-            "FixedValueEntry": {
-              "name": "CCSDS_Source_Sequence_Count",
-              "binaryValue": "0000",
-              "sizeInBits": "14"
-            }
-          },
-          {
-            "FixedValueEntry": {
-              "name": "CCSDS_Packet_Length",
-              "binaryValue": "0000",
-              "sizeInBits": "16"
-            }
-          }
-        ]
-      }
-    }
-  },
-  {
-    "MetaCommand": {
-      "name": "FPrimeCommand",
-      "abstract": "true",
-      "BaseMetaCommand": {
-        "metaCommandRef": "CCSDSPacket",
-        "ArgumentAssignmentList": [
-          {
-            "ArgumentAssignment": {
-              "argumentName": "CCSDS_Version",
-              "argumentValue": "0"
-            }
-          },
-          {
-            "ArgumentAssignment": {
-              "argumentName": "CCSDS_Type",
-              "argumentValue": "TC"
-            }
-          },
-          {
-            "ArgumentAssignment": {
-              "argumentName": "CCSDS_Sec_Hdr_Flag",
-              "argumentValue": "NotPresent"
-            }
-          },
-          {
-            "ArgumentAssignment": {
-              "argumentName": "CCSDS_APID",
-              "argumentValue": "0"
-            }
-          },
-          {
-            "ArgumentAssignment": {
-              "argumentName": "CCSDS_Group_Flags",
-              "argumentValue": "Standalone"
-            }
-          }
-        ]
-      },
-      "CommandContainer": {
-        "name": "FPrimeCommand",
-        "EntryList": [
-          {
-            "FixedValueEntry": {
-              "name": "Fprime_FW_PACKET_COMMAND",
-              "binaryValue": "0000",
-              "sizeInBits": "16"
-            }
-          },
-          {
-            "FixedValueEntry": {
-              "name": "Fprime_Dummy_Opcode",
-              "binaryValue": "43434343",
-              "sizeInBits": "32"
-            }
-          },
-          {
-            "FixedValueEntry": {
-              "name": "CCSDS_TM_Crc_Trailer",
-              "binaryValue": "0000",
-              "sizeInBits": "16"
-            }
-          }
-        ],
-        "BaseContainer": {
-          "containerRef": "CCSDSPacket"
-        }
-      }
-    }
-  }
+
 ]
 
 
-def convert_fprime_types(fprime_dict):
+def convert_fprime_types(fprime_dict, mode="telemetry"):
     """
     Convert F Prime type definitions to XTCE ParameterType equivalents.
     
@@ -201,127 +40,121 @@ def convert_fprime_types(fprime_dict):
             - type_map: Mapping of F Prime type names to XTCE types
             - errors: List of any conversion errors encountered
     """
-    xtce_types = []
-    errors = []
-    channel_type_maps = {}
+    xtce_types = BASE_FPRIME_TYPES + SPACE_PACKET_TYPES
 
-    # Convert type definitions
-    try:
-        type_defs = fprime_dict["typeDefinitions"]
-        defined_types, defined_type_errors = type_converter.convert_type_definitions(type_defs)
-        errors.extend(defined_type_errors)
-        xtce_types.extend(defined_types)
-    except Exception as e:
-        if isinstance(e, KeyError) and str(e) == "typeDefinitions":
-            errors.append("typeDefinitions missing from dictionary")
-        else:
-            errors.append(f"Error converting type definitions: {str(e)}")
-    
-    try:
-        channels = fprime_dict["telemetryChannels"]
-        channel_types, channel_type_maps, channel_errors = type_converter.convert_telemetry_channel_types(
-            channels,
-            [
-                type_converter.convert_identifier(t.get(list(t.keys())[0]).get("name")) for t in xtce_types
-            ]
+    # First, convert the type definitions provided directly from the dictionary
+    xtce_types = safe_combine(xtce_types, convert_type_definitions(fprime_dict["typeDefinitions"]))
+
+    # Second, convert channel types from the telemetry channel definitions. This must strip out qualified identifiers
+    # since those be defined in step one.
+    if mode == "telemetry":
+        channel_types = [channel["type"] for channel in fprime_dict["telemetryChannels"]]
+        channel_types = [channel_type for channel_type in channel_types if channel_type["kind"] != "qualifiedIdentifier"]
+        channel_prefixes = [channel["name"] for channel in fprime_dict["telemetryChannels"] if channel["type"]["kind"] != "qualifiedIdentifier"]
+        xtce_types = safe_combine(
+            xtce_types,
+            convert_type_definitions(channel_types, channel_prefixes)
         )
-        xtce_types.extend(channel_types)
-        errors.extend(channel_errors)                    
-    except Exception as e:
-        if isinstance(e, KeyError) and str(e) == "telemetryChannels":
-            errors.append("telemetryChannels missing from dictionary")
-        else:
-            errors.append(f"Error converting telemetry channel types: {str(e)}")    
-        raise
-    return {"xtce_types": xtce_types, "errors": errors, "channel_type_map": channel_type_maps}
 
-class HasStringException(Exception):
-    pass
+    # Third, convert event and command types
+    for dictionary_type in (["events"] if mode == "telemetry" else ["commands"]):
+        parameters = formal_parameter_types(fprime_dict[dictionary_type])
+        parameters = [param for param in parameters if param["kind"] != "qualifiedIdentifier"]
+        prefixes = [
+            f"{item['name']}.{param['name']}" for item in fprime_dict[dictionary_type] for param in item["formalParams"] if param["type"]["kind"] != "qualifiedIdentifier"
+        ]
+        xtce_types = safe_combine(xtce_types, convert_type_definitions(parameters, prefixes))   
+    def typeRewriter(type_data):
+        """ ParameterType -> ArgumentType for use in commands"""
+        if isinstance(type_data, Mapping):
+            return {
+                k.replace("Parameter", "Argument").replace("parameter", "argument"): typeRewriter(v) for k, v in type_data.items()
+            }
+        return type_data
+    # Rewrite for commands
+    if mode == "command":
+        xtce_types = [typeRewriter(type_data) for type_data in xtce_types]
 
-def convert_formal_parameter(param):
-    name = param["name"]
-    type_data = param["type"]
-    if type_data["kind"] == "string":
-        raise HasStringException(f"Formal parameter '{name}' has string type, which is not supported in XTCE")
-    return {"Argument": {
-        "name": name,
-        "argumentTypeRef": type_converter.convert_identifier(type_data["name"])
-    }}
+    return xtce_types
 
 
-def convert_fprime_telemetry(fprime_dict, channel_type_map):
-    """
-    Convert F Prime telemetry channel definitions to XTCE ParameterType equivalents.
+def build_parameter(fprime_data, prefix=""):
+    """ Helper function to build an XTCE parameter definition from F Prime data
     
+    This function takes in a data item from a dictionary (e.g. a telemetry channel, or event formal parameter) and
+    builds the corresponding XTCE parameter definition. The prefix argument is used to build the parameter name
+    in cases where the parameter is nested (e.g. event formal parameters should have the event name as a prefix).
+
+    Args:
+        fprime_data: The F Prime data item to convert (e.g. a telemetry channel definition)
+        prefix: A string prefix to add to the parameter name
+    Returns:
+        XTCE parameter definition converted from the F Prime data
+    """
+    # Make base parameter
+    parameter = {
+        "name": convert_identifier(f"{prefix}{'.' if prefix else ''}{fprime_data['name']}"),
+        "parameterTypeRef": convert_identifier(fprime_data["type"]["name"]),
+    }
+
+    # Add in parameter optional metadata if it exists
+    if "annotation" in fprime_data:
+        parameter["shortDescription"] = fprime_data["annotation"]
+    return {"Parameter": parameter}
+
+def build_parameters(fprime_data, prefix=""):
+    """ Helper function to build a list of XTCE parameters
+    
+    Most F Prime data items will only convert to a single XTCE parameter, but in the case of strings then there are two
+    parameters that are created (one for the string length and the other for the string).
+    """
+    base_parameter = build_parameter(fprime_data, prefix)
+    if fprime_data["type"]["kind"] == "string":
+        base_parameter["Parameter"]["parameterTypeRef"] = convert_identifier(f"{prefix}{'.' if prefix else ''}{fprime_data['name']}.string")
+        return [
+            {
+                "Parameter": {
+                    "name": convert_identifier(f"{prefix}{'.' if prefix else ''}{fprime_data['name']}.string_length"),
+                    "parameterTypeRef": "FwSizeStoreType"
+                }
+            }
+        ] + [base_parameter]
+    return [base_parameter]
+
+
+def generate_xtce_parameters(fprime_dict, xtce_types):
+    """ Generate the XTCE parameter defininitions from the F Prime dictionary
+    
+    XTCE parameters are things in a container than can be parameterized in an XTCE container. In F Prime nomenclature,
+    these will be telemetry channel values and event formal parameters.
+
     Args:
         fprime_dict: F Prime dictionary (loaded from JSON) containing:
             - telemetryChannels: List of telemetry channel definitions
-            - Other dictionary sections (commands, telemetry, etc.)
-        channel_type_map: Mapping of telemetry channel names to XTCE type names
-            
+            - events: List of event definitions
+            - Other dictionary sections (commands, etc.)
+        xtce_types: List of XTCE type definitions to validate against
     Returns:
-        dict: Dictionary containing:
-            - xtce_types: List of converted XTCE ParameterType structures
-            - errors: List of any conversion errors encountered
+        List of XTCE parameter definitions converted from the F Prime dictionary
     """
-    xtce_parameters = built_ins.copy()
-    errors = []
-
+    parameters = BASE_PARAMETERS.copy()
     # Convert telemetry channel definitions into XTCE Parameter entries
-    try:
-        channels = fprime_dict["telemetryChannels"]
-        for channel in channels:
-            channel_name = type_converter.convert_identifier(channel.get("name"))
-
-            channel_type_name = type_converter.convert_identifier(channel_type_map.get(channel_name))
-
-            parameter = {
-                "name": channel_name,
-                "parameterTypeRef": channel_type_name,
-            }
-
-            if "annotation" in channel:
-                parameter["shortDescription"] = channel["annotation"]
-#            if "id" in channel:
-#                parameter["id"] = channel["id"]
-
-            xtce_parameters.append(parameter)
-        xtce_containers = []
-        packets_set = fprime_dict.get("telemetryPacketSets")
-        for packet_set in packets_set:
-            packet_list = packet_set["members"]
-            #TODO can we handle multiple packet sets?  Should we?
-            xtce_containers.extend(convert_packet_definitions(packet_list))
-        xtce_commands = built_ins_commands.copy()
-        commands = fprime_dict["commands"]
-        for command in commands:
-            try:
-                meta_command = {
-                    "MetaCommand": {
-                        "name": type_converter.convert_identifier(command["name"]),
-                        "BaseMetaCommand": {
-                            "metaCommandRef": "FPrimeCommand",
-                        },
-                        "ArgumentList": [convert_formal_parameter(param) for param in command["formalParams"]],
-                        "CommandContainer": {
-                            "name": type_converter.convert_identifier(command["name"]),
-                            "EntryList": [{"ArgumentRefEntry": {"argumentRef": param["name"]}} for param in command["formalParams"]]
-                        }
-                    }
-                }
-                # Strip out empty ArgumentList if there are no formal parameters
-                if not meta_command["MetaCommand"]["ArgumentList"]:
-                    del meta_command["MetaCommand"]["ArgumentList"]
-                xtce_commands.append(meta_command)
-            except HasStringException as e:
-                #errors.append(f"Skipping command '{command['name']}' due to unsupported string parameter: {str(e)}")
-                continue
-
-
-    except Exception as e:
-        if isinstance(e, KeyError) and str(e) == "telemetryChannels":
-            errors.append("telemetryChannels missing from dictionary")
-        else:
-            errors.append(f"Error converting telemetry channels: {str(e)}")
-            raise
-    return {"xtce_parameters": xtce_parameters, "xtce_containers": xtce_containers, "xtce_commands": xtce_commands, "errors": errors}
+    telemetry_parameters = [build_parameters(channel, "") for channel in fprime_dict["telemetryChannels"]]
+    telemetry_parameters = list(itertools.chain.from_iterable(telemetry_parameters))
+    parameters = safe_combine(
+       parameters, 
+       telemetry_parameters
+    )
+    # Convert event formal parameters into XTCE Parameters, adding the event name as a prefix for collision avoidance
+    event_parameters = [
+        build_parameters(param, event["name"]) for event in fprime_dict["events"] for param in event["formalParams"]
+    ]
+    event_parameters = list(itertools.chain.from_iterable(event_parameters))
+    parameters = safe_combine(parameters, event_parameters)
+    
+    # Validate parameter type references were previously found and implemented
+    type_names = xtce_names(xtce_types)
+    for param in parameters:
+        type_name = param["Parameter"]["parameterTypeRef"]
+        assert type_name in type_names, f"Parameter {param['Parameter']['name']} has unknown type {type_name}"
+    return parameters

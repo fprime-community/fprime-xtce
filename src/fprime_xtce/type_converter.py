@@ -13,429 +13,56 @@
 
 """Convert F Prime type definitions to XTCE ParameterType equivalents."""
 
-
-BUILT_IN_TYPES = [
-    {
-    "StringParameterType": {
-        "name": "raw_string",
-        "StringDataEncoding": {
-            "encoding": "UTF-8",
-            "Variable": {
-                "maxSizeInBits": 2048,
-                "DynamicValue": {
-                    "ParameterInstanceRef": {
-                        "parameterRef": "length"
-                    },
-                    "LinearAdjustment": {
-                        "slope": 8,
-                        "intercept": 0
-                    }
-                }
-            }
-        }
-    }},
-     {
-   "AggregateParameterType": {
-       "name": "fprime_string",
-       "initialValue": "{length: 0, value: ''}",
-       "MemberList": [
-           {
-                "Member": {
-                    "name": "length",
-                    "typeRef": "FwSizeStoreType"
-                }
-            },
-            {
-                "Member": {
-                    "name": "value",
-                    "typeRef":"raw_string"
-                }
-            }
-        ]},
-    },
-#    {
-#        "StringParameterType": {
-#            "name": "string",
-#            "StringDataEncoding": {
-#                "encoding": "UTF-8",
-#                "Variable": {
-#                    "maxSizeInBits": "2048",
-#                    "DynamicValue": {
-#                        "ParameterInstanceRef": {
-#                            "parameterRef": "FwSizeStoreType"
-#                        },
-#                        "LinearAdjustment": {
-#                            "slope": 8,
-#                            "intercept": 0
-#                        }
-#                    }
-#                }
-#            }
-#        }
-#    },
-{
-    "IntegerParameterType": {
-      "name": "CCSDS_TM_Sc_Id_Type",
-      "signed": "false",
-      "UnitSet": {},
-      "IntegerDataEncoding": {
-        "sizeInBits": "12"
-      }
-    }
-  },
-  {
-    "IntegerParameterType": {
-      "name": "CCSDS_TM_Vc_Id_Type",
-      "signed": "false",
-      "UnitSet": {},
-      "IntegerDataEncoding": {
-        "sizeInBits": "4"
-      }
-    }
-  },
-  {
-    "IntegerParameterType": {
-      "name": "CCSDS_TM_Other_Type",
-      "signed": "false",
-      "UnitSet": {},
-      "IntegerDataEncoding": {
-        "sizeInBits": "32"
-      }
-    }
-  },
-
-  {
-    "AggregateParameterType": {
-      "name": "CCSDS_Packet_ID_Type",
-      "MemberList": [
-        { "Member": { "name": "Version", "typeRef": "CCSDS_Version_Type" } },
-        { "Member": { "name": "Type", "typeRef": "CCSDS_Type_Type" } },
-        { "Member": { "name": "SecHdrFlag", "typeRef": "CCSDS_Sec_Hdr_Flag_Type" } },
-        { "Member": { "name": "APID", "typeRef": "CCSDS_APID_Type" } }
-      ]
-    }
-  },
-  {
-    "IntegerParameterType": {
-      "name": "CCSDS_Version_Type",
-      "signed": "false",
-      "UnitSet": {},
-      "IntegerDataEncoding": {
-        "sizeInBits": "3"
-      }
-    }
-  },
-  {
-    "BooleanParameterType": {
-      "name": "CCSDS_Type_Type",
-      "zeroStringValue": "TM",
-      "oneStringValue": "TC",
-      "UnitSet": {},
-      "IntegerDataEncoding": {
-        "sizeInBits": "1"
-      }
-    }
-  },
-  {
-    "BooleanParameterType": {
-      "name": "CCSDS_Sec_Hdr_Flag_Type",
-      "zeroStringValue": "NotPresent",
-      "oneStringValue": "Present",
-      "UnitSet": {},
-      "IntegerDataEncoding": {
-        "sizeInBits": "1"
-      }
-    }
-  },
-  {
-    "IntegerParameterType": {
-      "name": "CCSDS_APID_Type",
-      "signed": "false",
-      "UnitSet": {},
-      "IntegerDataEncoding": {
-        "sizeInBits": "11"
-      }
-    }
-  },
-
-  {
-    "AggregateParameterType": {
-      "name": "CCSDS_Packet_Sequence_Type",
-      "MemberList": [
-        { "Member": { "name": "GroupFlags", "typeRef": "CCSDS_Group_Flags_Type" } },
-        { "Member": { "name": "Count", "typeRef": "CCSDS_Source_Sequence_Count_Type" } }
-      ]
-    }
-  },
-  {
-    "EnumeratedParameterType": {
-      "name": "CCSDS_Group_Flags_Type",
-      "UnitSet": {},
-      "IntegerDataEncoding": {
-        "sizeInBits": "2"
-      },
-      "EnumerationList": [
-        { "Enumeration": { "value": "0", "label": "Continuation" } },
-        { "Enumeration": { "value": "1", "label": "First" } },
-        { "Enumeration": { "value": "2", "label": "Last" } },
-        { "Enumeration": { "value": "3", "label": "Standalone" } }
-      ]
-    }
-  },
-  {
-    "IntegerParameterType": {
-      "name": "CCSDS_Source_Sequence_Count_Type",
-      "signed": "false",
-      "UnitSet": {},
-      "IntegerDataEncoding": {
-        "sizeInBits": "14"
-      }
-    }
-  },
-
-  {
-    "IntegerParameterType": {
-      "name": "CCSDS_Packet_Length_Type",
-      "signed": "false",
-#      "initialValue": "0",
-      "UnitSet": {
-        "Unit": {
-          "description": "Size",
-          #"text": "Octets"
-        }
-      },
-      "IntegerDataEncoding": {
-        "sizeInBits": "16"
-      }
-    }
-  },
-   {
-     "IntegerParameterType": {
-       "name": "U8",
-       "signed": "false",
- #      "initialValue": "0",
-       "IntegerDataEncoding": {
-         "encoding": "unsigned",
-         "sizeInBits": "8"
-       }
-     }
-   },
-     {
-     "IntegerParameterType": {
-       "name": "U16",
-       "signed": "false",
-# #      "initialValue": "0",
-       "IntegerDataEncoding": {
-         "encoding": "unsigned",
-         "sizeInBits": "16"
-       }
-     }
-   },
-#   {
-#     "IntegerParameterType": {
-#       "name": "U32",
-#       "signed": "false",
-# #      "initialValue": "0",
-#       "IntegerDataEncoding": {
-#         "encoding": "unsigned",
-#         "sizeInBits": "32"
-#       }
-#     }
-#   },
-#   {
-#     "IntegerParameterType": {
-#       "name": "U64",
-#       "signed": "false",
-# #      "initialValue": "0",
-#       "IntegerDataEncoding": {
-#         "encoding": "unsigned",
-#         "sizeInBits": "64"
-#       }
-#     }
-#   },
-#     {
-#     "IntegerParameterType": {
-#       "name": "char",
-#       "signed": "true",
-# #      "initialValue": "0",
-#       "IntegerDataEncoding": {
-#         "encoding": "twosComplement",
-#         "sizeInBits": "8"
-#       }
-#     }
-#   },
-#   {
-#     "IntegerParameterType": {
-#       "name": "I8",
-#       "signed": "true",
-# #      "initialValue": "0",
-#       "IntegerDataEncoding": {
-#         "encoding": "twosComplement",
-#         "sizeInBits": "8"
-#       }
-#     }
-#   },
-     {
-     "IntegerParameterType": {
-       "name": "I16",
-       "signed": "true",
- #      "initialValue": "0",
-       "IntegerDataEncoding": {
-         "encoding": "twosComplement",
-         "sizeInBits": "16"
-       }
-     }
-   },  {
-    "IntegerParameterType": {
-      "name": "I32",
-      "signed": "true",
-#      "initialValue": "0",
-      "IntegerDataEncoding": {
-        "encoding": "twosComplement",
-        "sizeInBits": "32"
-      }
-    }
-  },#{
-#     "IntegerParameterType": {
-#       "name": "I64",
-#       "signed": "true",
-# #      "initialValue": "0",
-#       "IntegerDataEncoding": {
-#         "encoding": "twosComplement",
-#         "sizeInBits": "64"
-#       }
-#     }
-#   },
- {
-     "IntegerParameterType": {
-         "name": "bool",
- #        "zeroStringValue": "False",
- #        "oneStringValue": "True",
- #        "initialValue": "0",
-         "IntegerDataEncoding": {
-             "sizeInBits": 8,
-             "encoding": "unsigned",
-         }
-     }
-   },
-#   {
-#       "FloatParameterType": {
-#             "name": "F32",
-# #            "initialValue": "0.0",
-#             "FloatDataEncoding": {
-#                 "sizeInBits": 32,
-#                 "encoding": "IEEE754_1985",
-#             }
-#       },
-#   },
-#     {
-#       "FloatParameterType": {
-#             "name": "F64",
-# #            "initialValue": "0.0",
-#             "FloatDataEncoding": {
-#                 "sizeInBits": 64,
-#                 "encoding": "IEEE754_1985",
-#             }
-#       },
-#   }
-
-]
+from collections.abc import Iterable, Mapping
+from .utilities import convert_identifier, xtce_names
 
 
-def convert_identifier(identifier: str) -> str:
-    """Convert F Prime qualified FPP names to XTCE-compatible names.
+def convert_type_definitions(fprime_type_def_or_defs, prefix_or_prefixes = None):
+    """ Convert an F Prime type definition or list of type definitions to XTCE ParameterType equivalents.
     
-    This function replaces dots with slashes and ensures the name starts with a letter.
+    This dispatcher iterates over F Prime type definitions and routes each to the appropriate converter based on the
+    "kind" field.
     
     Args:
-        name: Original F Prime qualified name (e.g., "fprime.types.U32")
-        
-    Returns:
-        str: Converted name suitable for XTCE (e.g., "fprime/types/U32")
-    """
-    # F Prime type names
-    assert identifier[0].isalpha(), "Type names must start with a letter w.r.t FPP names"    
-    
-    # Convert dots to slashes for XTCE compatibility
-    converted = identifier.replace('.', '|')
-    return converted
-
-
-def convert_type_definitions(fprime_type_defs):
-    """
-    Convert a list of F Prime type definitions to XTCE ParameterType equivalents.
-    
-    This dispatcher iterates over F Prime type definitions and routes each to the
-    appropriate converter based on the "kind" field.
-    
-    Args:
-        fprime_type_defs: List of F Prime type definition dictionaries, each with:
-            - kind: "enum", "array", "struct", or "alias"
-            - qualifiedName: Fully qualified type name
-            - ... (other fields specific to each kind)
+        fprime_type_def_or_defs: F Prime type definition dictionary or list of dictionaries with "kind"
             
     Returns:
-        list: List of XTCE ParameterType dictionaries
+        list of XTCE ParameterType dictionaries
     """
-    xtce_types = BUILT_IN_TYPES
-    errors = []
-
-    for type_def in fprime_type_defs:
-        kind = type_def.get("kind")
-        
-        try:
-            if kind == "enum":
-                xtce_type = convert_enum_definition(type_def)
-            elif kind == "array":
-                xtce_type = convert_array_definition(type_def)
-            elif kind == "struct":
-                xtce_type = convert_struct_definition(type_def)
-            elif kind == "alias":
-                xtce_type = convert_alias_definition(type_def)
-            else:
-                raise ValueError(f"Unknown type definition kind: {kind}")
-            
-            xtce_types.append(xtce_type)
-            
-        except Exception as e:
-            # Log error but continue processing other types
-            qualified_name = type_def.get("qualifiedName", "unknown")
-            errors.append(f"Error converting type {qualified_name}: {e}")
-            continue
-    
-    return xtce_types, errors
-
-
-def convert_type_to_parameter_type(fprime_type_desc):
-    """
-    Convert an F Prime type descriptor to an XTCE ParameterType.
-    
-    Args:
-        fprime_type_desc: F Prime type descriptor dictionary with fields:
-            - name: Type name (e.g., "U32", "F64", "bool", "string", etc.)
-            - kind: Type kind ("integer", "float", "bool", "string", "qualifiedIdentifier")
-            - size: Size in bits
-            - signed: For integer types, whether signed (optional)
-            
-    Returns:
-        dict: XTCE ParameterType dictionary structure
-    """
-    kind = fprime_type_desc.get("kind")
-    
-    if kind == "integer":
-        return _convert_integer_type(fprime_type_desc)
+    # Recurse for each entry if this is a list of type definitions
+    assert isinstance(fprime_type_def_or_defs, (Iterable)) and not isinstance(fprime_type_def_or_defs, (bytes, str)), \
+        "Expected a list of type definitions or a single type definition"
+    if isinstance(fprime_type_def_or_defs, Iterable) and not isinstance(fprime_type_def_or_defs, Mapping):
+        assert prefix_or_prefixes is None or isinstance(prefix_or_prefixes, Iterable), \
+            "Prefix must be same dimension as type definitions"
+        pairs = zip(
+            fprime_type_def_or_defs,
+            prefix_or_prefixes if prefix_or_prefixes is not None else [None] * len(fprime_type_def_or_defs)
+        ) 
+        return [convert_type_definitions(item, prefix) for item, prefix in pairs]
+    # Otherwise convert one entry based on its kind
+    kind = fprime_type_def_or_defs.get("kind")
+    if kind == "enum":
+        return convert_enum_definition(fprime_type_def_or_defs)
+    elif kind == "array":
+        return convert_array_definition(fprime_type_def_or_defs)
+    elif kind == "struct":
+        return convert_struct_definition(fprime_type_def_or_defs)
+    elif kind == "alias":
+        return convert_alias_definition(fprime_type_def_or_defs)
+    elif kind == "integer":
+        return _convert_integer_type(fprime_type_def_or_defs)
     elif kind == "float":
-        return _convert_float_type(fprime_type_desc)
+        return _convert_float_type(fprime_type_def_or_defs)
     elif kind == "bool":
-        return _convert_boolean_type(fprime_type_desc)
+        return _convert_boolean_type(fprime_type_def_or_defs)
     elif kind == "string":
-        return _convert_string_type(fprime_type_desc)
+        return _convert_string_type(fprime_type_def_or_defs, prefix_or_prefixes)
     elif kind == "qualifiedIdentifier":
         # References to other types (enums, arrays, structs)
         # These need to be resolved in the type definitions section
-        return _convert_qualified_identifier_type(fprime_type_desc)
-    else:
-        raise ValueError(f"Unknown type kind: {kind}")
+        return _convert_qualified_identifier_type(fprime_type_def_or_defs)
+    raise ValueError(f"Unknown type kind: {kind}")            
 
 
 def _convert_integer_type(fprime_type_desc):
@@ -518,35 +145,39 @@ def _convert_boolean_type(fprime_type_desc):
     return xtce_type
 
 
-def _convert_string_type(fprime_type_desc):
+def _convert_string_type(fprime_type_desc, prefix):
     """
     Convert F Prime string type to XTCE StringParameterType.
     
     Maps:
     - string with size to StringParameterType with fixed or variable length
     """
+    assert prefix is not None, "Prefix is required for string type conversion to resolve length parameter reference"
     name = convert_identifier(fprime_type_desc["name"])
     size_in_bytes = fprime_type_desc["size"]
     size_in_bits = size_in_bytes * 8
     
     xtce_type = {
         "StringParameterType": {
-            "name": name,
+            "name": convert_identifier(f"{prefix}.{name}"),
             "StringDataEncoding": {
                 "encoding": "UTF-8",
-                "DynamicValue": {
-                    "ParameterInstanceRef": {
-                        "parameterRef": "FwSizeStoreType"
-                    },
-                    "LinearAdjustment": {
-                        "slope": 8,
-                        "intercept": 0
+                "Variable": {
+                    "maxSizeInBits": size_in_bits,
+                    "DynamicValue": {
+                        "ParameterInstanceRef": {
+                            # This is resolved from the top level parameter definition and injected by the container
+                            "parameterRef": convert_identifier(f"{prefix}.{name}_length")
+                        },
+                        "LinearAdjustment": {
+                            "slope": 8,
+                            "intercept": 0
+                        }
                     }
                 }
             }
         }
     }
-    
     return xtce_type
 
 
@@ -642,6 +273,8 @@ def convert_array_definition(fprime_array_def):
     name = convert_identifier(fprime_array_def["qualifiedName"])
     array_size = fprime_array_def["size"]
     element_type = fprime_array_def["elementType"]
+
+    assert element_type["kind"] != "string", "Strings in arrays are not supported"
     
     # Convert element type
     element_type_name = convert_identifier(element_type["name"])
@@ -693,6 +326,8 @@ def convert_struct_definition(fprime_struct_def):
     for member_name, member_desc in members.items():
         member_type = member_desc["type"]
         member_type_name = convert_identifier(member_type["name"])
+
+        assert member_type["kind"] != "string", "Struct members of type string are not supported"
         
         member_entry = {
             "name": member_name,
@@ -751,6 +386,7 @@ def convert_alias_definition(fprime_alias_def):
         dict: XTCE type structure with baseType reference
     """
     name = convert_identifier(fprime_alias_def["qualifiedName"])
+
     aliased_type = fprime_alias_def["type"]
     underlying_type = fprime_alias_def["underlyingType"]
     
@@ -802,77 +438,3 @@ def convert_alias_definition(fprime_alias_def):
         xtce_type[list(xtce_type)[0]]["shortDescription"] = fprime_alias_def["annotation"]
     
     return xtce_type
-
-def convert_telemetry_channel_types(fprime_telemetry_channels, existing_type_names):
-    """
-    Convert F Prime telemetry channel definitions to XTCE ParameterType definitions.
-    
-    This function creates new ParameterTypes for telemetry channel types that were
-    not already converted from the typeDefinitions section. This ensures that all
-    telemetry channel types have corresponding ParameterType definitions in XTCE.
-    
-    Args:
-        fprime_telemetry_channels: List of F Prime telemetry channel dictionaries, each with:
-            - name: Fully qualified channel name
-            - type: Type descriptor (primitive or qualified identifier)
-            - id: Channel numeric identifier
-            - telemetryUpdate: "always" or "on change"
-            - annotation: Description (optional)
-            - format: Format string (optional)
-            - limit: Low/high limits (optional)
-            
-        existing_type_names: Set of type names already converted from typeDefinitions
-            This is used to avoid creating duplicate ParameterTypes
-            
-    Returns:
-        list: List of XTCE ParameterType dictionaries for channel types not in existing_type_names
-    """
-    xtce_types = []
-    created_types = set()
-    created_types.add("string")
-    errors = []
-    channel_type_map = {}
-    for channel in fprime_telemetry_channels:
-        channel_name = "unset"
-
-        try:
-            channel_type = channel["type"]
-            channel_name = convert_identifier(channel["name"])
-            # Read the channel type descriptor
-            if not channel_type:
-                raise Exception(f"Channel {channel_name} has no type defined")
-
-            # Get type name - can be either direct type or qualified identifier
-            type_name = convert_identifier(channel_type.get("name"))
-            if not type_name:
-                raise Exception(f"Channel {channel_name} type has no name defined")
-            channel_type_map[channel_name] = type_name
-
-            # If they type definition was created, skip
-            if type_name in created_types:
-                continue
-
-            kind = channel_type.get("kind")            
-            if kind == "integer":
-                xtce_type = _convert_integer_type(channel_type)
-            elif kind == "float":
-                xtce_type = _convert_float_type(channel_type)
-            elif kind == "bool":
-                xtce_type = _convert_boolean_type(channel_type)
-            elif kind == "string":
-                xtce_type = _convert_string_type(channel_type)
-            elif kind == "qualifiedIdentifier" and type_name not in existing_type_names:
-                raise Exception(f"Channel {channel_name} references unknown qualifiedIdentifier type {type_name}")
-            elif kind == "qualifiedIdentifier":
-                # Skip qualified identifiers that are already defined
-                continue
-            else:
-                raise Exception(f"Channel {channel_name} has unknown type kind: {kind}")            
-            xtce_types.append(xtce_type)
-            created_types.add(type_name)
-        except Exception as e:
-            errors.append(f"Error converting channel {channel_name}: {e}")
-            raise
-            continue
-    
-    return xtce_types, channel_type_map, errors
