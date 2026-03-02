@@ -73,11 +73,11 @@ def generate_xtce_containers(fprime_dict, xtce_parameters):
             ) for packet in packet_list
         ])
     # Add containers for events (pairs with EventManager)
-    for event in fprime_dict["events"]:
-        parameter_refs = [f"{event['name']}.{param['name']}" for param in event["formalParams"]]
-        xtce_containers.append(
-            build_container(event, parameter_refs, "FPrimeEvent", "FPrimeEventId", params)
-        )
+    #for event in fprime_dict["events"]:
+    #    parameter_refs = [f"{event['name']}.{param['name']}" for param in event["formalParams"]]
+    #    xtce_containers.append(
+    #        build_container(event, parameter_refs, "FPrimeEvent", "FPrimeEventId", params)
+    #    )
     # Validate data output
     names = xtce_names(xtce_containers)
     assert len(names) == len(set(names)), f"Duplicate container names found: {names}"
@@ -118,7 +118,7 @@ def generate_xtce_commands(fprime_dict, xtce_command_types):
                     {
                         "Argument": {
                             "name": convert_identifier(f"{command['name']}.{param['name']}"),
-                            "argumentTypeRef": convert_identifier(param["type"]["name"]) if param["type"]["kind"] != "string" else convert_identifier(f"{command['name']}.{param['name']}.string")
+                            "argumentTypeRef": convert_identifier(param["type"]["name"]) if param["type"]["kind"] != "string" else convert_identifier(f"string{param['type']['size']}")
                         }
                     } for param in command["formalParams"]
                 ],

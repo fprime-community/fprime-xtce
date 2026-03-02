@@ -82,6 +82,7 @@ def safe_combine(list1: List, list2: List, match_key: str ="name", typed: bool =
 
             # If no match was found, then add the item
             if match_value is None:
+                list1_data[matching_key] = data_blob
                 combined.append(item)
             # If a match was found, check for consistency and raise an error if inconsistent
             elif match_value != data_blob:

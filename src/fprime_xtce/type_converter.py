@@ -14,10 +14,10 @@
 """Convert F Prime type definitions to XTCE ParameterType equivalents."""
 
 from collections.abc import Iterable, Mapping
-from .utilities import convert_identifier, xtce_names
+from .utilities import convert_identifier
 
 
-def convert_type_definitions(fprime_type_def_or_defs, prefix_or_prefixes = None):
+def convert_type_definitions(fprime_type_def_or_defs, detected_string_types):
     """ Convert an F Prime type definition or list of type definitions to XTCE ParameterType equivalents.
     
     This dispatcher iterates over F Prime type definitions and routes each to the appropriate converter based on the
@@ -33,21 +33,16 @@ def convert_type_definitions(fprime_type_def_or_defs, prefix_or_prefixes = None)
     assert isinstance(fprime_type_def_or_defs, (Iterable)) and not isinstance(fprime_type_def_or_defs, (bytes, str)), \
         "Expected a list of type definitions or a single type definition"
     if isinstance(fprime_type_def_or_defs, Iterable) and not isinstance(fprime_type_def_or_defs, Mapping):
-        assert prefix_or_prefixes is None or isinstance(prefix_or_prefixes, Iterable), \
-            "Prefix must be same dimension as type definitions"
-        pairs = zip(
-            fprime_type_def_or_defs,
-            prefix_or_prefixes if prefix_or_prefixes is not None else [None] * len(fprime_type_def_or_defs)
-        ) 
-        return [convert_type_definitions(item, prefix) for item, prefix in pairs]
+        type_definitions = [convert_type_definitions(item, detected_string_types) for item in fprime_type_def_or_defs]
+        return [convert_type_definitions(string, None) for string in detected_string_types.values()] + type_definitions
     # Otherwise convert one entry based on its kind
     kind = fprime_type_def_or_defs.get("kind")
     if kind == "enum":
         return convert_enum_definition(fprime_type_def_or_defs)
     elif kind == "array":
-        return convert_array_definition(fprime_type_def_or_defs)
+        return convert_array_definition(fprime_type_def_or_defs, detected_string_types)
     elif kind == "struct":
-        return convert_struct_definition(fprime_type_def_or_defs)
+        return convert_struct_definition(fprime_type_def_or_defs, detected_string_types)
     elif kind == "alias":
         return convert_alias_definition(fprime_type_def_or_defs)
     elif kind == "integer":
@@ -57,7 +52,7 @@ def convert_type_definitions(fprime_type_def_or_defs, prefix_or_prefixes = None)
     elif kind == "bool":
         return _convert_boolean_type(fprime_type_def_or_defs)
     elif kind == "string":
-        return _convert_string_type(fprime_type_def_or_defs, prefix_or_prefixes)
+        return _convert_string_type(fprime_type_def_or_defs)
     elif kind == "qualifiedIdentifier":
         # References to other types (enums, arrays, structs)
         # These need to be resolved in the type definitions section
@@ -145,21 +140,20 @@ def _convert_boolean_type(fprime_type_desc):
     return xtce_type
 
 
-def _convert_string_type(fprime_type_desc, prefix):
+def _convert_string_type(fprime_type_desc):
     """
     Convert F Prime string type to XTCE StringParameterType.
     
     Maps:
     - string with size to StringParameterType with fixed or variable length
     """
-    assert prefix is not None, "Prefix is required for string type conversion to resolve length parameter reference"
     name = convert_identifier(fprime_type_desc["name"])
     size_in_bytes = fprime_type_desc["size"]
     size_in_bits = size_in_bytes * 8
     
     xtce_type = {
         "StringParameterType": {
-            "name": convert_identifier(f"{prefix}.{name}"),
+            "name": convert_identifier(f"{name}{size_in_bytes}"),
             "StringDataEncoding": {
                 "encoding": "UTF-8",
                 "Variable": {
@@ -167,13 +161,10 @@ def _convert_string_type(fprime_type_desc, prefix):
                     "DynamicValue": {
                         "ParameterInstanceRef": {
                             # This is resolved from the top level parameter definition and injected by the container
-                            "parameterRef": convert_identifier(f"{prefix}.{name}_length")
+                            "parameterRef": "_yamcs_ignore"
                         },
-                        "LinearAdjustment": {
-                            "slope": 8,
-                            "intercept": 0
-                        }
-                    }
+                    },
+                    "LeadingSize": {"sizeInBitsOfSizeTag": 16}
                 }
             }
         }
@@ -254,7 +245,7 @@ def convert_enum_definition(fprime_enum_def):
     return xtce_type
 
 
-def convert_array_definition(fprime_array_def):
+def convert_array_definition(fprime_array_def, detected_string_types):
     """
     Convert F Prime array type definition to XTCE ArrayParameterType.
     
@@ -266,6 +257,7 @@ def convert_array_definition(fprime_array_def):
             - elementType: Type descriptor of array elements
             - default: Default array value (optional)
             - annotation: Description (optional)
+        detected_string_types: set to add strings to
             
     Returns:
         dict: XTCE ArrayParameterType structure
@@ -273,12 +265,14 @@ def convert_array_definition(fprime_array_def):
     name = convert_identifier(fprime_array_def["qualifiedName"])
     array_size = fprime_array_def["size"]
     element_type = fprime_array_def["elementType"]
-
-    assert element_type["kind"] != "string", "Strings in arrays are not supported"
     
-    # Convert element type
     element_type_name = convert_identifier(element_type["name"])
     
+    # Special string handling
+    if element_type["kind"] == "string":
+        element_type_name = f"{element_type_name}{element_type['size']}"
+        detected_string_types[element_type_name] = element_type
+
     xtce_type = {
         "ArrayParameterType": {
             "name": name,
@@ -302,7 +296,7 @@ def convert_array_definition(fprime_array_def):
     return xtce_type
 
 
-def convert_struct_definition(fprime_struct_def):
+def convert_struct_definition(fprime_struct_def, detected_string_types):
     """
     Convert F Prime struct type definition to XTCE AggregateParameterType.
     
@@ -314,6 +308,7 @@ def convert_struct_definition(fprime_struct_def):
                 - Each member has: type, index, size?, format?, annotation?
             - default: Default struct value (optional)
             - annotation: Description (optional)
+        detected_string_types: set to add strings to
             
     Returns:
         dict: XTCE AggregateParameterType structure
@@ -326,8 +321,12 @@ def convert_struct_definition(fprime_struct_def):
     for member_name, member_desc in members.items():
         member_type = member_desc["type"]
         member_type_name = convert_identifier(member_type["name"])
+        # Special string handling
+        if member_type["kind"] == "string":
+            member_type_name = f"{member_type_name}{member_type['size']}"
+            detected_string_types[member_type_name] = member_type
 
-        assert member_type["kind"] != "string", "Struct members of type string are not supported"
+        #assert member_type["kind"] != "string", "Struct members of type string are not supported"
         
         member_entry = {
             "name": member_name,

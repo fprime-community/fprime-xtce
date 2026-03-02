@@ -10,7 +10,7 @@ import sys
 
 from pathlib import Path
 
-from .convert import convert_fprime_types, generate_xtce_parameters
+from .convert import convert_fprime_types, generate_xtce_parameters, ConversionMode
 from .container_generation import generate_xtce_containers, generate_xtce_commands
 from .type_converter import convert_identifier
 from .xtce import build_xtce_structure, write_xtce_xml, validate_xtce
@@ -104,7 +104,7 @@ def main(args=None):
     xtce_containers = generate_xtce_containers(json_data, xtce_parameters)
     
     # Step 4: Convert types into command argument types
-    xtce_command_types = convert_fprime_types(json_data, mode="command")
+    xtce_command_types = convert_fprime_types(json_data, mode=ConversionMode.COMMANDS)
 
     # Step 5: Generate the command definitions
     xtce_commands = generate_xtce_commands(json_data, xtce_command_types)

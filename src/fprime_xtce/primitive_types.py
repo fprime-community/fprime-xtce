@@ -204,7 +204,7 @@ SPACE_PACKET_TYPES = [
             },
             "IntegerDataEncoding": {"sizeInBits": "16"},
         }
-    },
+    }
 ]
 
 BASE_PARAMETERS = [
