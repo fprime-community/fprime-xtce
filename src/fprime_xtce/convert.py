@@ -30,8 +30,22 @@ class ConversionMode(Enum):
 def commandTypeRewriter(type_data):
     """ ParameterType -> ArgumentType for use in commands"""
     if isinstance(type_data, Mapping):
+        def renamer(key, value):
+            """ Rename function that will rename ParameterType to ArgumentType
+            
+            Note: this function skips "_yamcs_ignore" values, which are used to bypass the the XTCE spec in YAMCS. This
+            allows strings to be length-data encoded without maximum fixed sizes.
+            """
+            # Skip renaming if this is a _yamcs_ignore value
+            if value == "_yamcs_ignore":
+                return key
+            # And skip renaming if this is a parameter reference this is a _yamcs_ignore value
+            if isinstance(value, Mapping) and value.get("parameterRef", None) == "_yamcs_ignore":
+                return key
+            return key.replace("Parameter", "Argument").replace("parameter", "argument")
+        # If this is a mapping object, rename all keys and recurse on values
         return {
-            k.replace("Parameter", "Argument").replace("parameter", "argument"): commandTypeRewriter(v) for k, v in type_data.items()
+            renamer(k, v): commandTypeRewriter(v) for k, v in type_data.items()
         }
     return type_data
 

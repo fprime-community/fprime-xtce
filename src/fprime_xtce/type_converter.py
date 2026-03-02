@@ -157,7 +157,7 @@ def _convert_string_type(fprime_type_desc):
             "StringDataEncoding": {
                 "encoding": "UTF-8",
                 "Variable": {
-                    "maxSizeInBits": size_in_bits,
+                    "maxSizeInBits": size_in_bits + 16,  # Add 16 bits for length prefix if variable
                     "DynamicValue": {
                         "ParameterInstanceRef": {
                             # This is resolved from the top level parameter definition and injected by the container
