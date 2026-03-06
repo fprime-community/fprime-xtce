@@ -1,3 +1,11 @@
+""" Contains primitive (built-in) container definitions
+
+This file provides built-in container definitions for primitive containers needed by the XTCE system.
+
+Copyright (c) 2026 LeStarch. All rights reserved.
+
+This software is Licensed under the Apache 2.0 License. See LICENSE for details.
+"""
 BASE_CONTAINERS = [
     {
         "SequenceContainer": {

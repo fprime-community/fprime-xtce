@@ -1,4 +1,11 @@
-""" Utilities used within the fprime_xtce package """
+""" Utilities used within the fprime_xtce package
+
+These utilities are helper functions that are used within the fprime_xtce.
+
+Copyright (c) 2026 LeStarch. All rights reserved.
+
+This software is Licensed under the Apache 2.0 License. See LICENSE for details.
+"""
 import itertools
 from typing import List, Dict, Union
 DELIMITER = "|"

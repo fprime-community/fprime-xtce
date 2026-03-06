@@ -1,7 +1,11 @@
-"""Helpers to emit an XTCE-style structure and serialize it to XML.
+""" Helpers to emit an XTCE-style structure and serialize it to XML.
 
 `build_xtce_structure` produces an in-memory dictionary shaped like XTCE.
 `write_xtce_xml` serializes that structure to XML (minimal, not schema-validating).
+
+Copyright (c) 2026 LeStarch. All rights reserved.
+
+This software is Licensed under the Apache 2.0 License. See LICENSE for details.
 """
 from pathlib import Path
 from typing import Any, Dict, List, Tuple, Optional, Union

@@ -2,7 +2,9 @@
 
 Entrypoint to the F Prime to XTCE conversion tool script. Converts the F Prime dictionary format to the XTCE format.
 
-Copyright © 2026 Michael Starch
+Copyright (c) 2026 LeStarch. All rights reserved.
+
+This software is Licensed under the Apache 2.0 License. See LICENSE for details.
 """
 import argparse
 import json

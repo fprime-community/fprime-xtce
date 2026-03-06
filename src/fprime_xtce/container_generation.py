@@ -1,3 +1,9 @@
+""" Generation functions for creating container constructs
+
+Copyright (c) 2026 LeStarch. All rights reserved.
+
+This software is Licensed under the Apache 2.0 License. See LICENSE for details.
+"""
 from .type_converter import convert_identifier
 from .utilities import xtce_names
 from .primitive_containers import BASE_COMMANDS, BASE_CONTAINERS
