@@ -11,7 +11,7 @@ dynamic = ["version"]
 description = "Convert F' (F-Prime) telemetry and command definitions to XTCE format"
 readme = "README.md"
 requires-python = ">=3.8"
-license = {text = "Apache-2.0"}
+license = "Apache-2.0"
 authors = [
     {name = "Michael Starch", email = "lestarch@googlemail.com"}
 ]
@@ -24,7 +24,6 @@ keywords = ["fprime", "xtce", "telemetry", "command"]
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Developers",
-    "License :: OSI Approved :: Apache Software License",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
