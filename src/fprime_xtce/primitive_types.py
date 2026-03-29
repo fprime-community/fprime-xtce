@@ -215,8 +215,7 @@ BASE_PARAMETERS = [
     {"Parameter": { "name": "FPrimePacketId",        "parameterTypeRef": "FwTlmPacketizeIdType" }},
     {"Parameter": { "name": "FPrimeEventId",         "parameterTypeRef": "U32" }},
     {"Parameter": { "name": "FPrimeChannelId",       "parameterTypeRef": "U32" }},
-    # Note: Fw|TimeValue may not exist in all F Prime dictionaries, using U64 as fallback
-    {"Parameter": { "name": "FPrimeTime",            "parameterTypeRef": "U64" }},
+    {"Parameter": { "name": "FPrimeTime",            "parameterTypeRef": "Fw/TimeValue" }},
     {"Parameter": { "name": "DataDescType",          "parameterTypeRef": "U16" }},
     {"Parameter": { "name": "CCSDS_Packet_ID",       "parameterTypeRef": "CCSDS_Packet_ID_Type" }},
     {"Parameter": { "name": "CCSDS_Packet_Sequence", "parameterTypeRef": "CCSDS_Packet_Sequence_Type" }},

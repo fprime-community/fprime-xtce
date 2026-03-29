@@ -45,6 +45,128 @@
       ],
       "default": "Component.Status.OK",
       "annotation": "Component status enumeration"
+    },
+    {
+      "kind": "alias",
+      "qualifiedName": "FwTimeContextStoreType",
+      "type": {
+        "name": "U8",
+        "kind": "integer",
+        "size": 8,
+        "signed": false
+      },
+      "underlyingType": {
+        "name": "U8",
+        "kind": "integer",
+        "size": 8,
+        "signed": false
+      },
+      "annotation": "The type used to serialize a time context value"
+    },
+    {
+      "kind": "enum",
+      "qualifiedName": "TimeBase",
+      "representationType": {
+        "name": "U16",
+        "kind": "integer",
+        "size": 16,
+        "signed": false
+      },
+      "enumeratedConstants": [
+        {
+          "name": "TB_NONE",
+          "value": 0,
+          "annotation": "No time base has been established (Required)"
+        },
+        {
+          "name": "TB_PROC_TIME",
+          "value": 1,
+          "annotation": "Indicates time is processor cycle time. Not tied to external time"
+        },
+        {
+          "name": "TB_WORKSTATION_TIME",
+          "value": 2,
+          "annotation": "Time as reported on workstation where software is running. For testing. (Required)"
+        },
+        {
+          "name": "TB_SC_TIME",
+          "value": 3,
+          "annotation": "Time as reported by the spacecraft clock."
+        },
+        {
+          "name": "TB_DONT_CARE",
+          "value": 65535,
+          "annotation": "Don't care value for sequences. If FwTimeBaseStoreType is changed, value should be changed (Required)"
+        }
+      ],
+      "default": "TimeBase.TB_NONE",
+      "annotation": "Define enumeration for Time base types"
+    },
+    {
+      "kind": "struct",
+      "qualifiedName": "Fw.TimeValue",
+      "members": {
+        "timeBase": {
+          "type": {
+            "name": "TimeBase",
+            "kind": "qualifiedIdentifier"
+          },
+          "index": 0,
+          "annotation": "basis of time (defined by system)"
+        },
+        "timeContext": {
+          "type": {
+            "name": "FwTimeContextStoreType",
+            "kind": "qualifiedIdentifier"
+          },
+          "index": 1,
+          "annotation": "user settable value. Could be reboot count, node, etc"
+        },
+        "seconds": {
+          "type": {
+            "name": "U32",
+            "kind": "integer",
+            "size": 32,
+            "signed": false
+          },
+          "index": 2,
+          "annotation": "seconds portion of Time"
+        },
+        "useconds": {
+          "type": {
+            "name": "U32",
+            "kind": "integer",
+            "size": 32,
+            "signed": false
+          },
+          "index": 3,
+          "annotation": "microseconds portion of Time"
+        }
+      },
+      "default": {
+        "timeBase": "TimeBase.TB_NONE",
+        "timeContext": 0,
+        "seconds": 0,
+        "useconds": 0
+      },
+      "annotation": "Data structure for Time"
+    },
+    {
+      "kind": "alias",
+      "qualifiedName": "FwTimeBaseStoreType",
+      "type": {
+        "name": "U16",
+        "kind": "integer",
+        "size": 16,
+        "signed": false
+      },
+      "underlyingType": {
+        "name": "U16",
+        "kind": "integer",
+        "size": 16,
+        "signed": false
+      },
+      "annotation": "The type used to serialize a time base value"
     }
   ],
   "telemetryChannels": [

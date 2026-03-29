@@ -84,9 +84,9 @@ def main(args=None):
     verbose_print(f"[INFO] Converting {parsed_args.input} to {parsed_args.output}")
 
     try:
-        # Handle dots in deployment name (not allowed in XTCE names)
+        # Handle dots in deployment name - use underscore to avoid path separator conflicts
         deployment = json_data["metadata"]["deploymentName"]
-        deployment = deployment.replace(".", "|")
+        deployment = deployment.replace(".", "_")
     except KeyError:
         print("[ERROR] metadata.deploymentName missing from F Prime dictionary")
         return 1

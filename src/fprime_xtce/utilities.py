@@ -50,11 +50,11 @@ def extract_namespace_components(identifier: str, delimiter: Optional[str] = Non
     """Extract namespace components and base name from a qualified identifier.
 
     Splits an F Prime qualified name into namespace components and the final name.
-    Supports both dot-delimited (raw FPrime) and pipe-delimited (XTCE converted) names.
+    Supports dot-delimited (raw FPrime), pipe-delimited (flat XTCE), and slash-delimited (hierarchical XTCE) names.
 
     Args:
-        identifier: Qualified name (e.g., "fprime.types.U32" or "fprime|types|U32")
-        delimiter: Delimiter to use for splitting. If None, auto-detects using DELIMITER constant.
+        identifier: Qualified name (e.g., "fprime.types.U32", "fprime|types|U32", or "fprime/types/U32")
+        delimiter: Delimiter to use for splitting. If None, auto-detects using priority: dot > slash > pipe.
 
     Returns:
         Tuple of (namespace_components, base_name) where:
@@ -64,15 +64,21 @@ def extract_namespace_components(identifier: str, delimiter: Optional[str] = Non
     Examples:
         "fprime.types.U32" -> (["fprime", "types"], "U32")
         "fprime|types|U32" -> (["fprime", "types"], "U32")
+        "fprime/types/U32" -> (["fprime", "types"], "U32")
         "MyComponent.Temperature" -> (["MyComponent"], "Temperature")
         "SimpleType" -> ([], "SimpleType")
     """
     assert identifier and identifier[0].isalpha(), "Identifiers must start with a letter"
 
     # Auto-detect delimiter if not specified
-    # Prefer dots over pipes for splitting (dots are the original F Prime format)
+    # Priority: dots (raw F Prime) > slashes (hierarchical XTCE) > pipes (flat XTCE)
     if delimiter is None:
-        delimiter = '.' if '.' in identifier else DELIMITER
+        if '.' in identifier:
+            delimiter = '.'
+        elif '/' in identifier:
+            delimiter = '/'
+        else:
+            delimiter = DELIMITER
 
     parts = identifier.split(delimiter)
     if len(parts) == 1:

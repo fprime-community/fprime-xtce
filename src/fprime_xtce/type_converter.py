@@ -8,7 +8,7 @@ This software is Licensed under the Apache 2.0 License. See LICENSE for details.
 """
 
 from collections.abc import Iterable, Mapping
-from .utilities import convert_identifier, convert_to_xtce_reference
+from .utilities import convert_to_xtce_reference
 
 
 def convert_type_definitions(fprime_type_def_or_defs, detected_string_types):
@@ -59,12 +59,12 @@ def convert_type_definitions(fprime_type_def_or_defs, detected_string_types):
 def _convert_integer_type(fprime_type_desc):
     """
     Convert F Prime integer type to XTCE IntegerParameterType.
-    
+
     Maps:
     - U8, U16, U32, U64 (unsigned) to IntegerParameterType with unsigned encoding
     - I8, I16, I32, I64 (signed) to IntegerParameterType with signed encoding
     """
-    name = convert_identifier(fprime_type_desc["name"])
+    name = convert_to_xtce_reference(fprime_type_desc["name"])
     size_in_bits = fprime_type_desc["size"]
     signed = fprime_type_desc.get("signed", False)
     
@@ -87,12 +87,12 @@ def _convert_integer_type(fprime_type_desc):
 def _convert_float_type(fprime_type_desc):
     """
     Convert F Prime float type to XTCE FloatParameterType.
-    
+
     Maps:
     - F32 (32-bit float) to FloatParameterType with IEEE754 encoding
     - F64 (64-bit float) to FloatParameterType with IEEE754 encoding
     """
-    name = convert_identifier(fprime_type_desc["name"])
+    name = convert_to_xtce_reference(fprime_type_desc["name"])
     size_in_bits = fprime_type_desc["size"]
     
     xtce_type = {
@@ -113,11 +113,11 @@ def _convert_float_type(fprime_type_desc):
 def _convert_boolean_type(fprime_type_desc):
     """
     Convert F Prime bool type to XTCE BooleanParameterType.
-    
+
     Maps:
     - bool (8-bit boolean) to BooleanParameterType
     """
-    name = convert_identifier(fprime_type_desc["name"])
+    name = convert_to_xtce_reference(fprime_type_desc["name"])
     size_in_bits = fprime_type_desc.get("size", 8)
     
     xtce_type = {
@@ -143,7 +143,7 @@ def _convert_string_type(fprime_type_desc, detected_string_types):
     Maps:
     - string with size to StringParameterType with fixed or variable length
     """
-    name = convert_identifier(fprime_type_desc["name"])
+    name = convert_to_xtce_reference(fprime_type_desc["name"])
     size_in_bytes = fprime_type_desc["size"]
     size_in_bits = size_in_bytes * 8
     string_type_name = f"{name}{size_in_bytes}"
@@ -154,7 +154,7 @@ def _convert_string_type(fprime_type_desc, detected_string_types):
 
     xtce_type = {
         "StringParameterType": {
-            "name": convert_identifier(string_type_name),
+            "name": string_type_name,
             "StringDataEncoding": {
                 "encoding": "UTF-8",
                 "Variable": {
@@ -176,12 +176,12 @@ def _convert_string_type(fprime_type_desc, detected_string_types):
 def _convert_qualified_identifier_type(fprime_type_desc):
     """
     Convert F Prime qualified identifier (reference to enum, array, or struct).
-    
+
     This creates a reference that needs to be resolved later against
     the type definitions in the F Prime dictionary.
     """
-    name = convert_identifier(fprime_type_desc["name"])
-    
+    name = convert_to_xtce_reference(fprime_type_desc["name"])
+
     # This is a reference type - the actual conversion depends on what it references
     xtce_type = {
         "QualifiedIdentifier": {
@@ -189,14 +189,14 @@ def _convert_qualified_identifier_type(fprime_type_desc):
             "typeRef": name  # Reference to be resolved
         }
     }
-    
+
     return xtce_type
 
 
 def convert_enum_definition(fprime_enum_def):
     """
     Convert F Prime enumeration type definition to XTCE EnumeratedParameterType.
-    
+
     Args:
         fprime_enum_def: F Prime enum definition with fields:
             - kind: "enum"
@@ -205,11 +205,11 @@ def convert_enum_definition(fprime_enum_def):
             - enumeratedConstants: List of {name, value, annotation?}
             - default: Default value
             - annotation: Description (optional)
-            
+
     Returns:
         dict: XTCE EnumeratedParameterType structure
     """
-    name = convert_identifier(fprime_enum_def["qualifiedName"])
+    name = convert_to_xtce_reference(fprime_enum_def["qualifiedName"])
     repr_type = fprime_enum_def["representationType"]
     constants = fprime_enum_def["enumeratedConstants"]
     
@@ -251,7 +251,7 @@ def convert_enum_definition(fprime_enum_def):
 def convert_array_definition(fprime_array_def, detected_string_types):
     """
     Convert F Prime array type definition to XTCE ArrayParameterType.
-    
+
     Args:
         fprime_array_def: F Prime array definition with fields:
             - kind: "array"
@@ -261,11 +261,11 @@ def convert_array_definition(fprime_array_def, detected_string_types):
             - default: Default array value (optional)
             - annotation: Description (optional)
         detected_string_types: set to add strings to
-            
+
     Returns:
         dict: XTCE ArrayParameterType structure
     """
-    name = convert_identifier(fprime_array_def["qualifiedName"])
+    name = convert_to_xtce_reference(fprime_array_def["qualifiedName"])
     array_size = fprime_array_def["size"]
     element_type = fprime_array_def["elementType"]
 
@@ -302,7 +302,7 @@ def convert_array_definition(fprime_array_def, detected_string_types):
 def convert_struct_definition(fprime_struct_def, detected_string_types):
     """
     Convert F Prime struct type definition to XTCE AggregateParameterType.
-    
+
     Args:
         fprime_struct_def: F Prime struct definition with fields:
             - kind: "struct"
@@ -312,11 +312,11 @@ def convert_struct_definition(fprime_struct_def, detected_string_types):
             - default: Default struct value (optional)
             - annotation: Description (optional)
         detected_string_types: set to add strings to
-            
+
     Returns:
         dict: XTCE AggregateParameterType structure
     """
-    name = convert_identifier(fprime_struct_def["qualifiedName"])
+    name = convert_to_xtce_reference(fprime_struct_def["qualifiedName"])
     members = fprime_struct_def["members"]
     
     # Build member list - sort by index to maintain order
@@ -371,11 +371,11 @@ def convert_struct_definition(fprime_struct_def, detected_string_types):
 def convert_alias_definition(fprime_alias_def):
     """
     Convert F Prime type alias definition to XTCE type reference.
-    
+
     In XTCE, type aliases are typically represented by using the baseType
     attribute to derive from another type. However, for simple aliases,
     we can create a new type that references the underlying type.
-    
+
     Args:
         fprime_alias_def: F Prime alias definition with fields:
             - kind: "alias"
@@ -383,11 +383,11 @@ def convert_alias_definition(fprime_alias_def):
             - type: Type descriptor being aliased
             - underlyingType: The ultimate underlying type (following alias chain)
             - annotation: Description (optional)
-            
+
     Returns:
         dict: XTCE type structure with baseType reference
     """
-    name = convert_identifier(fprime_alias_def["qualifiedName"])
+    name = convert_to_xtce_reference(fprime_alias_def["qualifiedName"])
 
     aliased_type = fprime_alias_def["type"]
     underlying_type = fprime_alias_def["underlyingType"]

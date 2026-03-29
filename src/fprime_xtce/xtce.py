@@ -88,6 +88,14 @@ def build_xtce_structure(
             namespace_parts, base_name = extract_namespace_components(item_name)
             # Update the item name to just the base name
             item_data[name_key] = base_name
+
+            # Special handling for MetaCommand: also update nested CommandContainer name
+            if "MetaCommand" in item and "CommandContainer" in item_data:
+                container_name = item_data["CommandContainer"].get("name", "")
+                if container_name:
+                    _, container_base_name = extract_namespace_components(container_name)
+                    item_data["CommandContainer"]["name"] = container_base_name
+
             # Group by namespace tuple
             grouped[tuple(namespace_parts)].append(item)
         return grouped

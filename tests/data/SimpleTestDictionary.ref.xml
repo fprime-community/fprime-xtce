@@ -89,12 +89,24 @@
         <IntegerDataEncoding sizeInBits="16" />
       </IntegerParameterType>
       <IntegerParameterType name="FwTlmPacketizeIdType" shortDescription="The type of a telemetry packet identifier" baseType="U16" signed="false" sizeInBits="16" />
+      <IntegerParameterType name="FwTimeContextStoreType" shortDescription="The type used to serialize a time context value" baseType="U8" signed="false" sizeInBits="8" />
+      <EnumeratedParameterType name="TimeBase" shortDescription="Define enumeration for Time base types">
+        <IntegerDataEncoding sizeInBits="16" encoding="unsigned" byteOrder="mostSignificantByteFirst" />
+        <EnumerationList>
+          <Enumeration shortDescription="No time base has been established (Required)" value="0" label="TB_NONE" />
+          <Enumeration shortDescription="Indicates time is processor cycle time. Not tied to external time" value="1" label="TB_PROC_TIME" />
+          <Enumeration shortDescription="Time as reported on workstation where software is running. For testing. (Required)" value="2" label="TB_WORKSTATION_TIME" />
+          <Enumeration shortDescription="Time as reported by the spacecraft clock." value="3" label="TB_SC_TIME" />
+          <Enumeration shortDescription="Don't care value for sequences. If FwTimeBaseStoreType is changed, value should be changed (Required)" value="65535" label="TB_DONT_CARE" />
+        </EnumerationList>
+      </EnumeratedParameterType>
+      <IntegerParameterType name="FwTimeBaseStoreType" shortDescription="The type used to serialize a time base value" baseType="U16" signed="false" sizeInBits="16" />
     </ParameterTypeSet>
     <ParameterSet>
       <Parameter name="FPrimePacketId" parameterTypeRef="FwTlmPacketizeIdType" />
       <Parameter name="FPrimeEventId" parameterTypeRef="U32" />
       <Parameter name="FPrimeChannelId" parameterTypeRef="U32" />
-      <Parameter name="FPrimeTime" parameterTypeRef="U64" />
+      <Parameter name="FPrimeTime" parameterTypeRef="Fw/TimeValue" />
       <Parameter name="DataDescType" parameterTypeRef="U16" />
       <Parameter name="CCSDS_Packet_ID" parameterTypeRef="CCSDS_Packet_ID_Type" />
       <Parameter name="CCSDS_Packet_Sequence" parameterTypeRef="CCSDS_Packet_Sequence_Type" />
@@ -244,6 +256,18 @@
         <IntegerDataEncoding sizeInBits="16" />
       </IntegerArgumentType>
       <IntegerArgumentType name="FwTlmPacketizeIdType" shortDescription="The type of a telemetry packet identifier" baseType="U16" signed="false" sizeInBits="16" />
+      <IntegerArgumentType name="FwTimeContextStoreType" shortDescription="The type used to serialize a time context value" baseType="U8" signed="false" sizeInBits="8" />
+      <EnumeratedArgumentType name="TimeBase" shortDescription="Define enumeration for Time base types">
+        <IntegerDataEncoding sizeInBits="16" encoding="unsigned" byteOrder="mostSignificantByteFirst" />
+        <EnumerationList>
+          <Enumeration shortDescription="No time base has been established (Required)" value="0" label="TB_NONE" />
+          <Enumeration shortDescription="Indicates time is processor cycle time. Not tied to external time" value="1" label="TB_PROC_TIME" />
+          <Enumeration shortDescription="Time as reported on workstation where software is running. For testing. (Required)" value="2" label="TB_WORKSTATION_TIME" />
+          <Enumeration shortDescription="Time as reported by the spacecraft clock." value="3" label="TB_SC_TIME" />
+          <Enumeration shortDescription="Don't care value for sequences. If FwTimeBaseStoreType is changed, value should be changed (Required)" value="65535" label="TB_DONT_CARE" />
+        </EnumerationList>
+      </EnumeratedArgumentType>
+      <IntegerArgumentType name="FwTimeBaseStoreType" shortDescription="The type used to serialize a time base value" baseType="U16" signed="false" sizeInBits="16" />
     </ArgumentTypeSet>
     <MetaCommandSet>
       <MetaCommand name="CCSDSPacket" abstract="true">
@@ -373,7 +397,7 @@
             <ArgumentList>
               <Argument name="value" argumentTypeRef="/TestDeployment/F32" />
             </ArgumentList>
-            <CommandContainer name="Component|Subsystem|SetThreshold">
+            <CommandContainer name="SetThreshold">
               <EntryList>
                 <ArgumentRefEntry argumentRef="value" />
               </EntryList>
@@ -383,5 +407,31 @@
         </MetaCommandSet>
       </CommandMetaData>
     </SpaceSystem>
+  </SpaceSystem>
+  <SpaceSystem name="Fw">
+    <TelemetryMetaData>
+      <ParameterTypeSet>
+        <AggregateParameterType name="TimeValue" shortDescription="Data structure for Time">
+          <MemberList>
+            <Member name="timeBase" shortDescription="basis of time (defined by system)" typeRef="TimeBase" />
+            <Member name="timeContext" shortDescription="user settable value. Could be reboot count, node, etc" typeRef="FwTimeContextStoreType" />
+            <Member name="seconds" shortDescription="seconds portion of Time" typeRef="U32" />
+            <Member name="useconds" shortDescription="microseconds portion of Time" typeRef="U32" />
+          </MemberList>
+        </AggregateParameterType>
+      </ParameterTypeSet>
+    </TelemetryMetaData>
+    <CommandMetaData>
+      <ArgumentTypeSet>
+        <AggregateArgumentType name="TimeValue" shortDescription="Data structure for Time">
+          <MemberList>
+            <Member name="timeBase" shortDescription="basis of time (defined by system)" typeRef="TimeBase" />
+            <Member name="timeContext" shortDescription="user settable value. Could be reboot count, node, etc" typeRef="FwTimeContextStoreType" />
+            <Member name="seconds" shortDescription="seconds portion of Time" typeRef="U32" />
+            <Member name="useconds" shortDescription="microseconds portion of Time" typeRef="U32" />
+          </MemberList>
+        </AggregateArgumentType>
+      </ArgumentTypeSet>
+    </CommandMetaData>
   </SpaceSystem>
 </SpaceSystem>

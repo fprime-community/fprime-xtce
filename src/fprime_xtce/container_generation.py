@@ -5,7 +5,6 @@ Copyright (c) 2026 LeStarch. All rights reserved.
 This software is Licensed under the Apache 2.0 License. See LICENSE for details.
 """
 
-from .type_converter import convert_identifier
 from .utilities import xtce_names, convert_to_xtce_reference
 from .primitive_containers import BASE_COMMANDS, BASE_CONTAINERS
 
@@ -26,17 +25,15 @@ def build_container(
     Returns:
         A dictionary representing the base container structure for the given F Prime data
     """
-    # Convert to pipe format for validation
-    members_pipe = [convert_identifier(member) for member in members]
-    for member in members_pipe:
+    # Convert to reference format for validation
+    members_ref = [convert_to_xtce_reference(member) for member in members]
+    for member in members_ref:
         assert (
             member in parameter_names
         ), f"Container {fprime_data['name']} has undefined parameters: {member}"
-    # Convert to slash format for references
-    members_ref = [convert_to_xtce_reference(member) for member in members]
     return {
         "SequenceContainer": {
-            "name": convert_identifier(f"{fprime_data['name']}"),
+            "name": convert_to_xtce_reference(fprime_data['name']),
             "EntryList": [
                 {"ParameterRefEntry": {"parameterRef": member}} for member in members_ref
             ],
@@ -137,6 +134,7 @@ def generate_xtce_commands(fprime_dict, xtce_command_types, root_space_system=No
     commands = BASE_COMMANDS.copy()
     for fprime_command in fprime_dict["commands"]:
         is_nested = "." in fprime_command["name"]
+        command_name = convert_to_xtce_reference(fprime_command["name"])
 
         argument_list = []
         for param in fprime_command["formalParams"]:
@@ -158,7 +156,7 @@ def generate_xtce_commands(fprime_dict, xtce_command_types, root_space_system=No
 
         command = {
             "MetaCommand": {
-                "name": convert_identifier(fprime_command["name"]),
+                "name": command_name,
                 "BaseMetaCommand": {
                     "metaCommandRef": "FPrimeCommand",
                     "ArgumentAssignmentList": [
@@ -172,7 +170,7 @@ def generate_xtce_commands(fprime_dict, xtce_command_types, root_space_system=No
                 },
                 "ArgumentList": argument_list,
                 "CommandContainer": {
-                    "name": convert_identifier(fprime_command["name"]),
+                    "name": command_name,
                     "EntryList": [
                         {
                             "ArgumentRefEntry": {
