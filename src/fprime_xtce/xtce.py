@@ -110,8 +110,11 @@ def build_xtce_structure(
     all_namespaces.update(grouped_cmd_types.keys())
     all_namespaces.update(grouped_commands.keys())
 
+    # Sort namespaces for deterministic output
+    sorted_namespaces = sorted(all_namespaces)
+
     # Add items to appropriate SpaceSystems
-    for namespace_tuple in all_namespaces:
+    for namespace_tuple in sorted_namespaces:
         namespace_path = list(namespace_tuple)
         target_ss = get_or_create_nested_space_system(root_space_system, namespace_path)
 

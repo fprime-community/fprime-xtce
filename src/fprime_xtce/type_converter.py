@@ -28,7 +28,9 @@ def convert_type_definitions(fprime_type_def_or_defs, detected_string_types):
         "Expected a list of type definitions or a single type definition"
     if isinstance(fprime_type_def_or_defs, Iterable) and not isinstance(fprime_type_def_or_defs, Mapping):
         type_definitions = [convert_type_definitions(item, detected_string_types) for item in fprime_type_def_or_defs]
-        return [convert_type_definitions(string, None) for string in detected_string_types.values()] + type_definitions
+        # Sort detected string types by name for deterministic output
+        sorted_string_types = sorted(detected_string_types.items(), key=lambda x: x[0])
+        return [convert_type_definitions(string, None) for _, string in sorted_string_types] + type_definitions
     # Otherwise convert one entry based on its kind
     kind = fprime_type_def_or_defs.get("kind")
     if kind == "enum":

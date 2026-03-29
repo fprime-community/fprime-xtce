@@ -371,7 +371,7 @@
               </ArgumentAssignmentList>
             </BaseMetaCommand>
             <ArgumentList>
-              <Argument name="value" argumentTypeRef="F32" />
+              <Argument name="value" argumentTypeRef="/TestDeployment/F32" />
             </ArgumentList>
             <CommandContainer name="Component|Subsystem|SetThreshold">
               <EntryList>

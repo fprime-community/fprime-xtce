@@ -8,25 +8,17 @@ Copyright (c) 2026 Andrei Tumbar. All rights reserved.
 This software is Licensed under the Apache 2.0 License. See LICENSE for details.
 """
 
-import json
 import os
 import shutil
+import subprocess
+import sys
 import tempfile
 import unittest
 import xml.etree.ElementTree as ET
 from pathlib import Path
 from typing import Tuple
 
-from fprime_xtce.convert import (
-    convert_fprime_types,
-    generate_xtce_parameters,
-    ConversionMode,
-)
-from fprime_xtce.container_generation import (
-    generate_xtce_containers,
-    generate_xtce_commands,
-)
-from fprime_xtce.xtce import build_xtce_structure, write_xtce_xml, validate_xtce
+from fprime_xtce.xtce import validate_xtce
 from fprime_xtce.utilities import extract_namespace_components
 
 
@@ -77,51 +69,17 @@ class TestXTCEGeneration(unittest.TestCase):
         """Set up test fixtures"""
         cls.test_data_dir = Path(__file__).parent / "data"
 
-    def _load_json_dict(self, path: Path) -> dict:
-        """Load a JSON dictionary file"""
-        with open(path, "r") as f:
-            return json.load(f)
-
     def _generate_xtce_xml(self, json_path: Path, output_path: Path):
-        """Generate XTCE XML from JSON dictionary"""
-        # Load JSON data
-        json_data = self._load_json_dict(json_path)
-
-        # Convert types
-        xtce_parameter_types = convert_fprime_types(json_data)
-
-        # Generate parameters
-        xtce_parameters = generate_xtce_parameters(json_data, xtce_parameter_types)
-
-        # Generate containers
-        xtce_containers = generate_xtce_containers(json_data, xtce_parameters)
-
-        # Convert command types
-        xtce_command_types = convert_fprime_types(
-            json_data, mode=ConversionMode.COMMANDS
+        """Generate XTCE XML from JSON dictionary by calling the CLI"""
+        # Call the main CLI entry point
+        result = subprocess.run(
+            [sys.executable, "-m", "fprime_xtce", str(json_path), "-o", str(output_path)],
+            capture_output=True,
+            text=True
         )
 
-        # Generate commands
-        xtce_commands = generate_xtce_commands(json_data, xtce_command_types)
-
-        # Build hierarchical structure
-        deployment = json_data["metadata"]["deploymentName"]
-        # Remove dots from deployment name as they're not allowed in XTCE names
-        if "." in deployment:
-            parts = deployment.split(".")
-            assert len(parts) > 0, parts
-            deployment = parts[len(parts) - 1]
-
-        xtce_structure = build_xtce_structure(
-            xtce_parameter_types,
-            xtce_parameters,
-            xtce_containers,
-            xtce_commands,
-            deployment,
-        )
-
-        # Write to file
-        write_xtce_xml(xtce_structure, str(output_path))
+        if result.returncode != 0:
+            raise RuntimeError(f"CLI failed with return code {result.returncode}\nStdout: {result.stdout}\nStderr: {result.stderr}")
 
     def _normalize_xml(self, xml_path: Path) -> ET.Element:
         """Parse and normalize XML for comparison"""
@@ -281,41 +239,23 @@ class TestHierarchicalStructure(unittest.TestCase):
         cls.test_data_dir = Path(__file__).parent / "data"
 
     def _load_and_generate(self, json_filename: str) -> Tuple[Path, ET.Element]:
-        """Load JSON, generate XTCE, and return output path and parsed root"""
+        """Load JSON, generate XTCE using CLI, and return output path and parsed root"""
         json_path = self.test_data_dir / json_filename
-        json_data = {}
-        with open(json_path, "r") as f:
-            json_data = json.load(f)
-
-        # Generate XTCE structure
-        xtce_parameter_types = convert_fprime_types(json_data)
-        xtce_parameters = generate_xtce_parameters(json_data, xtce_parameter_types)
-        xtce_containers = generate_xtce_containers(json_data, xtce_parameters)
-        xtce_command_types = convert_fprime_types(
-            json_data, mode=ConversionMode.COMMANDS
-        )
-        xtce_commands = generate_xtce_commands(json_data, xtce_command_types)
-        deployment = json_data["metadata"]["deploymentName"]
-        # Remove dots from deployment name as they're not allowed in XTCE names
-        if "." in deployment:
-            parts = deployment.split(".")
-            assert len(parts) > 0
-            deployment = parts[len(parts) - 1]
-
-        xtce_structure = build_xtce_structure(
-            xtce_parameter_types,
-            xtce_parameters,
-            xtce_containers,
-            xtce_commands,
-            deployment,
-        )
 
         # Write to temporary file
         temp_file = tempfile.NamedTemporaryFile(mode="w", suffix=".xml", delete=False)
         output_path = Path(temp_file.name)
         temp_file.close()
 
-        write_xtce_xml(xtce_structure, str(output_path))
+        # Call the main CLI entry point
+        result = subprocess.run(
+            [sys.executable, "-m", "fprime_xtce", str(json_path), "-o", str(output_path)],
+            capture_output=True,
+            text=True
+        )
+
+        if result.returncode != 0:
+            raise RuntimeError(f"CLI failed with return code {result.returncode}\nStdout: {result.stdout}\nStderr: {result.stderr}")
 
         # Parse and return
         tree = ET.parse(output_path)
