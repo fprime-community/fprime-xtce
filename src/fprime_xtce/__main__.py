@@ -87,6 +87,16 @@ def main(args=None):
 
     try:
         deployment = json_data["metadata"]["deploymentName"]
+        # Remove dots from deployment name as they're not allowed in XTCE names
+        # If deployment name has duplicates (e.g. "Ref.Ref"), use just the first part
+        if '.' in deployment:
+            parts = deployment.split('.')
+            # If all parts are the same, use just one
+            if len(set(parts)) == 1:
+                deployment = parts[0]
+            else:
+                # Otherwise, replace dots with underscores or pipes
+                deployment = deployment.replace('.', '|')
     except KeyError:
         print("[ERROR] metadata.deploymentName missing from F Prime dictionary")
         return 1
@@ -111,24 +121,17 @@ def main(args=None):
     # Step 5: Generate the command definitions
     xtce_commands = generate_xtce_commands(json_data, xtce_command_types)
 
-    # Step 5: Build XTCE structure and write to file
-    xtce_structure = {
-		"SpaceSystem": {
-			"name": convert_identifier(deployment),
-			"TelemetryMetaData": {
-				"ParameterTypeSet": xtce_parameter_types,
-				"ParameterSet": xtce_parameters,
-				"ContainerSet": xtce_containers
-			},
-			"CommandMetaData": {
-				"ArgumentTypeSet": xtce_command_types,
-				"MetaCommandSet": xtce_commands
-			}
-		}
-	}
+    # Step 6: Build hierarchical XTCE structure and write to file
+    xtce_structure = build_xtce_structure(
+        xtce_parameter_types,
+        xtce_parameters,
+        xtce_containers,
+        xtce_commands,
+        deployment
+    )
     write_xtce_xml(xtce_structure, parsed_args.output)
 
-    # Step 6: Validate output file
+    # Step 7: Validate output file
     #is_valid, errors = validate_xtce(parsed_args.output)
     if False and not is_valid:
         print(f"[ERROR] XTCE validation errors:", file=sys.stderr)

@@ -9,7 +9,7 @@ This software is Licensed under the Apache 2.0 License. See LICENSE for details.
 import itertools
 from enum import Enum
 from collections.abc import Mapping
-from .type_converter import convert_identifier, convert_type_definitions
+from .type_converter import convert_identifier, convert_type_definitions, convert_to_xtce_reference
 from .primitive_types import BASE_FPRIME_TYPES, SPACE_PACKET_TYPES, BASE_PARAMETERS
 from .utilities import safe_combine, formal_parameter_types, xtce_names
 
@@ -105,7 +105,7 @@ def build_parameter(fprime_data, prefix=""):
     type_ref = type_data["name"] if type_data["kind"] != "string" else f"string{type_data['size']}"
     parameter = {
         "name": convert_identifier(f"{prefix}{'.' if prefix else ''}{fprime_data['name']}"),
-        "parameterTypeRef": convert_identifier(type_ref),
+        "parameterTypeRef": convert_to_xtce_reference(type_ref),
     }
 
     # Add in parameter optional metadata if it exists
@@ -144,6 +144,8 @@ def generate_xtce_parameters(fprime_dict, xtce_types, mode=ConversionMode.TELEME
     # Validate parameter type references were previously found and implemented
     type_names = xtce_names(xtce_types)
     for param in parameters:
-        type_name = param["Parameter"]["parameterTypeRef"]
-        assert type_name in type_names, f"Parameter {param['Parameter']['name']} has unknown type {type_name}"
+        type_ref = param["Parameter"]["parameterTypeRef"]
+        # Convert reference format (with /) to name format (with |) for comparison
+        type_name_normalized = type_ref.replace('/', '|')
+        assert type_name_normalized in type_names, f"Parameter {param['Parameter']['name']} has unknown type {type_ref}"
     return parameters

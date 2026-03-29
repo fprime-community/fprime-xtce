@@ -8,7 +8,7 @@ This software is Licensed under the Apache 2.0 License. See LICENSE for details.
 """
 
 from collections.abc import Iterable, Mapping
-from .utilities import convert_identifier
+from .utilities import convert_identifier, convert_to_xtce_reference
 
 
 def convert_type_definitions(fprime_type_def_or_defs, detected_string_types):
@@ -259,8 +259,9 @@ def convert_array_definition(fprime_array_def, detected_string_types):
     name = convert_identifier(fprime_array_def["qualifiedName"])
     array_size = fprime_array_def["size"]
     element_type = fprime_array_def["elementType"]
-    
-    element_type_name = convert_identifier(element_type["name"])
+
+    # Use XTCE reference path format (with /) for type references
+    element_type_name = convert_to_xtce_reference(element_type["name"])
     
     # Special string handling
     if element_type["kind"] == "string":
@@ -314,14 +315,15 @@ def convert_struct_definition(fprime_struct_def, detected_string_types):
     member_list = []
     for member_name, member_desc in members.items():
         member_type = member_desc["type"]
-        member_type_name = convert_identifier(member_type["name"])
+        # Use XTCE reference path format (with /) for type references
+        member_type_name = convert_to_xtce_reference(member_type["name"])
         # Special string handling
         if member_type["kind"] == "string":
             member_type_name = f"{member_type_name}{member_type['size']}"
             detected_string_types[member_type_name] = member_type
 
         #assert member_type["kind"] != "string", "Struct members of type string are not supported"
-        
+
         member_entry = {
             "name": member_name,
             "typeRef": member_type_name

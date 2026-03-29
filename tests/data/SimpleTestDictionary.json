@@ -1,0 +1,111 @@
+{
+  "metadata": {
+    "deploymentName": "TestDeployment",
+    "projectVersion": "v1.0.0",
+    "frameworkVersion": "v4.1.0",
+    "libraryVersions": [],
+    "dictionarySpecVersion": "1.0.0"
+  },
+  "typeDefinitions": [
+    {
+      "kind": "alias",
+      "qualifiedName": "FwTlmPacketizeIdType",
+      "type": {
+        "name": "U16",
+        "kind": "integer",
+        "size": 16,
+        "signed": false
+      },
+      "underlyingType": {
+        "name": "U16",
+        "kind": "integer",
+        "size": 16,
+        "signed": false
+      },
+      "annotation": "The type of a telemetry packet identifier"
+    },
+    {
+      "kind": "enum",
+      "qualifiedName": "Component.Status",
+      "representationType": {
+        "name": "U8",
+        "kind": "integer",
+        "size": 8,
+        "signed": false
+      },
+      "enumeratedConstants": [
+        {
+          "name": "OK",
+          "value": 0
+        },
+        {
+          "name": "ERROR",
+          "value": 1
+        }
+      ],
+      "default": "Component.Status.OK",
+      "annotation": "Component status enumeration"
+    }
+  ],
+  "telemetryChannels": [
+    {
+      "name": "Component.Subsystem.Temperature",
+      "type": {
+        "name": "F32",
+        "kind": "float",
+        "size": 32
+      },
+      "id": 100,
+      "telemetryUpdate": "on change",
+      "annotation": "Temperature reading"
+    },
+    {
+      "name": "Component.Subsystem.Pressure",
+      "type": {
+        "name": "F32",
+        "kind": "float",
+        "size": 32
+      },
+      "id": 101,
+      "telemetryUpdate": "on change",
+      "annotation": "Pressure reading"
+    },
+    {
+      "name": "Component.Status",
+      "type": {
+        "name": "Component.Status",
+        "kind": "qualifiedIdentifier"
+      },
+      "id": 102,
+      "telemetryUpdate": "on change",
+      "annotation": "Component status"
+    }
+  ],
+  "telemetryPacketSets": [],
+  "events": [
+    {
+      "name": "Component.Subsystem.SensorReady",
+      "id": 200,
+      "severity": "ACTIVITY_HI",
+      "format": "Sensor is ready",
+      "formalParams": []
+    }
+  ],
+  "commands": [
+    {
+      "name": "Component.Subsystem.SetThreshold",
+      "opcode": 300,
+      "annotation": "Set threshold value",
+      "formalParams": [
+        {
+          "name": "value",
+          "type": {
+            "name": "F32",
+            "kind": "float",
+            "size": 32
+          }
+        }
+      ]
+    }
+  ]
+}
