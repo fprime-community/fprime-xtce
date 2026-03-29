@@ -56,6 +56,7 @@ def build_xtce_structure(
     parameter_types: List[Dict[str, Any]],
     parameters: List[Dict[str, Any]],
     containers: List[Dict[str, Any]],
+    command_types: List[Dict[str, Any]],
     commands: List[Dict[str, Any]],
     space_system_name: str,
 ) -> Dict[str, Any]:
@@ -68,17 +69,13 @@ def build_xtce_structure(
             parameter_types: List of XTCE ParameterType dictionaries (already converted).
             parameters: List of XTCE Parameter dictionaries (already converted).
             containers: List of XTCE Container dictionaries (already converted).
+            command_types: List of XTCE ArgumentType dictionaries (already converted for commands).
             commands: List of XTCE Command dictionaries (already converted).
             space_system_name: Name for the root SpaceSystem.
 
     Returns:
             Dict representing the hierarchical XTCE structure with nested SpaceSystems.
     """
-    # Convert command types
-    command_types = parameter_types.copy()
-    command_types = [
-        convert_parameter_type(command_type) for command_type in command_types
-    ]
 
     # Build the root SpaceSystem
     root_space_system = {"name": space_system_name}

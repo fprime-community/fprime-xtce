@@ -46,7 +46,7 @@ def convert_type_definitions(fprime_type_def_or_defs, detected_string_types):
     elif kind == "bool":
         return _convert_boolean_type(fprime_type_def_or_defs)
     elif kind == "string":
-        return _convert_string_type(fprime_type_def_or_defs)
+        return _convert_string_type(fprime_type_def_or_defs, detected_string_types)
     elif kind == "qualifiedIdentifier":
         # References to other types (enums, arrays, structs)
         # These need to be resolved in the type definitions section
@@ -134,20 +134,25 @@ def _convert_boolean_type(fprime_type_desc):
     return xtce_type
 
 
-def _convert_string_type(fprime_type_desc):
+def _convert_string_type(fprime_type_desc, detected_string_types):
     """
     Convert F Prime string type to XTCE StringParameterType.
-    
+
     Maps:
     - string with size to StringParameterType with fixed or variable length
     """
     name = convert_identifier(fprime_type_desc["name"])
     size_in_bytes = fprime_type_desc["size"]
     size_in_bits = size_in_bytes * 8
-    
+    string_type_name = f"{name}{size_in_bytes}"
+
+    # Add this string type to the detected types if we have a dict to track them
+    if detected_string_types is not None:
+        detected_string_types[string_type_name] = fprime_type_desc
+
     xtce_type = {
         "StringParameterType": {
-            "name": convert_identifier(f"{name}{size_in_bytes}"),
+            "name": convert_identifier(string_type_name),
             "StringDataEncoding": {
                 "encoding": "UTF-8",
                 "Variable": {

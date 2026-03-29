@@ -387,7 +387,7 @@ class TestHierarchicalStructure(unittest.TestCase):
                 output_path.unlink()
 
     def test_references_use_qualified_names(self):
-        """Test that references use fully qualified names with pipe delimiters"""
+        """Test that references use fully qualified names with slash delimiters"""
         output_path, root = self._load_and_generate("SimpleTestDictionary.json")
 
         try:
@@ -396,21 +396,21 @@ class TestHierarchicalStructure(unittest.TestCase):
             # Find ParameterRefEntry elements
             param_refs = root.findall(f".//{ns}ParameterRefEntry")
 
-            # Check that some references use qualified names with pipes
+            # Check that some references use qualified names with slashes
             qualified_refs = [
                 ref.get("parameterRef", "")
                 for ref in param_refs
-                if "|" in ref.get("parameterRef", "")
+                if "/" in ref.get("parameterRef", "")
             ]
 
             self.assertGreater(
                 len(qualified_refs),
                 0,
-                "Should have parameter references using pipe-delimited qualified names",
+                "Should have parameter references using slash-delimited qualified names",
             )
 
-            # Check that at least one reference contains "Component|"
-            component_refs = [ref for ref in qualified_refs if "Component|" in ref]
+            # Check that at least one reference contains "Component/"
+            component_refs = [ref for ref in qualified_refs if "Component/" in ref]
             self.assertGreater(
                 len(component_refs),
                 0,

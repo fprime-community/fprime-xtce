@@ -26,16 +26,19 @@ def build_container(
     Returns:
         A dictionary representing the base container structure for the given F Prime data
     """
-    members = [convert_identifier(member) for member in members]
-    for member in members:
+    # Convert to pipe format for validation
+    members_pipe = [convert_identifier(member) for member in members]
+    for member in members_pipe:
         assert (
             member in parameter_names
         ), f"Container {fprime_data['name']} has undefined parameters: {member}"
+    # Convert to slash format for references
+    members_ref = [convert_to_xtce_reference(member) for member in members]
     return {
         "SequenceContainer": {
             "name": convert_identifier(f"{fprime_data['name']}"),
             "EntryList": [
-                {"ParameterRefEntry": {"parameterRef": member}} for member in members
+                {"ParameterRefEntry": {"parameterRef": member}} for member in members_ref
             ],
             "BaseContainer": {
                 "containerRef": base_container_ref,
@@ -114,7 +117,7 @@ def generate_xtce_containers(fprime_dict, xtce_parameters):
     return xtce_containers
 
 
-def generate_xtce_commands(fprime_dict, xtce_command_types):
+def generate_xtce_commands(fprime_dict, xtce_command_types, root_space_system=None):
     """Generate the XTCE command definitions from the F Prime dictionary
 
     XTCE commands are things that can be parameterized in an XTCE structure. In F Prime nomenclature, these will be
@@ -125,11 +128,37 @@ def generate_xtce_commands(fprime_dict, xtce_command_types):
             - commands: List of command definitions
             - Other dictionary sections (telemetryChannels, events, etc.)
         xtce_command_types: List of XTCE command argument type definitions to validate against
+        root_space_system: Name of the root SpaceSystem for absolute type references (optional)
     Returns:
         List of XTCE command definitions converted from the F Prime dictionary
     """
     commands = BASE_COMMANDS.copy()
     for command in fprime_dict["commands"]:
+        # Check if command is in a nested SpaceSystem (has dots in the original name)
+        is_nested = "." in command["name"]
+
+        # Build argument list with proper type references
+        argument_list = []
+        for param in command["formalParams"]:
+            # Determine the type reference
+            if param["type"]["kind"] != "string":
+                type_ref = convert_to_xtce_reference(param["type"]["name"])
+            else:
+                type_ref = convert_to_xtce_reference(f"string{param['type']['size']}")
+
+            # Make the reference absolute if we're in a nested SpaceSystem
+            # by prepending the root space system name with a leading slash
+            if root_space_system and is_nested:
+                # Command is in a nested space system, use absolute reference
+                type_ref = f"/{root_space_system}/{type_ref}"
+
+            argument_list.append({
+                "Argument": {
+                    "name": param["name"],
+                    "argumentTypeRef": type_ref,
+                }
+            })
+
         command = {
             "MetaCommand": {
                 "name": convert_identifier(command["name"]),
@@ -144,31 +173,13 @@ def generate_xtce_commands(fprime_dict, xtce_command_types):
                         }
                     ],
                 },
-                "ArgumentList": [
-                    {
-                        "Argument": {
-                            "name": convert_identifier(
-                                f"{command['name']}.{param['name']}"
-                            ),
-                            "argumentTypeRef": (
-                                convert_to_xtce_reference(param["type"]["name"])
-                                if param["type"]["kind"] != "string"
-                                else convert_to_xtce_reference(
-                                    f"string{param['type']['size']}"
-                                )
-                            ),
-                        }
-                    }
-                    for param in command["formalParams"]
-                ],
+                "ArgumentList": argument_list,
                 "CommandContainer": {
                     "name": convert_identifier(command["name"]),
                     "EntryList": [
                         {
                             "ArgumentRefEntry": {
-                                "argumentRef": convert_identifier(
-                                    f"{command['name']}.{param['name']}"
-                                )
+                                "argumentRef": param["name"]
                             }
                         }
                         for param in command["formalParams"]

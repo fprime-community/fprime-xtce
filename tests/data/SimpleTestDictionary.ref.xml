@@ -306,7 +306,7 @@
       <ContainerSet>
         <SequenceContainer name="Status">
           <EntryList>
-            <ParameterRefEntry parameterRef="Component|Status" />
+            <ParameterRefEntry parameterRef="Component/Status" />
           </EntryList>
           <BaseContainer containerRef="FPrimeTelemetryChannel">
             <RestrictionCriteria>
@@ -338,7 +338,7 @@
         <ContainerSet>
           <SequenceContainer name="Temperature">
             <EntryList>
-              <ParameterRefEntry parameterRef="Component|Subsystem|Temperature" />
+              <ParameterRefEntry parameterRef="Component/Subsystem/Temperature" />
             </EntryList>
             <BaseContainer containerRef="FPrimeTelemetryChannel">
               <RestrictionCriteria>
@@ -350,7 +350,7 @@
           </SequenceContainer>
           <SequenceContainer name="Pressure">
             <EntryList>
-              <ParameterRefEntry parameterRef="Component|Subsystem|Pressure" />
+              <ParameterRefEntry parameterRef="Component/Subsystem/Pressure" />
             </EntryList>
             <BaseContainer containerRef="FPrimeTelemetryChannel">
               <RestrictionCriteria>
@@ -371,11 +371,11 @@
               </ArgumentAssignmentList>
             </BaseMetaCommand>
             <ArgumentList>
-              <Argument name="Component|Subsystem|SetThreshold|value" argumentTypeRef="F32" />
+              <Argument name="value" argumentTypeRef="F32" />
             </ArgumentList>
             <CommandContainer name="Component|Subsystem|SetThreshold">
               <EntryList>
-                <ArgumentRefEntry argumentRef="Component|Subsystem|SetThreshold|value" />
+                <ArgumentRefEntry argumentRef="value" />
               </EntryList>
               <BaseContainer containerRef="FPrimeCommand" />
             </CommandContainer>

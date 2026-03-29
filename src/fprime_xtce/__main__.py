@@ -119,13 +119,14 @@ def main(args=None):
     xtce_command_types = convert_fprime_types(json_data, mode=ConversionMode.COMMANDS)
 
     # Step 5: Generate the command definitions
-    xtce_commands = generate_xtce_commands(json_data, xtce_command_types)
+    xtce_commands = generate_xtce_commands(json_data, xtce_command_types, deployment)
 
     # Step 6: Build hierarchical XTCE structure and write to file
     xtce_structure = build_xtce_structure(
         xtce_parameter_types,
         xtce_parameters,
         xtce_containers,
+        xtce_command_types,
         xtce_commands,
         deployment
     )
