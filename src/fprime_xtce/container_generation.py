@@ -105,12 +105,6 @@ def generate_xtce_containers(fprime_dict, xtce_parameters):
                 for packet in packet_list
             ]
         )
-    # Add containers for events (pairs with EventManager)
-    # for event in fprime_dict["events"]:
-    #    parameter_refs = [f"{event['name']}.{param['name']}" for param in event["formalParams"]]
-    #    xtce_containers.append(
-    #        build_container(event, parameter_refs, "FPrimeEvent", "FPrimeEventId", params)
-    #    )
     # Validate data output
     names = xtce_names(xtce_containers)
     assert len(names) == len(set(names)), f"Duplicate container names found: {names}"
@@ -133,13 +127,13 @@ def generate_xtce_commands(fprime_dict, xtce_command_types, root_space_system=No
         List of XTCE command definitions converted from the F Prime dictionary
     """
     commands = BASE_COMMANDS.copy()
-    for command in fprime_dict["commands"]:
+    for fprime_command in fprime_dict["commands"]:
         # Check if command is in a nested SpaceSystem (has dots in the original name)
-        is_nested = "." in command["name"]
+        is_nested = "." in fprime_command["name"]
 
         # Build argument list with proper type references
         argument_list = []
-        for param in command["formalParams"]:
+        for param in fprime_command["formalParams"]:
             # Determine the type reference
             if param["type"]["kind"] != "string":
                 type_ref = convert_to_xtce_reference(param["type"]["name"])
@@ -161,39 +155,33 @@ def generate_xtce_commands(fprime_dict, xtce_command_types, root_space_system=No
 
         command = {
             "MetaCommand": {
-                "name": convert_identifier(command["name"]),
+                "name": convert_identifier(fprime_command["name"]),
                 "BaseMetaCommand": {
                     "metaCommandRef": "FPrimeCommand",
                     "ArgumentAssignmentList": [
                         {
                             "ArgumentAssignment": {
                                 "argumentName": "OpCode",
-                                "argumentValue": f"{command['opcode']}",
+                                "argumentValue": f"{fprime_command['opcode']}",
                             }
                         }
                     ],
                 },
                 "ArgumentList": argument_list,
                 "CommandContainer": {
-                    "name": convert_identifier(command["name"]),
+                    "name": convert_identifier(fprime_command["name"]),
                     "EntryList": [
                         {
                             "ArgumentRefEntry": {
                                 "argumentRef": param["name"]
                             }
                         }
-                        for param in command["formalParams"]
+                        for param in fprime_command["formalParams"]
                     ],
                     "BaseContainer": {"containerRef": "FPrimeCommand"},
                 },
             }
         }
-        # Validate types
-        # for argument in command["MetaCommand"]["ArgumentList"]:
-        #     type_ref = argument["Argument"]["argumentTypeRef"]
-        #     # Convert reference format (with /) to name format (with |) for comparison
-        #     type_name_normalized = type_ref.replace('/', '|')
-        #     assert type_name_normalized in xtce_names(xtce_command_types), f"Command {command['MetaCommand']['name']} has unknown argument type reference: {type_ref}"
         # Clean up empty ArgumentList if there are no arguments
         if not command["MetaCommand"]["ArgumentList"]:
             del command["MetaCommand"]["ArgumentList"]

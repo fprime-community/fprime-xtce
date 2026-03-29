@@ -238,9 +238,7 @@ def convert_enum_definition(fprime_enum_def):
     
     if "annotation" in fprime_enum_def:
         xtce_type["EnumeratedParameterType"]["shortDescription"] = fprime_enum_def["annotation"]
-    
-#    if "default" in fprime_enum_def:
-#        xtce_type["EnumeratedParameterType"]["initialValue"] = fprime_enum_def["default"]
+
     return xtce_type
 
 
@@ -289,10 +287,7 @@ def convert_array_definition(fprime_array_def, detected_string_types):
     
     if "annotation" in fprime_array_def:
         xtce_type["ArrayParameterType"]["shortDescription"] = fprime_array_def["annotation"]
-    
-#    if "default" in fprime_array_def:
-#        xtce_type["ArrayParameterType"]["initialValue"] = str(fprime_array_def["default"])
-    
+
     return xtce_type
 
 
@@ -327,23 +322,14 @@ def convert_struct_definition(fprime_struct_def, detected_string_types):
             member_type_name = f"{member_type_name}{member_type['size']}"
             detected_string_types[member_type_name] = member_type
 
-        #assert member_type["kind"] != "string", "Struct members of type string are not supported"
-
         member_entry = {
             "name": member_name,
             "typeRef": member_type_name
         }
-        
+
         if "annotation" in member_desc:
             member_entry["shortDescription"] = member_desc["annotation"]
-#        if "default" in fprime_struct_def and member_type["kind"] == "enum":
-#            member_entry["initialValue"] = fprime_struct_def["default"][member_name]
-#        if "default" in fprime_struct_def and member_type["kind"] == "string":
-#            member_entry["initialValue"] = f'{{"length": {len(fprime_struct_def["default"][member_name])}, "value": "{fprime_struct_def["default"][member_name]}"}}'
-#        if "default" in fprime_struct_def and isinstance(fprime_struct_def["default"][member_name], (int, bool)):
-#            member_entry["initialValue"] = fprime_struct_def["default"][member_name]
-        
-        
+
         member_list.append((member_desc["index"], member_entry))
     
     # Sort by index and extract member entries
@@ -359,10 +345,7 @@ def convert_struct_definition(fprime_struct_def, detected_string_types):
     
     if "annotation" in fprime_struct_def:
         xtce_type["AggregateParameterType"]["shortDescription"] = fprime_struct_def["annotation"]
-    
-#    if "default" in fprime_struct_def:
-#        xtce_type["AggregateParameterType"]["initialValue"] = str()
-    
+
     return xtce_type
 
 

@@ -14,9 +14,7 @@ from pathlib import Path
 
 from .convert import convert_fprime_types, generate_xtce_parameters, ConversionMode
 from .container_generation import generate_xtce_containers, generate_xtce_commands
-from .type_converter import convert_identifier
-from .xtce import build_xtce_structure, write_xtce_xml, validate_xtce
-from .utilities import xtce_data
+from .xtce import build_xtce_structure, write_xtce_xml
 
 def exit_on_errors(result):
     """Check conversion result for errors and print them.
@@ -74,7 +72,7 @@ def main(args=None):
         args: List of arguments to parse. If None, uses sys.argv[1:].
     """
     parsed_args = parse_args(args)
-    verbose_print = lambda *a, **k: print(*a, **k) if parsed_args.verbose else lambda *a, **k: None
+    verbose_print = (lambda *a, **k: print(*a, **k)) if parsed_args.verbose else (lambda *a, **k: None)
 
     verbose_print("[INFO] Loading F Prime dictionary")
     try:
@@ -131,14 +129,6 @@ def main(args=None):
         deployment
     )
     write_xtce_xml(xtce_structure, parsed_args.output)
-
-    # Step 7: Validate output file
-    #is_valid, errors = validate_xtce(parsed_args.output)
-    if False and not is_valid:
-        print(f"[ERROR] XTCE validation errors:", file=sys.stderr)
-        for error in errors:
-            print(f"  - {error}", file=sys.stderr)
-        sys.exit(1)
 
 if __name__ == "__main__":
     sys.exit(main())

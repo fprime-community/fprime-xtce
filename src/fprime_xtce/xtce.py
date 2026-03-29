@@ -1,6 +1,5 @@
 """Helpers to emit an XTCE-style structure and serialize it to XML.
 
-`build_xtce_structure` produces an in-memory dictionary shaped like XTCE.
 `build_xtce_structure` produces a hierarchical XTCE structure from namespaced items.
 `write_xtce_xml` serializes that structure to XML (minimal, not schema-validating).
 
