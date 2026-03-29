@@ -241,6 +241,10 @@ def convert_enum_definition(fprime_enum_def):
     if "annotation" in fprime_enum_def:
         xtce_type["EnumeratedParameterType"]["shortDescription"] = fprime_enum_def["annotation"]
 
+    # TODO: Add support for initialValue when XTCE processors support it
+    # if "default" in fprime_enum_def:
+    #     xtce_type["EnumeratedParameterType"]["initialValue"] = fprime_enum_def["default"]
+
     return xtce_type
 
 
@@ -265,10 +269,8 @@ def convert_array_definition(fprime_array_def, detected_string_types):
     array_size = fprime_array_def["size"]
     element_type = fprime_array_def["elementType"]
 
-    # Use XTCE reference path format (with /) for type references
     element_type_name = convert_to_xtce_reference(element_type["name"])
-    
-    # Special string handling
+
     if element_type["kind"] == "string":
         element_type_name = f"{element_type_name}{element_type['size']}"
         detected_string_types[element_type_name] = element_type
@@ -289,6 +291,10 @@ def convert_array_definition(fprime_array_def, detected_string_types):
     
     if "annotation" in fprime_array_def:
         xtce_type["ArrayParameterType"]["shortDescription"] = fprime_array_def["annotation"]
+
+    # TODO: Add support for initialValue when XTCE processors support it
+    # if "default" in fprime_array_def:
+    #     xtce_type["ArrayParameterType"]["initialValue"] = str(fprime_array_def["default"])
 
     return xtce_type
 
@@ -317,9 +323,8 @@ def convert_struct_definition(fprime_struct_def, detected_string_types):
     member_list = []
     for member_name, member_desc in members.items():
         member_type = member_desc["type"]
-        # Use XTCE reference path format (with /) for type references
         member_type_name = convert_to_xtce_reference(member_type["name"])
-        # Special string handling
+
         if member_type["kind"] == "string":
             member_type_name = f"{member_type_name}{member_type['size']}"
             detected_string_types[member_type_name] = member_type
@@ -331,6 +336,14 @@ def convert_struct_definition(fprime_struct_def, detected_string_types):
 
         if "annotation" in member_desc:
             member_entry["shortDescription"] = member_desc["annotation"]
+
+        # TODO: Add support for initialValue when XTCE processors support it
+        # if "default" in fprime_struct_def and member_type["kind"] == "enum":
+        #     member_entry["initialValue"] = fprime_struct_def["default"][member_name]
+        # if "default" in fprime_struct_def and member_type["kind"] == "string":
+        #     member_entry["initialValue"] = f'{{"length": {len(fprime_struct_def["default"][member_name])}, "value": "{fprime_struct_def["default"][member_name]}"}}'
+        # if "default" in fprime_struct_def and isinstance(fprime_struct_def["default"][member_name], (int, bool)):
+        #     member_entry["initialValue"] = fprime_struct_def["default"][member_name]
 
         member_list.append((member_desc["index"], member_entry))
     
@@ -347,6 +360,10 @@ def convert_struct_definition(fprime_struct_def, detected_string_types):
     
     if "annotation" in fprime_struct_def:
         xtce_type["AggregateParameterType"]["shortDescription"] = fprime_struct_def["annotation"]
+
+    # TODO: Add support for initialValue when XTCE processors support it
+    # if "default" in fprime_struct_def:
+    #     xtce_type["AggregateParameterType"]["initialValue"] = str()
 
     return xtce_type
 

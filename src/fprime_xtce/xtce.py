@@ -8,13 +8,10 @@ Copyright (c) 2026 LeStarch. All rights reserved.
 This software is Licensed under the Apache 2.0 License. See LICENSE for details.
 """
 
-from pathlib import Path
-from typing import Any, Dict, List, Tuple, Optional, Union
+from typing import Any, Dict, List, Tuple, Optional
 from collections import defaultdict
 
 import xml.etree.ElementTree as ET
-
-import xmlschema
 
 from .utilities import (
     extract_namespace_components,
@@ -33,10 +30,8 @@ def convert_parameter_type(command_type):
             Note: this function skips "_yamcs_ignore" values, which are used to bypass the XTCE spec in YAMCS. This
             allows strings to be length-data encoded without maximum fixed sizes.
             """
-            # Skip renaming if this is a _yamcs_ignore value
             if value == "_yamcs_ignore":
                 return key
-            # And skip renaming if this is a parameter reference this is a _yamcs_ignore value
             if (
                 isinstance(value, dict)
                 and value.get("parameterRef", None) == "_yamcs_ignore"
@@ -44,7 +39,6 @@ def convert_parameter_type(command_type):
                 return key
             return key.replace("Parameter", "Argument").replace("parameter", "argument")
 
-        # If this is a mapping object, rename all keys and recurse on values
         return {
             renamer(k, v): convert_parameter_type(v) for k, v in command_type.items()
         }
@@ -300,34 +294,3 @@ def write_xtce_xml(structure: Dict[str, Any], file_path: str):
     tree = ET.ElementTree(element)
     ET.indent(tree, space="  ", level=0)
     tree.write(file_or_filename=file_path, encoding="utf-8", xml_declaration=True)
-
-
-def validate_xtce(xml_path: Union[str, Path] = None) -> Tuple[bool, List[str]]:
-    """Validate an XTCE XML document against the XTCE schema.
-
-    Args:
-            xml_path: Path to the XML document to validate.
-            schema_path: Optional path or URL to the XTCE XSD. If omitted, uses the official XTCE 1.2 schema URL.
-
-    Returns:
-            Tuple of (is_valid, errors). `errors` contains human-readable validation issues when not valid.
-
-    Raises:
-            ImportError: If the optional `xmlschema` package is not installed.
-            FileNotFoundError: If the XML file does not exist.
-            ValueError: If the schema cannot be loaded.
-    """
-    xml_file = Path(xml_path)
-    if not xml_file.exists():
-        raise FileNotFoundError(f"XML file not found: {xml_file}")
-
-    schema_location: Union[str, Path] = Path(__file__).parent / "data" / "xtce.xsd"
-    try:
-        schema = xmlschema.XMLSchema(schema_location)
-    except xmlschema.XMLSchemaException as exc:
-        raise ValueError(
-            f"Failed to load XTCE schema from {schema_location}: {exc}"
-        ) from exc
-
-    errors = [str(err) for err in schema.iter_errors(xml_file)]
-    return len(errors) == 0, errors

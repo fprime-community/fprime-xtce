@@ -16,10 +16,40 @@ import tempfile
 import unittest
 import xml.etree.ElementTree as ET
 from pathlib import Path
-from typing import Tuple
+from typing import Tuple, List
 
-from fprime_xtce.xtce import validate_xtce
+import xmlschema
+
 from fprime_xtce.utilities import extract_namespace_components
+
+
+def validate_xtce(xml_path: Path) -> Tuple[bool, List[str]]:
+    """Validate an XTCE XML document against the XTCE schema.
+
+    Args:
+        xml_path: Path to the XML document to validate.
+
+    Returns:
+        Tuple of (is_valid, errors). `errors` contains human-readable validation issues when not valid.
+
+    Raises:
+        FileNotFoundError: If the XML file does not exist.
+        ValueError: If the schema cannot be loaded.
+    """
+    if not xml_path.exists():
+        raise FileNotFoundError(f"XML file not found: {xml_path}")
+
+    # Path to the XSD schema file relative to the test file
+    schema_location = Path(__file__).parent.parent / "src" / "fprime_xtce" / "data" / "xtce.xsd"
+    try:
+        schema = xmlschema.XMLSchema(schema_location)
+    except xmlschema.XMLSchemaException as exc:
+        raise ValueError(
+            f"Failed to load XTCE schema from {schema_location}: {exc}"
+        ) from exc
+
+    errors = [str(err) for err in schema.iter_errors(xml_path)]
+    return len(errors) == 0, errors
 
 
 class TestNamespaceExtraction(unittest.TestCase):

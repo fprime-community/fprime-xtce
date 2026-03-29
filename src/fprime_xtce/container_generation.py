@@ -105,6 +105,14 @@ def generate_xtce_containers(fprime_dict, xtce_parameters):
                 for packet in packet_list
             ]
         )
+
+    # TODO: Add containers for events (pairs with EventManager) when event support is implemented
+    # for event in fprime_dict["events"]:
+    #     parameter_refs = [f"{event['name']}.{param['name']}" for param in event["formalParams"]]
+    #     xtce_containers.append(
+    #         build_container(event, parameter_refs, "FPrimeEvent", "FPrimeEventId", params)
+    #     )
+
     # Validate data output
     names = xtce_names(xtce_containers)
     assert len(names) == len(set(names)), f"Duplicate container names found: {names}"
@@ -128,22 +136,17 @@ def generate_xtce_commands(fprime_dict, xtce_command_types, root_space_system=No
     """
     commands = BASE_COMMANDS.copy()
     for fprime_command in fprime_dict["commands"]:
-        # Check if command is in a nested SpaceSystem (has dots in the original name)
         is_nested = "." in fprime_command["name"]
 
-        # Build argument list with proper type references
         argument_list = []
         for param in fprime_command["formalParams"]:
-            # Determine the type reference
             if param["type"]["kind"] != "string":
                 type_ref = convert_to_xtce_reference(param["type"]["name"])
             else:
                 type_ref = convert_to_xtce_reference(f"string{param['type']['size']}")
 
-            # Make the reference absolute if we're in a nested SpaceSystem
-            # by prepending the root space system name with a leading slash
+            # Make references absolute for nested SpaceSystems
             if root_space_system and is_nested:
-                # Command is in a nested space system, use absolute reference
                 type_ref = f"/{root_space_system}/{type_ref}"
 
             argument_list.append({
@@ -182,6 +185,14 @@ def generate_xtce_commands(fprime_dict, xtce_command_types, root_space_system=No
                 },
             }
         }
+
+        # TODO: Add type validation when needed for debugging
+        # for argument in command["MetaCommand"]["ArgumentList"]:
+        #     type_ref = argument["Argument"]["argumentTypeRef"]
+        #     # Convert reference format (with /) to name format (with |) for comparison
+        #     type_name_normalized = type_ref.replace('/', '|')
+        #     assert type_name_normalized in xtce_names(xtce_command_types), f"Command {command['MetaCommand']['name']} has unknown argument type reference: {type_ref}"
+
         # Clean up empty ArgumentList if there are no arguments
         if not command["MetaCommand"]["ArgumentList"]:
             del command["MetaCommand"]["ArgumentList"]

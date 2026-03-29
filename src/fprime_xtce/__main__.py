@@ -85,15 +85,13 @@ def main(args=None):
 
     try:
         deployment = json_data["metadata"]["deploymentName"]
-        # Remove dots from deployment name as they're not allowed in XTCE names
-        # If deployment name has duplicates (e.g. "Ref.Ref"), use just the first part
+        # Handle dots in deployment name (not allowed in XTCE names)
+        # If name has duplicates (e.g. "Ref.Ref"), use just the first part
         if '.' in deployment:
             parts = deployment.split('.')
-            # If all parts are the same, use just one
             if len(set(parts)) == 1:
                 deployment = parts[0]
             else:
-                # Otherwise, replace dots with underscores or pipes
                 deployment = deployment.replace('.', '|')
     except KeyError:
         print("[ERROR] metadata.deploymentName missing from F Prime dictionary")

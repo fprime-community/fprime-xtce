@@ -22,12 +22,8 @@ def convert_identifier(identifier: str) -> str:
     Returns:
         str: Converted name suitable for XTCE (e.g., "fprime|types|U32")
     """
-    # F Prime type names
     assert identifier[0].isalpha(), "Type names must start with a letter w.r.t FPP names"
-
-    # Convert dots to the defined delimiter for XTCE compatibility
-    converted = identifier.replace('.', DELIMITER)
-    return converted
+    return identifier.replace('.', DELIMITER)
 
 
 def convert_to_xtce_reference(identifier: str) -> str:
@@ -47,7 +43,6 @@ def convert_to_xtce_reference(identifier: str) -> str:
         "SimpleType" -> "SimpleType"
     """
     assert identifier and identifier[0].isalpha(), "Identifiers must start with a letter"
-    # Convert dots to forward slashes for XTCE path references
     return identifier.replace('.', '/')
 
 
@@ -198,11 +193,9 @@ def get_or_create_nested_space_system(root: Dict[str, Any], namespace_path: List
     """
     current: Dict[str, Any] = root
     for component in namespace_path:
-        # Ensure SpaceSystem list exists
         if "SpaceSystem" not in current:
             current["SpaceSystem"] = []
 
-        # Find or create the SpaceSystem for this component
         space_systems: List = current["SpaceSystem"]
         found: Optional[Dict[str, Any]] = None
         for ss in space_systems:
@@ -212,7 +205,6 @@ def get_or_create_nested_space_system(root: Dict[str, Any], namespace_path: List
                 break
 
         if found is None:
-            # Create new SpaceSystem
             new_ss: Dict[str, Any] = {"name": component}
             space_systems.append(new_ss)
             found = new_ss
