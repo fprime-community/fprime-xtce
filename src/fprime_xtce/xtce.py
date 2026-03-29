@@ -1,6 +1,6 @@
 """Helpers to emit an XTCE-style structure and serialize it to XML.
 
-`build_xtce_structure` produces a hierarchical XTCE structure from namespaced items.
+`build_xtce_structure` produces an in-memory dictionary shaped like XTCE.
 `write_xtce_xml` serializes that structure to XML (minimal, not schema-validating).
 
 Copyright (c) 2026 LeStarch. All rights reserved.
@@ -8,10 +8,13 @@ Copyright (c) 2026 LeStarch. All rights reserved.
 This software is Licensed under the Apache 2.0 License. See LICENSE for details.
 """
 
+from pathlib import Path
 from typing import Any, Dict, List, Tuple, Optional
 from collections import defaultdict
 
 import xml.etree.ElementTree as ET
+
+import xmlschema
 
 from .utilities import (
     extract_namespace_components,
@@ -176,7 +179,14 @@ def recurse_xml_dictionary(element: Optional[ET.Element], node_data: Dict[str, A
         # Process keys in a specific order to match XTCE XSD schema requirements
         # For SpaceSystem: Header, TelemetryMetaData, CommandMetaData, ServiceSet, then nested SpaceSystems
         ordered_keys = []
-        special_order = ["name", "shortDescription", "Header", "TelemetryMetaData", "CommandMetaData", "ServiceSet"]
+        special_order = [
+            "name",
+            "shortDescription",
+            "Header",
+            "TelemetryMetaData",
+            "CommandMetaData",
+            "ServiceSet",
+        ]
 
         # First, add keys in the special order if they exist
         for key in special_order:
@@ -294,3 +304,34 @@ def write_xtce_xml(structure: Dict[str, Any], file_path: str):
     tree = ET.ElementTree(element)
     ET.indent(tree, space="  ", level=0)
     tree.write(file_or_filename=file_path, encoding="utf-8", xml_declaration=True)
+
+
+def validate_xtce(xml_path: Path) -> Tuple[bool, List[str]]:
+    """Validate an XTCE XML document against the XTCE schema.
+
+    Args:
+        xml_path: Path to the XML document to validate.
+
+    Returns:
+        Tuple of (is_valid, errors). `errors` contains human-readable validation issues when not valid.
+
+    Raises:
+        FileNotFoundError: If the XML file does not exist.
+        ValueError: If the schema cannot be loaded.
+    """
+    if not xml_path.exists():
+        raise FileNotFoundError(f"XML file not found: {xml_path}")
+
+    # Path to the XSD schema file relative to the test file
+    schema_location = (
+        Path(__file__).parent.parent.parent / "src" / "fprime_xtce" / "data" / "xtce.xsd"
+    )
+    try:
+        schema = xmlschema.XMLSchema(schema_location)
+    except xmlschema.XMLSchemaException as exc:
+        raise ValueError(
+            f"Failed to load XTCE schema from {schema_location}: {exc}"
+        ) from exc
+
+    errors = [str(err) for err in schema.iter_errors(xml_path)]
+    return len(errors) == 0, errors

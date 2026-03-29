@@ -1,52 +1,13 @@
 {
   "metadata" : {
-    "deploymentName" : "ReferenceDeployment.ReferenceDeployment",
-    "projectVersion" : "v4.1.0",
-    "frameworkVersion" : "v4.1.0",
+    "deploymentName" : "FprimeYamcsReference.YamcsDeployment",
+    "projectVersion" : "v0.1.0",
+    "frameworkVersion" : "v4.1.1-73-g51da1caf9",
     "libraryVersions" : [
-      "fprime-sensors@v4.1.0"
     ],
     "dictionarySpecVersion" : "1.0.0"
   },
   "typeDefinitions" : [
-    {
-      "kind" : "enum",
-      "qualifiedName" : "Bmp280.TemperatureOversampling",
-      "representationType" : {
-        "name" : "U8",
-        "kind" : "integer",
-        "size" : 8,
-        "signed" : false
-      },
-      "enumeratedConstants" : [
-        {
-          "name" : "SKIP",
-          "value" : 0
-        },
-        {
-          "name" : "OVERSAMPLE_1X",
-          "value" : 32
-        },
-        {
-          "name" : "OVERSAMPLE_2X",
-          "value" : 64
-        },
-        {
-          "name" : "OVERSAMPLE_4X",
-          "value" : 96
-        },
-        {
-          "name" : "OVERSAMPLE_8X",
-          "value" : 128
-        },
-        {
-          "name" : "OVERSAMPLE_16X",
-          "value" : 160
-        }
-      ],
-      "default" : "Bmp280.TemperatureOversampling.SKIP",
-      "annotation" : "Oversampling setting for temperature measurement"
-    },
     {
       "kind" : "array",
       "qualifiedName" : "Svc.ComQueueDepth",
@@ -119,7 +80,7 @@
     },
     {
       "kind" : "enum",
-      "qualifiedName" : "Fw.DpState",
+      "qualifiedName" : "Svc.QueueType",
       "representationType" : {
         "name" : "U8",
         "kind" : "integer",
@@ -128,26 +89,69 @@
       },
       "enumeratedConstants" : [
         {
-          "name" : "UNTRANSMITTED",
-          "value" : 0,
-          "annotation" : "The untransmitted state"
+          "name" : "COM_QUEUE",
+          "value" : 0
         },
         {
-          "name" : "PARTIAL",
-          "value" : 1,
-          "annotation" : "The partially transmitted state\nA data product is in this state from the start of transmission\nuntil transmission is complete."
-        },
-        {
-          "name" : "TRANSMITTED",
-          "value" : 2,
-          "annotation" : "The transmitted state"
+          "name" : "BUFFER_QUEUE",
+          "value" : 1
         }
       ],
-      "default" : "Fw.DpState.UNTRANSMITTED"
+      "default" : "Svc.QueueType.COM_QUEUE",
+      "annotation" : "An enumeration of queue data types"
+    },
+    {
+      "kind" : "alias",
+      "qualifiedName" : "PlatformSizeType",
+      "type" : {
+        "name" : "U64",
+        "kind" : "integer",
+        "size" : 64,
+        "signed" : false
+      },
+      "underlyingType" : {
+        "name" : "U64",
+        "kind" : "integer",
+        "size" : 64,
+        "signed" : false
+      },
+      "annotation" : "The unsigned type of larger sizes internal to the software,\ne.g., memory buffer sizes, file sizes. Must be unsigned.\nSupplied by platform, overridable by project."
+    },
+    {
+      "kind" : "alias",
+      "qualifiedName" : "FwIdType",
+      "type" : {
+        "name" : "U32",
+        "kind" : "integer",
+        "size" : 32,
+        "signed" : false
+      },
+      "underlyingType" : {
+        "name" : "U32",
+        "kind" : "integer",
+        "size" : 32,
+        "signed" : false
+      },
+      "annotation" : "The id type."
+    },
+    {
+      "kind" : "alias",
+      "qualifiedName" : "FwIndexType",
+      "type" : {
+        "name" : "PlatformIndexType",
+        "kind" : "qualifiedIdentifier"
+      },
+      "underlyingType" : {
+        "name" : "I16",
+        "kind" : "integer",
+        "size" : 16,
+        "signed" : true
+      },
+      "annotation" : "The type of smaller indices internal to the software, used\nfor array indices, e.g., port indices. Must be signed."
     },
     {
       "kind" : "enum",
-      "qualifiedName" : "Svc.EventManager.FilterSeverity",
+      "qualifiedName" : "Svc.EventManager.Enabled",
       "representationType" : {
         "name" : "U8",
         "kind" : "integer",
@@ -156,82 +160,35 @@
       },
       "enumeratedConstants" : [
         {
-          "name" : "WARNING_HI",
+          "name" : "ENABLED",
           "value" : 0,
-          "annotation" : "Filter WARNING_HI events"
+          "annotation" : "Enabled state"
         },
         {
-          "name" : "WARNING_LO",
+          "name" : "DISABLED",
           "value" : 1,
-          "annotation" : "Filter WARNING_LO events"
-        },
-        {
-          "name" : "COMMAND",
-          "value" : 2,
-          "annotation" : "Filter COMMAND events"
-        },
-        {
-          "name" : "ACTIVITY_HI",
-          "value" : 3,
-          "annotation" : "Filter ACTIVITY_HI events"
-        },
-        {
-          "name" : "ACTIVITY_LO",
-          "value" : 4,
-          "annotation" : "Filter ACTIVITY_LO events"
-        },
-        {
-          "name" : "DIAGNOSTIC",
-          "value" : 5,
-          "annotation" : "Filter DIAGNOSTIC events"
+          "annotation" : "Disabled state"
         }
       ],
-      "default" : "Svc.EventManager.FilterSeverity.WARNING_HI",
-      "annotation" : "Severity level for event filtering\nSimilar to Fw::LogSeverity, but no FATAL event"
+      "default" : "Svc.EventManager.Enabled.ENABLED",
+      "annotation" : "Enabled and disabled state"
     },
     {
-      "kind" : "enum",
-      "qualifiedName" : "Fw.CmdResponse",
-      "representationType" : {
-        "name" : "U8",
+      "kind" : "alias",
+      "qualifiedName" : "FwTlmPacketizeIdType",
+      "type" : {
+        "name" : "U16",
         "kind" : "integer",
-        "size" : 8,
+        "size" : 16,
         "signed" : false
       },
-      "enumeratedConstants" : [
-        {
-          "name" : "OK",
-          "value" : 0,
-          "annotation" : "Command successfully executed"
-        },
-        {
-          "name" : "INVALID_OPCODE",
-          "value" : 1,
-          "annotation" : "Invalid opcode dispatched"
-        },
-        {
-          "name" : "VALIDATION_ERROR",
-          "value" : 2,
-          "annotation" : "Command failed validation"
-        },
-        {
-          "name" : "FORMAT_ERROR",
-          "value" : 3,
-          "annotation" : "Command failed to deserialize"
-        },
-        {
-          "name" : "EXECUTION_ERROR",
-          "value" : 4,
-          "annotation" : "Command had execution error"
-        },
-        {
-          "name" : "BUSY",
-          "value" : 5,
-          "annotation" : "Component busy"
-        }
-      ],
-      "default" : "Fw.CmdResponse.OK",
-      "annotation" : "Enum representing a command response"
+      "underlyingType" : {
+        "name" : "U16",
+        "kind" : "integer",
+        "size" : 16,
+        "signed" : false
+      },
+      "annotation" : "The type of a telemetry packet identifier"
     },
     {
       "kind" : "alias",
@@ -250,7 +207,7 @@
     },
     {
       "kind" : "enum",
-      "qualifiedName" : "Fw.DeserialStatus",
+      "qualifiedName" : "Svc.SystemResourceEnabled",
       "representationType" : {
         "name" : "U8",
         "kind" : "integer",
@@ -259,32 +216,63 @@
       },
       "enumeratedConstants" : [
         {
-          "name" : "OK",
+          "name" : "DISABLED",
           "value" : 0
         },
         {
-          "name" : "BUFFER_EMPTY",
-          "value" : 3,
-          "annotation" : "Deserialization buffer was empty when trying to read data"
-        },
-        {
-          "name" : "FORMAT_ERROR",
-          "value" : 4,
-          "annotation" : "Deserialization data had incorrect values (unexpected data types)"
-        },
-        {
-          "name" : "SIZE_MISMATCH",
-          "value" : 5,
-          "annotation" : "Data was left in in the buffer, but not enough to deserialize"
-        },
-        {
-          "name" : "TYPE_MISMATCH",
-          "value" : 6,
-          "annotation" : "Deserialized type ID didn't match"
+          "name" : "ENABLED",
+          "value" : 1
         }
       ],
-      "default" : "Fw.DeserialStatus.OK",
-      "annotation" : "Deserialization status"
+      "default" : "Svc.SystemResourceEnabled.DISABLED"
+    },
+    {
+      "kind" : "struct",
+      "qualifiedName" : "Fw.TimeIntervalValue",
+      "members" : {
+        "seconds" : {
+          "type" : {
+            "name" : "U32",
+            "kind" : "integer",
+            "size" : 32,
+            "signed" : false
+          },
+          "index" : 0,
+          "annotation" : "seconds portion of TimeInterval"
+        },
+        "useconds" : {
+          "type" : {
+            "name" : "U32",
+            "kind" : "integer",
+            "size" : 32,
+            "signed" : false
+          },
+          "index" : 1,
+          "annotation" : "microseconds portion of TimeInterval"
+        }
+      },
+      "default" : {
+        "seconds" : 0,
+        "useconds" : 0
+      },
+      "annotation" : "Data structure for Time Interval"
+    },
+    {
+      "kind" : "alias",
+      "qualifiedName" : "FwPacketDescriptorType",
+      "type" : {
+        "name" : "U16",
+        "kind" : "integer",
+        "size" : 16,
+        "signed" : false
+      },
+      "underlyingType" : {
+        "name" : "U16",
+        "kind" : "integer",
+        "size" : 16,
+        "signed" : false
+      },
+      "annotation" : "The width of packet descriptors when they are serialized by the framework"
     },
     {
       "kind" : "enum",
@@ -422,7 +410,7 @@
     },
     {
       "kind" : "enum",
-      "qualifiedName" : "Svc.QueueType",
+      "qualifiedName" : "Svc.PrmDb.PrmReadError",
       "representationType" : {
         "name" : "U8",
         "kind" : "integer",
@@ -431,46 +419,96 @@
       },
       "enumeratedConstants" : [
         {
-          "name" : "COM_QUEUE",
+          "name" : "OPEN",
           "value" : 0
         },
         {
-          "name" : "BUFFER_QUEUE",
+          "name" : "DELIMITER",
           "value" : 1
+        },
+        {
+          "name" : "DELIMITER_SIZE",
+          "value" : 2
+        },
+        {
+          "name" : "DELIMITER_VALUE",
+          "value" : 3
+        },
+        {
+          "name" : "RECORD_SIZE",
+          "value" : 4
+        },
+        {
+          "name" : "RECORD_SIZE_SIZE",
+          "value" : 5
+        },
+        {
+          "name" : "RECORD_SIZE_VALUE",
+          "value" : 6
+        },
+        {
+          "name" : "PARAMETER_ID",
+          "value" : 7
+        },
+        {
+          "name" : "PARAMETER_ID_SIZE",
+          "value" : 8
+        },
+        {
+          "name" : "PARAMETER_VALUE",
+          "value" : 9
+        },
+        {
+          "name" : "PARAMETER_VALUE_SIZE",
+          "value" : 10
+        },
+        {
+          "name" : "CRC",
+          "value" : 11
+        },
+        {
+          "name" : "CRC_SIZE",
+          "value" : 12
+        },
+        {
+          "name" : "CRC_BUFFER",
+          "value" : 13
+        },
+        {
+          "name" : "SEEK_ZERO",
+          "value" : 14
         }
       ],
-      "default" : "Svc.QueueType.COM_QUEUE",
-      "annotation" : "An enumeration of queue data types"
+      "default" : "Svc.PrmDb.PrmReadError.OPEN",
+      "annotation" : "Parameter read error"
     },
     {
       "kind" : "enum",
-      "qualifiedName" : "MpuImu.GyroscopeRange",
+      "qualifiedName" : "Fw.DpState",
       "representationType" : {
-        "name" : "U16",
+        "name" : "U8",
         "kind" : "integer",
-        "size" : 16,
+        "size" : 8,
         "signed" : false
       },
       "enumeratedConstants" : [
         {
-          "name" : "RANGE_250DEG",
-          "value" : 1310
+          "name" : "UNTRANSMITTED",
+          "value" : 0,
+          "annotation" : "The untransmitted state"
         },
         {
-          "name" : "RANGE_500DEG",
-          "value" : 655
+          "name" : "PARTIAL",
+          "value" : 1,
+          "annotation" : "The partially transmitted state\nA data product is in this state from the start of transmission\nuntil transmission is complete."
         },
         {
-          "name" : "RANGE_1000DEG",
-          "value" : 328
-        },
-        {
-          "name" : "RANGE_2000DEG",
-          "value" : 164
+          "name" : "TRANSMITTED",
+          "value" : 2,
+          "annotation" : "The transmitted state"
         }
       ],
-      "default" : "MpuImu.GyroscopeRange.RANGE_250DEG",
-      "annotation" : "Range of the gyroscope in degrees per second, integer values represent the conversion factor for the raw values from\nthe gyroscope registers to 10ths of a degree per second"
+      "default" : "Fw.DpState.UNTRANSMITTED"
     },
     {
       "kind" : "alias",
@@ -520,50 +558,64 @@
     },
     {
       "kind" : "alias",
-      "qualifiedName" : "PlatformSizeType",
+      "qualifiedName" : "PlatformIndexType",
       "type" : {
-        "name" : "U64",
+        "name" : "I16",
         "kind" : "integer",
-        "size" : 64,
-        "signed" : false
+        "size" : 16,
+        "signed" : true
       },
       "underlyingType" : {
-        "name" : "U64",
+        "name" : "I16",
         "kind" : "integer",
-        "size" : 64,
-        "signed" : false
+        "size" : 16,
+        "signed" : true
       },
-      "annotation" : "The unsigned type of larger sizes internal to the software,\ne.g., memory buffer sizes, file sizes. Must be unsigned.\nSupplied by platform, overridable by project."
+      "annotation" : "The type of smaller indices internal to the software, used\nfor array indices, e.g., port indices. Must be signed."
     },
     {
       "kind" : "enum",
-      "qualifiedName" : "MpuImu.AccelerationRange",
+      "qualifiedName" : "Svc.EventManager.FilterSeverity",
       "representationType" : {
-        "name" : "U16",
+        "name" : "U8",
         "kind" : "integer",
-        "size" : 16,
+        "size" : 8,
         "signed" : false
       },
       "enumeratedConstants" : [
         {
-          "name" : "RANGE_2G",
-          "value" : 16384
+          "name" : "WARNING_HI",
+          "value" : 0,
+          "annotation" : "Filter WARNING_HI events"
         },
         {
-          "name" : "RANGE_4G",
-          "value" : 8192
+          "name" : "WARNING_LO",
+          "value" : 1,
+          "annotation" : "Filter WARNING_LO events"
         },
         {
-          "name" : "RANGE_8G",
-          "value" : 4096
+          "name" : "COMMAND",
+          "value" : 2,
+          "annotation" : "Filter COMMAND events"
         },
         {
-          "name" : "RANGE_16G",
-          "value" : 2048
+          "name" : "ACTIVITY_HI",
+          "value" : 3,
+          "annotation" : "Filter ACTIVITY_HI events"
+        },
+        {
+          "name" : "ACTIVITY_LO",
+          "value" : 4,
+          "annotation" : "Filter ACTIVITY_LO events"
+        },
+        {
+          "name" : "DIAGNOSTIC",
+          "value" : 5,
+          "annotation" : "Filter DIAGNOSTIC events"
         }
       ],
-      "default" : "MpuImu.AccelerationRange.RANGE_2G",
-      "annotation" : "Range of the accelerometer in G's, integer values represent the conversion factor for the raw values from\nthe accelerometer registers to Gs"
+      "default" : "Svc.EventManager.FilterSeverity.WARNING_HI",
+      "annotation" : "Severity level for event filtering\nSimilar to Fw::LogSeverity, but no FATAL event"
     },
     {
       "kind" : "alias",
@@ -609,51 +661,6 @@
       ],
       "default" : "Svc.SendFileStatus.STATUS_OK",
       "annotation" : "Send file status enum"
-    },
-    {
-      "kind" : "struct",
-      "qualifiedName" : "MpuImu.ImuData",
-      "members" : {
-        "acceleration" : {
-          "type" : {
-            "name" : "FprimeSensors.GeometricVector3",
-            "kind" : "qualifiedIdentifier"
-          },
-          "index" : 0,
-          "annotation" : "Accelerations from the accelerometer"
-        },
-        "rotation" : {
-          "type" : {
-            "name" : "FprimeSensors.GeometricVector3",
-            "kind" : "qualifiedIdentifier"
-          },
-          "index" : 1,
-          "annotation" : "Angular rates from the gyroscope"
-        },
-        "temperature" : {
-          "type" : {
-            "name" : "F32",
-            "kind" : "float",
-            "size" : 32
-          },
-          "index" : 2,
-          "annotation" : "Temperature in degrees Celsius"
-        }
-      },
-      "default" : {
-        "acceleration" : {
-          "x" : 0.0,
-          "y" : 0.0,
-          "z" : 0.0
-        },
-        "rotation" : {
-          "x" : 0.0,
-          "y" : 0.0,
-          "z" : 0.0
-        },
-        "temperature" : 0.0
-      },
-      "annotation" : "Struct representing ImuData"
     },
     {
       "kind" : "enum",
@@ -816,43 +823,33 @@
       "annotation" : "Data structure representing a data product."
     },
     {
-      "kind" : "struct",
-      "qualifiedName" : "FprimeSensors.GeometricVector3",
-      "members" : {
-        "x" : {
-          "type" : {
-            "name" : "F32",
-            "kind" : "float",
-            "size" : 32
-          },
-          "index" : 0,
-          "annotation" : "X component of the vector"
+      "kind" : "enum",
+      "qualifiedName" : "Fw.TimeComparison",
+      "representationType" : {
+        "name" : "I32",
+        "kind" : "integer",
+        "size" : 32,
+        "signed" : true
+      },
+      "enumeratedConstants" : [
+        {
+          "name" : "LT",
+          "value" : -1
         },
-        "y" : {
-          "type" : {
-            "name" : "F32",
-            "kind" : "float",
-            "size" : 32
-          },
-          "index" : 1,
-          "annotation" : "Y component of the vector"
+        {
+          "name" : "EQ",
+          "value" : 0
         },
-        "z" : {
-          "type" : {
-            "name" : "F32",
-            "kind" : "float",
-            "size" : 32
-          },
-          "index" : 2,
-          "annotation" : "Z component of the vector"
+        {
+          "name" : "GT",
+          "value" : 1
+        },
+        {
+          "name" : "INCOMPARABLE",
+          "value" : 2
         }
-      },
-      "default" : {
-        "x" : 0.0,
-        "y" : 0.0,
-        "z" : 0.0
-      },
-      "annotation" : "Struct representing X, Y, Z data"
+      ],
+      "default" : "Fw.TimeComparison.LT"
     },
     {
       "kind" : "enum",
@@ -935,81 +932,6 @@
     },
     {
       "kind" : "enum",
-      "qualifiedName" : "Svc.PrmDb.PrmReadError",
-      "representationType" : {
-        "name" : "U8",
-        "kind" : "integer",
-        "size" : 8,
-        "signed" : false
-      },
-      "enumeratedConstants" : [
-        {
-          "name" : "OPEN",
-          "value" : 0
-        },
-        {
-          "name" : "DELIMITER",
-          "value" : 1
-        },
-        {
-          "name" : "DELIMITER_SIZE",
-          "value" : 2
-        },
-        {
-          "name" : "DELIMITER_VALUE",
-          "value" : 3
-        },
-        {
-          "name" : "RECORD_SIZE",
-          "value" : 4
-        },
-        {
-          "name" : "RECORD_SIZE_SIZE",
-          "value" : 5
-        },
-        {
-          "name" : "RECORD_SIZE_VALUE",
-          "value" : 6
-        },
-        {
-          "name" : "PARAMETER_ID",
-          "value" : 7
-        },
-        {
-          "name" : "PARAMETER_ID_SIZE",
-          "value" : 8
-        },
-        {
-          "name" : "PARAMETER_VALUE",
-          "value" : 9
-        },
-        {
-          "name" : "PARAMETER_VALUE_SIZE",
-          "value" : 10
-        }
-      ],
-      "default" : "Svc.PrmDb.PrmReadError.OPEN",
-      "annotation" : "Parameter read error"
-    },
-    {
-      "kind" : "alias",
-      "qualifiedName" : "FwIdType",
-      "type" : {
-        "name" : "U32",
-        "kind" : "integer",
-        "size" : 32,
-        "signed" : false
-      },
-      "underlyingType" : {
-        "name" : "U32",
-        "kind" : "integer",
-        "size" : 32,
-        "signed" : false
-      },
-      "annotation" : "The id type."
-    },
-    {
-      "kind" : "enum",
       "qualifiedName" : "Svc.PrmDb.PrmWriteError",
       "representationType" : {
         "name" : "U8",
@@ -1053,6 +975,26 @@
         {
           "name" : "PARAMETER_VALUE_SIZE",
           "value" : 8
+        },
+        {
+          "name" : "CRC_PLACE",
+          "value" : 9
+        },
+        {
+          "name" : "CRC_REAL",
+          "value" : 10
+        },
+        {
+          "name" : "CURR_POSITION",
+          "value" : 11
+        },
+        {
+          "name" : "SEEK_ZERO",
+          "value" : 12
+        },
+        {
+          "name" : "SEEK_POSITION",
+          "value" : 13
         }
       ],
       "default" : "Svc.PrmDb.PrmWriteError.OPEN",
@@ -1060,7 +1002,7 @@
     },
     {
       "kind" : "enum",
-      "qualifiedName" : "Svc.EventManager.Enabled",
+      "qualifiedName" : "Fw.CmdResponse",
       "representationType" : {
         "name" : "U8",
         "kind" : "integer",
@@ -1069,18 +1011,38 @@
       },
       "enumeratedConstants" : [
         {
-          "name" : "ENABLED",
+          "name" : "OK",
           "value" : 0,
-          "annotation" : "Enabled state"
+          "annotation" : "Command successfully executed"
         },
         {
-          "name" : "DISABLED",
+          "name" : "INVALID_OPCODE",
           "value" : 1,
-          "annotation" : "Disabled state"
+          "annotation" : "Invalid opcode dispatched"
+        },
+        {
+          "name" : "VALIDATION_ERROR",
+          "value" : 2,
+          "annotation" : "Command failed validation"
+        },
+        {
+          "name" : "FORMAT_ERROR",
+          "value" : 3,
+          "annotation" : "Command failed to deserialize"
+        },
+        {
+          "name" : "EXECUTION_ERROR",
+          "value" : 4,
+          "annotation" : "Command had execution error"
+        },
+        {
+          "name" : "BUSY",
+          "value" : 5,
+          "annotation" : "Component busy"
         }
       ],
-      "default" : "Svc.EventManager.Enabled.ENABLED",
-      "annotation" : "Enabled and disabled state"
+      "default" : "Fw.CmdResponse.OK",
+      "annotation" : "Enum representing a command response"
     },
     {
       "kind" : "enum",
@@ -1132,126 +1094,6 @@
       ],
       "default" : "Svc.CmdSequencer.BlockState.BLOCK",
       "annotation" : "Sequencer blocking state"
-    },
-    {
-      "kind" : "alias",
-      "qualifiedName" : "FwTlmPacketizeIdType",
-      "type" : {
-        "name" : "U16",
-        "kind" : "integer",
-        "size" : 16,
-        "signed" : false
-      },
-      "underlyingType" : {
-        "name" : "U16",
-        "kind" : "integer",
-        "size" : 16,
-        "signed" : false
-      },
-      "annotation" : "The type of a telemetry packet identifier"
-    },
-    {
-      "kind" : "enum",
-      "qualifiedName" : "Drv.I2cStatus",
-      "representationType" : {
-        "name" : "U8",
-        "kind" : "integer",
-        "size" : 8,
-        "signed" : false
-      },
-      "enumeratedConstants" : [
-        {
-          "name" : "I2C_OK",
-          "value" : 0,
-          "annotation" : "Transaction okay"
-        },
-        {
-          "name" : "I2C_ADDRESS_ERR",
-          "value" : 1,
-          "annotation" : "I2C address invalid"
-        },
-        {
-          "name" : "I2C_WRITE_ERR",
-          "value" : 2,
-          "annotation" : "I2C write failed"
-        },
-        {
-          "name" : "I2C_READ_ERR",
-          "value" : 3,
-          "annotation" : "I2C read failed"
-        },
-        {
-          "name" : "I2C_OPEN_ERR",
-          "value" : 4,
-          "annotation" : "I2C driver failed to open device"
-        },
-        {
-          "name" : "I2C_OTHER_ERR",
-          "value" : 5,
-          "annotation" : "Other errors that don't fit"
-        }
-      ],
-      "default" : "Drv.I2cStatus.I2C_OK"
-    },
-    {
-      "kind" : "enum",
-      "qualifiedName" : "Svc.SystemResourceEnabled",
-      "representationType" : {
-        "name" : "U8",
-        "kind" : "integer",
-        "size" : 8,
-        "signed" : false
-      },
-      "enumeratedConstants" : [
-        {
-          "name" : "DISABLED",
-          "value" : 0
-        },
-        {
-          "name" : "ENABLED",
-          "value" : 1
-        }
-      ],
-      "default" : "Svc.SystemResourceEnabled.DISABLED"
-    },
-    {
-      "kind" : "struct",
-      "qualifiedName" : "NmeaGps.GpsData",
-      "members" : {
-        "latitude" : {
-          "type" : {
-            "name" : "F64",
-            "kind" : "float",
-            "size" : 64
-          },
-          "index" : 0,
-          "annotation" : "Latitude in degrees"
-        },
-        "longitude" : {
-          "type" : {
-            "name" : "F64",
-            "kind" : "float",
-            "size" : 64
-          },
-          "index" : 1,
-          "annotation" : "Longitude in degrees"
-        },
-        "altitude" : {
-          "type" : {
-            "name" : "F64",
-            "kind" : "float",
-            "size" : 64
-          },
-          "index" : 2,
-          "annotation" : "Altitude in meters"
-        }
-      },
-      "default" : {
-        "latitude" : 0.0,
-        "longitude" : 0.0,
-        "altitude" : 0.0
-      },
-      "annotation" : "Struct representing GPS data"
     },
     {
       "kind" : "enum",
@@ -1397,64 +1239,8 @@
       "annotation" : "An enumeration for version status"
     },
     {
-      "kind" : "struct",
-      "qualifiedName" : "Bmp280.Bmp280Data",
-      "members" : {
-        "pressure" : {
-          "type" : {
-            "name" : "F32",
-            "kind" : "float",
-            "size" : 32
-          },
-          "index" : 0,
-          "annotation" : "Pressure in Pascals (Pa)"
-        },
-        "temperature" : {
-          "type" : {
-            "name" : "F32",
-            "kind" : "float",
-            "size" : 32
-          },
-          "index" : 1,
-          "annotation" : "Temperature in degrees Celsius (°C)"
-        },
-        "altitude" : {
-          "type" : {
-            "name" : "F32",
-            "kind" : "float",
-            "size" : 32
-          },
-          "index" : 2,
-          "annotation" : "Altitude in meters (m)"
-        }
-      },
-      "default" : {
-        "pressure" : 0.0,
-        "temperature" : 0.0,
-        "altitude" : 0.0
-      },
-      "annotation" : "Struct representing Bmp280 sensor data"
-    },
-    {
-      "kind" : "alias",
-      "qualifiedName" : "FwPacketDescriptorType",
-      "type" : {
-        "name" : "U16",
-        "kind" : "integer",
-        "size" : 16,
-        "signed" : false
-      },
-      "underlyingType" : {
-        "name" : "U16",
-        "kind" : "integer",
-        "size" : 16,
-        "signed" : false
-      },
-      "annotation" : "The width of packet descriptors when they are serialized by the framework"
-    },
-    {
       "kind" : "enum",
-      "qualifiedName" : "Bmp280.PressureOversampling",
+      "qualifiedName" : "Fw.DeserialStatus",
       "representationType" : {
         "name" : "U8",
         "kind" : "integer",
@@ -1463,32 +1249,81 @@
       },
       "enumeratedConstants" : [
         {
-          "name" : "SKIP",
+          "name" : "OK",
           "value" : 0
         },
         {
-          "name" : "OVERSAMPLE_1X",
-          "value" : 4
+          "name" : "BUFFER_EMPTY",
+          "value" : 3,
+          "annotation" : "Deserialization buffer was empty when trying to read data"
         },
         {
-          "name" : "OVERSAMPLE_2X",
-          "value" : 8
+          "name" : "FORMAT_ERROR",
+          "value" : 4,
+          "annotation" : "Deserialization data had incorrect values (unexpected data types)"
         },
         {
-          "name" : "OVERSAMPLE_4X",
-          "value" : 12
+          "name" : "SIZE_MISMATCH",
+          "value" : 5,
+          "annotation" : "Data was left in in the buffer, but not enough to deserialize"
         },
         {
-          "name" : "OVERSAMPLE_8X",
-          "value" : 16
-        },
-        {
-          "name" : "OVERSAMPLE_16X",
-          "value" : 20
+          "name" : "TYPE_MISMATCH",
+          "value" : 6,
+          "annotation" : "Deserialized type ID didn't match"
         }
       ],
-      "default" : "Bmp280.PressureOversampling.SKIP",
-      "annotation" : "Oversampling setting for pressure measurement"
+      "default" : "Fw.DeserialStatus.OK",
+      "annotation" : "Deserialization status"
+    },
+    {
+      "kind" : "struct",
+      "qualifiedName" : "Fw.TimeValue",
+      "members" : {
+        "timeBase" : {
+          "type" : {
+            "name" : "TimeBase",
+            "kind" : "qualifiedIdentifier"
+          },
+          "index" : 0,
+          "annotation" : "basis of time (defined by system)"
+        },
+        "timeContext" : {
+          "type" : {
+            "name" : "FwTimeContextStoreType",
+            "kind" : "qualifiedIdentifier"
+          },
+          "index" : 1,
+          "annotation" : "user settable value. Could be reboot count, node, etc"
+        },
+        "seconds" : {
+          "type" : {
+            "name" : "U32",
+            "kind" : "integer",
+            "size" : 32,
+            "signed" : false
+          },
+          "index" : 2,
+          "annotation" : "seconds portion of Time"
+        },
+        "useconds" : {
+          "type" : {
+            "name" : "U32",
+            "kind" : "integer",
+            "size" : 32,
+            "signed" : false
+          },
+          "index" : 3,
+          "annotation" : "microseconds portion of Time"
+        }
+      },
+      "default" : {
+        "timeBase" : "TimeBase.TB_NONE",
+        "timeContext" : 0,
+        "seconds" : 0,
+        "useconds" : 0
+      },
+      "annotation" : "Data structure for Time"
     },
     {
       "kind" : "enum",
@@ -1641,6 +1476,18 @@
   "constants" : [
     {
       "kind" : "constant",
+      "qualifiedName" : "Svc.Fpy.MAX_STACK_SIZE",
+      "type" : {
+        "name" : "U64",
+        "kind" : "integer",
+        "size" : 64,
+        "signed" : false
+      },
+      "value" : 65535,
+      "annotation" : "the maximum number of bytes in a stack"
+    },
+    {
+      "kind" : "constant",
       "qualifiedName" : "ComQueueComPorts",
       "type" : {
         "name" : "U64",
@@ -1650,6 +1497,18 @@
       },
       "value" : 2,
       "annotation" : "Used for number of Fw::Com type ports supported by Svc::ComQueue"
+    },
+    {
+      "kind" : "constant",
+      "qualifiedName" : "Svc.Fpy.MAX_SEQUENCE_STATEMENT_COUNT",
+      "type" : {
+        "name" : "U64",
+        "kind" : "integer",
+        "size" : 64,
+        "signed" : false
+      },
+      "value" : 2048,
+      "annotation" : "The maximum number of statements a sequence can have"
     },
     {
       "kind" : "constant",
@@ -1665,18 +1524,6 @@
     },
     {
       "kind" : "constant",
-      "qualifiedName" : "AssertFatalAdapterEventFileSize",
-      "type" : {
-        "name" : "U64",
-        "kind" : "integer",
-        "size" : 64,
-        "signed" : false
-      },
-      "value" : 200,
-      "annotation" : "The size of a file name in an AssertFatalAdapter event\nNote: File names in assertion failures are also truncated by\nthe constants FW_ASSERT_TEXT_SIZE and FW_LOG_STRING_MAX_SIZE, set\nin FpConfig.h."
-    },
-    {
-      "kind" : "constant",
       "qualifiedName" : "FW_SERIALIZE_FALSE_VALUE",
       "type" : {
         "name" : "U64",
@@ -1686,18 +1533,6 @@
       },
       "value" : 0,
       "annotation" : "Value encoded during serialization for boolean false"
-    },
-    {
-      "kind" : "constant",
-      "qualifiedName" : "ComCfg.SpacecraftId",
-      "type" : {
-        "name" : "U64",
-        "kind" : "integer",
-        "size" : 64,
-        "signed" : false
-      },
-      "value" : 68,
-      "annotation" : "Spacecraft ID (10 bits) for CCSDS Data Link layer"
     },
     {
       "kind" : "constant",
@@ -1725,6 +1560,18 @@
     },
     {
       "kind" : "constant",
+      "qualifiedName" : "Svc.Fpy.MAX_DIRECTIVE_SIZE",
+      "type" : {
+        "name" : "U64",
+        "kind" : "integer",
+        "size" : 64,
+        "signed" : false
+      },
+      "value" : 2048,
+      "annotation" : "the maximum number of bytes in a directive"
+    },
+    {
+      "kind" : "constant",
       "qualifiedName" : "ComQueueBufferPorts",
       "type" : {
         "name" : "U64",
@@ -1746,6 +1593,54 @@
       },
       "value" : 200,
       "annotation" : "The size of a file name string"
+    },
+    {
+      "kind" : "constant",
+      "qualifiedName" : "FW_FIXED_LENGTH_STRING_SIZE",
+      "type" : {
+        "name" : "U64",
+        "kind" : "integer",
+        "size" : 64,
+        "signed" : false
+      },
+      "value" : 256,
+      "annotation" : "Configuration for Fw::String\nNote: FPrimeBasicTypes.hpp needs to be updated to sync enum"
+    },
+    {
+      "kind" : "constant",
+      "qualifiedName" : "AssertFatalAdapterEventFileSize",
+      "type" : {
+        "name" : "U64",
+        "kind" : "integer",
+        "size" : 64,
+        "signed" : false
+      },
+      "value" : 200,
+      "annotation" : "The size of a file name in an AssertFatalAdapter event\nNote: File names in assertion failures are also truncated by\nthe constants FW_ASSERT_TEXT_SIZE and FW_LOG_STRING_MAX_SIZE, set\nin FpConfig.h."
+    },
+    {
+      "kind" : "constant",
+      "qualifiedName" : "ComCfg.SpacecraftId",
+      "type" : {
+        "name" : "U64",
+        "kind" : "integer",
+        "size" : 64,
+        "signed" : false
+      },
+      "value" : 68,
+      "annotation" : "Spacecraft ID (10 bits) for CCSDS Data Link layer"
+    },
+    {
+      "kind" : "constant",
+      "qualifiedName" : "Svc.Fpy.MAX_SEQUENCE_ARG_COUNT",
+      "type" : {
+        "name" : "U64",
+        "kind" : "integer",
+        "size" : 64,
+        "signed" : false
+      },
+      "value" : 16,
+      "annotation" : "The maximum number of arguments a sequence can have"
     }
   ],
   "commands" : [
@@ -2010,6 +1905,116 @@
       "annotation" : "Report version as Event"
     },
     {
+      "name" : "CdhCore.tlmSend.SET_LEVEL",
+      "commandKind" : "async",
+      "opcode" : 16801792,
+      "formalParams" : [
+        {
+          "name" : "level",
+          "type" : {
+            "name" : "FwChanIdType",
+            "kind" : "qualifiedIdentifier"
+          },
+          "ref" : false,
+          "annotation" : "The I32 command argument"
+        }
+      ],
+      "queueFullBehavior" : "assert",
+      "annotation" : "Set telemetry send level"
+    },
+    {
+      "name" : "CdhCore.tlmSend.SEND_PKT",
+      "commandKind" : "async",
+      "opcode" : 16801793,
+      "formalParams" : [
+        {
+          "name" : "id",
+          "type" : {
+            "name" : "U32",
+            "kind" : "integer",
+            "size" : 32,
+            "signed" : false
+          },
+          "ref" : false,
+          "annotation" : "The packet ID"
+        }
+      ],
+      "queueFullBehavior" : "assert",
+      "annotation" : "Force a packet to be sent"
+    },
+    {
+      "name" : "ComCcsds.comQueue.FLUSH_QUEUE",
+      "commandKind" : "async",
+      "opcode" : 33554432,
+      "formalParams" : [
+        {
+          "name" : "queueType",
+          "type" : {
+            "name" : "Svc.QueueType",
+            "kind" : "qualifiedIdentifier"
+          },
+          "ref" : false,
+          "annotation" : "The Queue data type"
+        },
+        {
+          "name" : "indexType",
+          "type" : {
+            "name" : "FwIndexType",
+            "kind" : "qualifiedIdentifier"
+          },
+          "ref" : false,
+          "annotation" : "The index of the queue (within the supplied type) to flush"
+        }
+      ],
+      "queueFullBehavior" : "assert",
+      "annotation" : "Flush a specific queue. This will discard all queued data in the specified queue removing it from eventual\ndownlink. Buffers requiring ownership return will be returned via the bufferReturnOut port."
+    },
+    {
+      "name" : "ComCcsds.comQueue.FLUSH_ALL_QUEUES",
+      "commandKind" : "async",
+      "opcode" : 33554433,
+      "formalParams" : [
+      ],
+      "queueFullBehavior" : "assert",
+      "annotation" : "Flush all queues. This will discard all queued data removing it from eventual downlink. Buffers requiring\nownership return will be returned via the bufferReturnOut port."
+    },
+    {
+      "name" : "ComCcsds.comQueue.SET_QUEUE_PRIORITY",
+      "commandKind" : "async",
+      "opcode" : 33554434,
+      "formalParams" : [
+        {
+          "name" : "queueType",
+          "type" : {
+            "name" : "Svc.QueueType",
+            "kind" : "qualifiedIdentifier"
+          },
+          "ref" : false,
+          "annotation" : "The Queue data type"
+        },
+        {
+          "name" : "indexType",
+          "type" : {
+            "name" : "FwIndexType",
+            "kind" : "qualifiedIdentifier"
+          },
+          "ref" : false,
+          "annotation" : "The index of the queue (within the supplied type) to modify"
+        },
+        {
+          "name" : "newPriority",
+          "type" : {
+            "name" : "FwIndexType",
+            "kind" : "qualifiedIdentifier"
+          },
+          "ref" : false,
+          "annotation" : "New priority value for the queue"
+        }
+      ],
+      "queueFullBehavior" : "assert",
+      "annotation" : "Set the priority of a specific queue at runtime"
+    },
+    {
       "name" : "DataProducts.dpCat.BUILD_CATALOG",
       "commandKind" : "async",
       "opcode" : 67108864,
@@ -2031,6 +2036,16 @@
           },
           "ref" : false,
           "annotation" : "have START_XMIT command complete wait for catalog to complete transmitting"
+        },
+        {
+          "name" : "remainActive",
+          "type" : {
+            "name" : "bool",
+            "kind" : "bool",
+            "size" : 8
+          },
+          "ref" : false,
+          "annotation" : "should the catalog resume transmission when Dps are added at runtime"
         }
       ],
       "queueFullBehavior" : "assert",
@@ -2353,6 +2368,25 @@
       "annotation" : "List the contents of a directory"
     },
     {
+      "name" : "FileHandling.fileManager.CalculateCrc",
+      "commandKind" : "async",
+      "opcode" : 83894280,
+      "formalParams" : [
+        {
+          "name" : "filename",
+          "type" : {
+            "name" : "string",
+            "kind" : "string",
+            "size" : 200
+          },
+          "ref" : false,
+          "annotation" : "The file to CRC"
+        }
+      ],
+      "queueFullBehavior" : "assert",
+      "annotation" : "List the contents of a directory"
+    },
+    {
       "name" : "FileHandling.prmDb.PRM_SAVE_FILE",
       "commandKind" : "async",
       "opcode" : 83898368,
@@ -2399,7 +2433,7 @@
       "annotation" : "Commits the backup database to become the prime (active) database"
     },
     {
-      "name" : "ReferenceDeployment.cmdSeq.CS_RUN",
+      "name" : "FprimeYamcsReference.cmdSeq.CS_RUN",
       "commandKind" : "async",
       "opcode" : 268451840,
       "formalParams" : [
@@ -2427,7 +2461,7 @@
       "annotation" : "Run a command sequence file"
     },
     {
-      "name" : "ReferenceDeployment.cmdSeq.CS_VALIDATE",
+      "name" : "FprimeYamcsReference.cmdSeq.CS_VALIDATE",
       "commandKind" : "async",
       "opcode" : 268451841,
       "formalParams" : [
@@ -2446,7 +2480,7 @@
       "annotation" : "Validate a command sequence file"
     },
     {
-      "name" : "ReferenceDeployment.cmdSeq.CS_CANCEL",
+      "name" : "FprimeYamcsReference.cmdSeq.CS_CANCEL",
       "commandKind" : "async",
       "opcode" : 268451842,
       "formalParams" : [
@@ -2455,7 +2489,7 @@
       "annotation" : "Cancel a command sequence"
     },
     {
-      "name" : "ReferenceDeployment.cmdSeq.CS_START",
+      "name" : "FprimeYamcsReference.cmdSeq.CS_START",
       "commandKind" : "async",
       "opcode" : 268451843,
       "formalParams" : [
@@ -2464,7 +2498,7 @@
       "annotation" : "Start running a command sequence"
     },
     {
-      "name" : "ReferenceDeployment.cmdSeq.CS_STEP",
+      "name" : "FprimeYamcsReference.cmdSeq.CS_STEP",
       "commandKind" : "async",
       "opcode" : 268451844,
       "formalParams" : [
@@ -2473,7 +2507,7 @@
       "annotation" : "Perform one step in a command sequence. Valid only if CmdSequencer is in MANUAL run mode."
     },
     {
-      "name" : "ReferenceDeployment.cmdSeq.CS_AUTO",
+      "name" : "FprimeYamcsReference.cmdSeq.CS_AUTO",
       "commandKind" : "async",
       "opcode" : 268451845,
       "formalParams" : [
@@ -2482,7 +2516,7 @@
       "annotation" : "Set the run mode to AUTO."
     },
     {
-      "name" : "ReferenceDeployment.cmdSeq.CS_MANUAL",
+      "name" : "FprimeYamcsReference.cmdSeq.CS_MANUAL",
       "commandKind" : "async",
       "opcode" : 268451846,
       "formalParams" : [
@@ -2491,7 +2525,7 @@
       "annotation" : "Set the run mode to MANUAL."
     },
     {
-      "name" : "ReferenceDeployment.cmdSeq.CS_JOIN_WAIT",
+      "name" : "FprimeYamcsReference.cmdSeq.CS_JOIN_WAIT",
       "commandKind" : "async",
       "opcode" : 268451847,
       "formalParams" : [
@@ -2500,7 +2534,7 @@
       "annotation" : "Wait for sequences that are running to finish. Allow user to run multiple seq files in SEQ_NO_BLOCK mode then wait for them to finish before allowing more seq run request."
     },
     {
-      "name" : "ReferenceDeployment.systemResources.ENABLE",
+      "name" : "FprimeYamcsReference.systemResources.ENABLE",
       "commandKind" : "guarded",
       "opcode" : 268509184,
       "formalParams" : [
@@ -2515,190 +2549,9 @@
         }
       ],
       "annotation" : "A command to enable or disable system resource telemetry"
-    },
-    {
-      "name" : "Bmp280.bmpManager.PRESSURE_OVERSAMPLING_PRM_SET",
-      "commandKind" : "set",
-      "opcode" : 3489665024,
-      "formalParams" : [
-        {
-          "name" : "val",
-          "type" : {
-            "name" : "Bmp280.PressureOversampling",
-            "kind" : "qualifiedIdentifier"
-          },
-          "ref" : false
-        }
-      ],
-      "annotation" : "Parameter for setting the pressure oversampling"
-    },
-    {
-      "name" : "Bmp280.bmpManager.PRESSURE_OVERSAMPLING_PRM_SAVE",
-      "commandKind" : "save",
-      "opcode" : 3489665025,
-      "formalParams" : [
-      ],
-      "annotation" : "Parameter for setting the pressure oversampling"
-    },
-    {
-      "name" : "Bmp280.bmpManager.TEMPERATURE_OVERSAMPLING_PRM_SET",
-      "commandKind" : "set",
-      "opcode" : 3489665026,
-      "formalParams" : [
-        {
-          "name" : "val",
-          "type" : {
-            "name" : "Bmp280.TemperatureOversampling",
-            "kind" : "qualifiedIdentifier"
-          },
-          "ref" : false
-        }
-      ],
-      "annotation" : "Parameter for setting the temperature oversampling"
-    },
-    {
-      "name" : "Bmp280.bmpManager.TEMPERATURE_OVERSAMPLING_PRM_SAVE",
-      "commandKind" : "save",
-      "opcode" : 3489665027,
-      "formalParams" : [
-      ],
-      "annotation" : "Parameter for setting the temperature oversampling"
-    },
-    {
-      "name" : "Bmp280.bmpManager.SEA_LEVEL_PRESSURE_PRM_SET",
-      "commandKind" : "set",
-      "opcode" : 3489665028,
-      "formalParams" : [
-        {
-          "name" : "val",
-          "type" : {
-            "name" : "F32",
-            "kind" : "float",
-            "size" : 32
-          },
-          "ref" : false
-        }
-      ],
-      "annotation" : "Parameter for setting the sea-level pressure for altitude calculation (Pa)"
-    },
-    {
-      "name" : "Bmp280.bmpManager.SEA_LEVEL_PRESSURE_PRM_SAVE",
-      "commandKind" : "save",
-      "opcode" : 3489665029,
-      "formalParams" : [
-      ],
-      "annotation" : "Parameter for setting the sea-level pressure for altitude calculation (Pa)"
-    },
-    {
-      "name" : "MpuImu.imuManager.ACCELEROMETER_RANGE_PRM_SET",
-      "commandKind" : "set",
-      "opcode" : 3758100480,
-      "formalParams" : [
-        {
-          "name" : "val",
-          "type" : {
-            "name" : "MpuImu.AccelerationRange",
-            "kind" : "qualifiedIdentifier"
-          },
-          "ref" : false
-        }
-      ],
-      "annotation" : "Parameter for setting the accelerometer range"
-    },
-    {
-      "name" : "MpuImu.imuManager.ACCELEROMETER_RANGE_PRM_SAVE",
-      "commandKind" : "save",
-      "opcode" : 3758100481,
-      "formalParams" : [
-      ],
-      "annotation" : "Parameter for setting the accelerometer range"
-    },
-    {
-      "name" : "MpuImu.imuManager.GYROSCOPE_RANGE_PRM_SET",
-      "commandKind" : "set",
-      "opcode" : 3758100482,
-      "formalParams" : [
-        {
-          "name" : "val",
-          "type" : {
-            "name" : "MpuImu.GyroscopeRange",
-            "kind" : "qualifiedIdentifier"
-          },
-          "ref" : false
-        }
-      ],
-      "annotation" : "Parameter for setting the gyroscope range"
-    },
-    {
-      "name" : "MpuImu.imuManager.GYROSCOPE_RANGE_PRM_SAVE",
-      "commandKind" : "save",
-      "opcode" : 3758100483,
-      "formalParams" : [
-      ],
-      "annotation" : "Parameter for setting the gyroscope range"
-    },
-    {
-      "name" : "MpuImu.imuManager.RESET",
-      "commandKind" : "async",
-      "opcode" : 3758100484,
-      "formalParams" : [
-      ],
-      "queueFullBehavior" : "assert",
-      "annotation" : "Command to force a RESET"
     }
   ],
   "parameters" : [
-    {
-      "name" : "Bmp280.bmpManager.PRESSURE_OVERSAMPLING",
-      "type" : {
-        "name" : "Bmp280.PressureOversampling",
-        "kind" : "qualifiedIdentifier"
-      },
-      "id" : 3489665024,
-      "default" : "Bmp280.PressureOversampling.OVERSAMPLE_1X",
-      "annotation" : "Parameter for setting the pressure oversampling"
-    },
-    {
-      "name" : "Bmp280.bmpManager.TEMPERATURE_OVERSAMPLING",
-      "type" : {
-        "name" : "Bmp280.TemperatureOversampling",
-        "kind" : "qualifiedIdentifier"
-      },
-      "id" : 3489665025,
-      "default" : "Bmp280.TemperatureOversampling.OVERSAMPLE_1X",
-      "annotation" : "Parameter for setting the temperature oversampling"
-    },
-    {
-      "name" : "Bmp280.bmpManager.SEA_LEVEL_PRESSURE",
-      "type" : {
-        "name" : "F32",
-        "kind" : "float",
-        "size" : 32
-      },
-      "id" : 3489665026,
-      "default" : 101325.0,
-      "annotation" : "Parameter for setting the sea-level pressure for altitude calculation (Pa)"
-    },
-    {
-      "name" : "MpuImu.imuManager.ACCELEROMETER_RANGE",
-      "type" : {
-        "name" : "MpuImu.AccelerationRange",
-        "kind" : "qualifiedIdentifier"
-      },
-      "id" : 3758100480,
-      "default" : "MpuImu.AccelerationRange.RANGE_2G",
-      "annotation" : "Parameter for setting the accelerometer range"
-    },
-    {
-      "name" : "MpuImu.imuManager.GYROSCOPE_RANGE",
-      "type" : {
-        "name" : "MpuImu.GyroscopeRange",
-        "kind" : "qualifiedIdentifier"
-      },
-      "id" : 3758100481,
-      "default" : "MpuImu.GyroscopeRange.RANGE_250DEG",
-      "annotation" : "Parameter for setting the gyroscope range"
-    }
   ],
   "events" : [
     {
@@ -3881,6 +3734,109 @@
       "annotation" : "An unexpected assert happened"
     },
     {
+      "name" : "CdhCore.tlmSend.NoChan",
+      "severity" : "WARNING_LO",
+      "formalParams" : [
+        {
+          "name" : "Id",
+          "type" : {
+            "name" : "FwChanIdType",
+            "kind" : "qualifiedIdentifier"
+          },
+          "ref" : false,
+          "annotation" : "The telemetry ID"
+        }
+      ],
+      "id" : 16801792,
+      "format" : "Telemetry ID 0x{x} not packetized",
+      "annotation" : "Telemetry channel is not part of a telemetry packet."
+    },
+    {
+      "name" : "CdhCore.tlmSend.LevelSet",
+      "severity" : "ACTIVITY_HI",
+      "formalParams" : [
+        {
+          "name" : "id",
+          "type" : {
+            "name" : "FwChanIdType",
+            "kind" : "qualifiedIdentifier"
+          },
+          "ref" : false,
+          "annotation" : "The level"
+        }
+      ],
+      "id" : 16801793,
+      "format" : "Telemetry send level to {}",
+      "annotation" : "Telemetry send level set"
+    },
+    {
+      "name" : "CdhCore.tlmSend.MaxLevelExceed",
+      "severity" : "WARNING_LO",
+      "formalParams" : [
+        {
+          "name" : "level",
+          "type" : {
+            "name" : "FwChanIdType",
+            "kind" : "qualifiedIdentifier"
+          },
+          "ref" : false,
+          "annotation" : "The level"
+        },
+        {
+          "name" : "max",
+          "type" : {
+            "name" : "FwChanIdType",
+            "kind" : "qualifiedIdentifier"
+          },
+          "ref" : false,
+          "annotation" : "The max packet level"
+        }
+      ],
+      "id" : 16801794,
+      "format" : "Requested send level {} higher than max packet level of {}",
+      "annotation" : "Telemetry send level set"
+    },
+    {
+      "name" : "CdhCore.tlmSend.PacketSent",
+      "severity" : "ACTIVITY_LO",
+      "formalParams" : [
+        {
+          "name" : "id",
+          "type" : {
+            "name" : "U32",
+            "kind" : "integer",
+            "size" : 32,
+            "signed" : false
+          },
+          "ref" : false,
+          "annotation" : "The packet ID"
+        }
+      ],
+      "id" : 16801795,
+      "format" : "Sent packet ID {}",
+      "annotation" : "Packet manually sent"
+    },
+    {
+      "name" : "CdhCore.tlmSend.PacketNotFound",
+      "severity" : "WARNING_LO",
+      "formalParams" : [
+        {
+          "name" : "id",
+          "type" : {
+            "name" : "U32",
+            "kind" : "integer",
+            "size" : 32,
+            "signed" : false
+          },
+          "ref" : false,
+          "annotation" : "The packet ID"
+        }
+      ],
+      "id" : 16801796,
+      "format" : "Could not find packet ID {}",
+      "annotation" : "Couldn't find the packet to send"
+    },
+    {
       "name" : "ComCcsds.comQueue.QueueOverflow",
       "severity" : "WARNING_HI",
       "formalParams" : [
@@ -3896,10 +3852,8 @@
         {
           "name" : "index",
           "type" : {
-            "name" : "U32",
-            "kind" : "integer",
-            "size" : 32,
-            "signed" : false
+            "name" : "FwIndexType",
+            "kind" : "qualifiedIdentifier"
           },
           "ref" : false,
           "annotation" : "index of overflowed queue"
@@ -3908,6 +3862,42 @@
       "id" : 33554432,
       "format" : "The {} queue at index {} overflowed",
       "annotation" : "Queue overflow event"
+    },
+    {
+      "name" : "ComCcsds.comQueue.QueuePriorityChanged",
+      "severity" : "ACTIVITY_HI",
+      "formalParams" : [
+        {
+          "name" : "queueType",
+          "type" : {
+            "name" : "Svc.QueueType",
+            "kind" : "qualifiedIdentifier"
+          },
+          "ref" : false,
+          "annotation" : "The Queue data type"
+        },
+        {
+          "name" : "indexType",
+          "type" : {
+            "name" : "FwIndexType",
+            "kind" : "qualifiedIdentifier"
+          },
+          "ref" : false,
+          "annotation" : "The index of the queue (within the supplied type) that was modified"
+        },
+        {
+          "name" : "newPriority",
+          "type" : {
+            "name" : "FwIndexType",
+            "kind" : "qualifiedIdentifier"
+          },
+          "ref" : false,
+          "annotation" : "New priority value"
+        }
+      ],
+      "id" : 33554433,
+      "format" : "{} {} priority changed to {}",
+      "annotation" : "Queue priority changed event"
     },
     {
       "name" : "ComCcsds.frameAccumulator.NoBufferAvailable",
@@ -4225,7 +4215,7 @@
           "type" : {
             "name" : "string",
             "kind" : "string",
-            "size" : 80
+            "size" : 200
           },
           "ref" : false,
           "annotation" : "The directory"
@@ -4255,7 +4245,7 @@
           "type" : {
             "name" : "string",
             "kind" : "string",
-            "size" : 80
+            "size" : 200
           },
           "ref" : false,
           "annotation" : "The directory"
@@ -4274,7 +4264,7 @@
           "type" : {
             "name" : "string",
             "kind" : "string",
-            "size" : 80
+            "size" : 200
           },
           "ref" : false,
           "annotation" : "The file"
@@ -4293,7 +4283,7 @@
           "type" : {
             "name" : "string",
             "kind" : "string",
-            "size" : 80
+            "size" : 200
           },
           "ref" : false,
           "annotation" : "The directory"
@@ -4346,6 +4336,25 @@
       "annotation" : "Catalog processing complete"
     },
     {
+      "name" : "DataProducts.dpCat.DirectoryNotManaged",
+      "severity" : "WARNING_HI",
+      "formalParams" : [
+        {
+          "name" : "file",
+          "type" : {
+            "name" : "string",
+            "kind" : "string",
+            "size" : 200
+          },
+          "ref" : false,
+          "annotation" : "The file"
+        }
+      ],
+      "id" : 67108869,
+      "format" : "Unable to add file {}; directory not managed",
+      "annotation" : "Error opening directory"
+    },
+    {
       "name" : "DataProducts.dpCat.CatalogXmitStarted",
       "severity" : "ACTIVITY_HI",
       "formalParams" : [
@@ -4361,9 +4370,9 @@
         {
           "name" : "bytes",
           "type" : {
-            "name" : "U32",
+            "name" : "U64",
             "kind" : "integer",
-            "size" : 32,
+            "size" : 64,
             "signed" : false
           },
           "ref" : false,
@@ -4403,7 +4412,7 @@
           "type" : {
             "name" : "string",
             "kind" : "string",
-            "size" : 80
+            "size" : 200
           },
           "ref" : false,
           "annotation" : "The file"
@@ -4444,14 +4453,36 @@
           "type" : {
             "name" : "string",
             "kind" : "string",
-            "size" : 80
+            "size" : 200
           },
           "ref" : false,
           "annotation" : "The file"
+        },
+        {
+          "name" : "pending",
+          "type" : {
+            "name" : "U32",
+            "kind" : "integer",
+            "size" : 32,
+            "signed" : false
+          },
+          "ref" : false,
+          "annotation" : "pending data products"
+        },
+        {
+          "name" : "pending_bytes",
+          "type" : {
+            "name" : "U64",
+            "kind" : "integer",
+            "size" : 64,
+            "signed" : false
+          },
+          "ref" : false,
+          "annotation" : "pending data product volume"
         }
       ],
       "id" : 67108878,
-      "format" : "Product {} complete",
+      "format" : "Product {} complete. Pending products: {} Pending bytes: {}",
       "annotation" : "Product send complete"
     },
     {
@@ -4489,7 +4520,7 @@
           "type" : {
             "name" : "string",
             "kind" : "string",
-            "size" : 80
+            "size" : 200
           },
           "ref" : false,
           "annotation" : "last directory read"
@@ -4512,7 +4543,7 @@
           "type" : {
             "name" : "string",
             "kind" : "string",
-            "size" : 80
+            "size" : 200
           },
           "ref" : false,
           "annotation" : "The directory"
@@ -4546,7 +4577,7 @@
           "type" : {
             "name" : "string",
             "kind" : "string",
-            "size" : 80
+            "size" : 200
           },
           "ref" : false,
           "annotation" : "The file"
@@ -4580,7 +4611,7 @@
           "type" : {
             "name" : "string",
             "kind" : "string",
-            "size" : 80
+            "size" : 200
           },
           "ref" : false,
           "annotation" : "The file"
@@ -4634,7 +4665,7 @@
           "type" : {
             "name" : "string",
             "kind" : "string",
-            "size" : 80
+            "size" : 200
           },
           "ref" : false,
           "annotation" : "The file"
@@ -4746,7 +4777,7 @@
           "type" : {
             "name" : "string",
             "kind" : "string",
-            "size" : 80
+            "size" : 200
           },
           "ref" : false,
           "annotation" : "The file"
@@ -4779,14 +4810,6 @@
       "format" : "No memory for DP"
     },
     {
-      "name" : "DataProducts.dpCat.NotInitialized",
-      "severity" : "WARNING_HI",
-      "formalParams" : [
-      ],
-      "id" : 67108897,
-      "format" : "DpCatalog not initialized"
-    },
-    {
       "name" : "DataProducts.dpCat.XmitNotActive",
       "severity" : "WARNING_LO",
       "formalParams" : [
@@ -4803,7 +4826,7 @@
           "type" : {
             "name" : "string",
             "kind" : "string",
-            "size" : 80
+            "size" : 200
           },
           "ref" : false,
           "annotation" : "The file"
@@ -4831,7 +4854,7 @@
           "type" : {
             "name" : "string",
             "kind" : "string",
-            "size" : 80
+            "size" : 200
           },
           "ref" : false,
           "annotation" : "The file"
@@ -4869,7 +4892,7 @@
           "type" : {
             "name" : "string",
             "kind" : "string",
-            "size" : 80
+            "size" : 200
           },
           "ref" : false,
           "annotation" : "The file"
@@ -4915,7 +4938,7 @@
           "type" : {
             "name" : "string",
             "kind" : "string",
-            "size" : 80
+            "size" : 200
           },
           "ref" : false,
           "annotation" : "The file"
@@ -4943,7 +4966,7 @@
           "type" : {
             "name" : "string",
             "kind" : "string",
-            "size" : 80
+            "size" : 200
           },
           "ref" : false,
           "annotation" : "The file"
@@ -4961,7 +4984,7 @@
           "type" : {
             "name" : "string",
             "kind" : "string",
-            "size" : 80
+            "size" : 200
           },
           "ref" : false,
           "annotation" : "The file"
@@ -4991,7 +5014,7 @@
           "type" : {
             "name" : "string",
             "kind" : "string",
-            "size" : 80
+            "size" : 200
           },
           "ref" : false,
           "annotation" : "The file"
@@ -5011,6 +5034,70 @@
         "count" : 10,
         "every" : null
       }
+    },
+    {
+      "name" : "DataProducts.dpCat.DpFileAdded",
+      "severity" : "ACTIVITY_HI",
+      "formalParams" : [
+        {
+          "name" : "file",
+          "type" : {
+            "name" : "string",
+            "kind" : "string",
+            "size" : 200
+          },
+          "ref" : false,
+          "annotation" : "The file"
+        }
+      ],
+      "id" : 67108907,
+      "format" : "DP file {} added at runtime",
+      "annotation" : "File added"
+    },
+    {
+      "name" : "DataProducts.dpCat.NotLoaded",
+      "severity" : "ACTIVITY_HI",
+      "formalParams" : [
+        {
+          "name" : "file",
+          "type" : {
+            "name" : "string",
+            "kind" : "string",
+            "size" : 200
+          },
+          "ref" : false,
+          "annotation" : "The file"
+        }
+      ],
+      "id" : 67108908,
+      "format" : "Not adding file {} now; Catalog not yet loaded"
+    },
+    {
+      "name" : "DataProducts.dpCat.DpFileSkipped",
+      "severity" : "ACTIVITY_HI",
+      "formalParams" : [
+        {
+          "name" : "file",
+          "type" : {
+            "name" : "string",
+            "kind" : "string",
+            "size" : 200
+          },
+          "ref" : false,
+          "annotation" : "The file"
+        }
+      ],
+      "id" : 67108909,
+      "format" : "Already Transmitted DP file {} not added",
+      "annotation" : "Skipped a transmitted file"
+    },
+    {
+      "name" : "DataProducts.dpCat.XmitUnbuiltCatalog",
+      "severity" : "WARNING_HI",
+      "formalParams" : [
+      ],
+      "id" : 67108910,
+      "format" : "Cannot Transmit a Catalog before Building"
     },
     {
       "name" : "DataProducts.dpMgr.BufferAllocationFailed",
@@ -5726,35 +5813,6 @@
       "id" : 83890179,
       "format" : "Canceled downlink of file {} to file {}",
       "annotation" : "The File Downlink component canceled downlink of a file"
-    },
-    {
-      "name" : "FileHandling.fileDownlink.DownlinkTimeout",
-      "severity" : "WARNING_HI",
-      "formalParams" : [
-        {
-          "name" : "sourceFileName",
-          "type" : {
-            "name" : "string",
-            "kind" : "string",
-            "size" : 100
-          },
-          "ref" : false,
-          "annotation" : "The source filename"
-        },
-        {
-          "name" : "destFileName",
-          "type" : {
-            "name" : "string",
-            "kind" : "string",
-            "size" : 100
-          },
-          "ref" : false,
-          "annotation" : "The destination file name"
-        }
-      ],
-      "id" : 83890180,
-      "format" : "Timeout occurred during downlink of file {} to file {}. Downlink has been canceled.",
-      "annotation" : "The File Downlink component has detected a timeout. Downlink has been canceled."
     },
     {
       "name" : "FileHandling.fileDownlink.DownlinkPartialWarning",
@@ -6631,6 +6689,85 @@
       "annotation" : "Directory listing subdirectory entry"
     },
     {
+      "name" : "FileHandling.fileManager.CalculateCrcStarted",
+      "severity" : "ACTIVITY_HI",
+      "formalParams" : [
+        {
+          "name" : "fileName",
+          "type" : {
+            "name" : "string",
+            "kind" : "string",
+            "size" : 200
+          },
+          "ref" : false,
+          "annotation" : "The name of the file being read from"
+        }
+      ],
+      "id" : 83894298,
+      "format" : "Started CRC calculation for file {}",
+      "annotation" : "CRC started"
+    },
+    {
+      "name" : "FileHandling.fileManager.CalculateCrcFailed",
+      "severity" : "WARNING_HI",
+      "formalParams" : [
+        {
+          "name" : "fileName",
+          "type" : {
+            "name" : "string",
+            "kind" : "string",
+            "size" : 200
+          },
+          "ref" : false,
+          "annotation" : "The name of the file being read from"
+        },
+        {
+          "name" : "status",
+          "type" : {
+            "name" : "U32",
+            "kind" : "integer",
+            "size" : 32,
+            "signed" : false
+          },
+          "ref" : false,
+          "annotation" : "The error status"
+        }
+      ],
+      "id" : 83894299,
+      "format" : "Failed CRC calculation for file {}, returned status {}",
+      "annotation" : "CRC failed"
+    },
+    {
+      "name" : "FileHandling.fileManager.CalculateCrcSucceeded",
+      "severity" : "ACTIVITY_HI",
+      "formalParams" : [
+        {
+          "name" : "fileName",
+          "type" : {
+            "name" : "string",
+            "kind" : "string",
+            "size" : 200
+          },
+          "ref" : false,
+          "annotation" : "The name of the file being read from"
+        },
+        {
+          "name" : "crc",
+          "type" : {
+            "name" : "U32",
+            "kind" : "integer",
+            "size" : 32,
+            "signed" : false
+          },
+          "ref" : false,
+          "annotation" : "The computed CRC value"
+        }
+      ],
+      "id" : 83894300,
+      "format" : "{} has CRC value 0x{x}",
+      "annotation" : "CRC succeeded"
+    },
+    {
       "name" : "FileHandling.prmDb.PrmIdNotFound",
       "severity" : "WARNING_LO",
       "formalParams" : [
@@ -6815,7 +6952,7 @@
           "type" : {
             "name" : "string",
             "kind" : "string",
-            "size" : 80
+            "size" : 256
           },
           "ref" : false,
           "annotation" : "The database string"
@@ -6876,7 +7013,7 @@
           "type" : {
             "name" : "string",
             "kind" : "string",
-            "size" : 80
+            "size" : 256
           },
           "ref" : false,
           "annotation" : "The src database string"
@@ -6886,7 +7023,7 @@
           "type" : {
             "name" : "string",
             "kind" : "string",
-            "size" : 80
+            "size" : 256
           },
           "ref" : false,
           "annotation" : "The dest database string"
@@ -6933,7 +7070,38 @@
       "annotation" : "Invalid Action during parameter file load"
     },
     {
-      "name" : "ReferenceDeployment.rateGroup1.RateGroupStarted",
+      "name" : "FileHandling.prmDb.PrmFileBadCrc",
+      "severity" : "WARNING_HI",
+      "formalParams" : [
+        {
+          "name" : "readCrc",
+          "type" : {
+            "name" : "U32",
+            "kind" : "integer",
+            "size" : 32,
+            "signed" : false
+          },
+          "ref" : false,
+          "annotation" : "The read CRC"
+        },
+        {
+          "name" : "compCrc",
+          "type" : {
+            "name" : "U32",
+            "kind" : "integer",
+            "size" : 32,
+            "signed" : false
+          },
+          "ref" : false,
+          "annotation" : "The computed CRC"
+        }
+      ],
+      "id" : 83898380,
+      "format" : "Parameter file failed CRC. Read: 0x{x} Computed: 0x{x}",
+      "annotation" : "parameter file failed CRC"
+    },
+    {
+      "name" : "FprimeYamcsReference.rateGroup1.RateGroupStarted",
       "severity" : "DIAGNOSTIC",
       "formalParams" : [
       ],
@@ -6942,7 +7110,7 @@
       "annotation" : "Informational event that rate group has started"
     },
     {
-      "name" : "ReferenceDeployment.rateGroup1.RateGroupCycleSlip",
+      "name" : "FprimeYamcsReference.rateGroup1.RateGroupCycleSlip",
       "severity" : "WARNING_HI",
       "formalParams" : [
         {
@@ -6962,7 +7130,7 @@
       "annotation" : "Warning event that rate group has had a cycle slip"
     },
     {
-      "name" : "ReferenceDeployment.rateGroup2.RateGroupStarted",
+      "name" : "FprimeYamcsReference.rateGroup2.RateGroupStarted",
       "severity" : "DIAGNOSTIC",
       "formalParams" : [
       ],
@@ -6971,7 +7139,7 @@
       "annotation" : "Informational event that rate group has started"
     },
     {
-      "name" : "ReferenceDeployment.rateGroup2.RateGroupCycleSlip",
+      "name" : "FprimeYamcsReference.rateGroup2.RateGroupCycleSlip",
       "severity" : "WARNING_HI",
       "formalParams" : [
         {
@@ -6991,7 +7159,7 @@
       "annotation" : "Warning event that rate group has had a cycle slip"
     },
     {
-      "name" : "ReferenceDeployment.rateGroup3.RateGroupStarted",
+      "name" : "FprimeYamcsReference.rateGroup3.RateGroupStarted",
       "severity" : "DIAGNOSTIC",
       "formalParams" : [
       ],
@@ -7000,7 +7168,7 @@
       "annotation" : "Informational event that rate group has started"
     },
     {
-      "name" : "ReferenceDeployment.rateGroup3.RateGroupCycleSlip",
+      "name" : "FprimeYamcsReference.rateGroup3.RateGroupCycleSlip",
       "severity" : "WARNING_HI",
       "formalParams" : [
         {
@@ -7020,7 +7188,7 @@
       "annotation" : "Warning event that rate group has had a cycle slip"
     },
     {
-      "name" : "ReferenceDeployment.cmdSeq.CS_SequenceLoaded",
+      "name" : "FprimeYamcsReference.cmdSeq.CS_SequenceLoaded",
       "severity" : "ACTIVITY_LO",
       "formalParams" : [
         {
@@ -7039,7 +7207,7 @@
       "annotation" : "Sequence file was successfully loaded."
     },
     {
-      "name" : "ReferenceDeployment.cmdSeq.CS_SequenceCanceled",
+      "name" : "FprimeYamcsReference.cmdSeq.CS_SequenceCanceled",
       "severity" : "ACTIVITY_HI",
       "formalParams" : [
         {
@@ -7058,7 +7226,7 @@
       "annotation" : "A command sequence was successfully canceled."
     },
     {
-      "name" : "ReferenceDeployment.cmdSeq.CS_FileReadError",
+      "name" : "FprimeYamcsReference.cmdSeq.CS_FileReadError",
       "severity" : "WARNING_HI",
       "formalParams" : [
         {
@@ -7077,7 +7245,7 @@
       "annotation" : "The Sequence File Loader could not read the sequence file."
     },
     {
-      "name" : "ReferenceDeployment.cmdSeq.CS_FileInvalid",
+      "name" : "FprimeYamcsReference.cmdSeq.CS_FileInvalid",
       "severity" : "WARNING_HI",
       "formalParams" : [
         {
@@ -7116,7 +7284,7 @@
       "annotation" : "The sequence file format was invalid."
     },
     {
-      "name" : "ReferenceDeployment.cmdSeq.CS_RecordInvalid",
+      "name" : "FprimeYamcsReference.cmdSeq.CS_RecordInvalid",
       "severity" : "WARNING_HI",
       "formalParams" : [
         {
@@ -7157,7 +7325,7 @@
       "annotation" : "The format of a command record was invalid."
     },
     {
-      "name" : "ReferenceDeployment.cmdSeq.CS_FileSizeError",
+      "name" : "FprimeYamcsReference.cmdSeq.CS_FileSizeError",
       "severity" : "WARNING_HI",
       "formalParams" : [
         {
@@ -7187,7 +7355,7 @@
       "annotation" : "The sequence file was too large."
     },
     {
-      "name" : "ReferenceDeployment.cmdSeq.CS_FileNotFound",
+      "name" : "FprimeYamcsReference.cmdSeq.CS_FileNotFound",
       "severity" : "WARNING_HI",
       "formalParams" : [
         {
@@ -7206,7 +7374,7 @@
       "annotation" : "The sequence file was not found"
     },
     {
-      "name" : "ReferenceDeployment.cmdSeq.CS_FileCrcFailure",
+      "name" : "FprimeYamcsReference.cmdSeq.CS_FileCrcFailure",
       "severity" : "WARNING_HI",
       "formalParams" : [
         {
@@ -7247,7 +7415,7 @@
       "annotation" : "The sequence file validation failed"
     },
     {
-      "name" : "ReferenceDeployment.cmdSeq.CS_CommandComplete",
+      "name" : "FprimeYamcsReference.cmdSeq.CS_CommandComplete",
       "severity" : "ACTIVITY_LO",
       "formalParams" : [
         {
@@ -7286,7 +7454,7 @@
       "annotation" : "The Command Sequencer issued a command and received a success status in return."
     },
     {
-      "name" : "ReferenceDeployment.cmdSeq.CS_SequenceComplete",
+      "name" : "FprimeYamcsReference.cmdSeq.CS_SequenceComplete",
       "severity" : "ACTIVITY_HI",
       "formalParams" : [
         {
@@ -7305,7 +7473,7 @@
       "annotation" : "A command sequence successfully completed."
     },
     {
-      "name" : "ReferenceDeployment.cmdSeq.CS_CommandError",
+      "name" : "FprimeYamcsReference.cmdSeq.CS_CommandError",
       "severity" : "WARNING_HI",
       "formalParams" : [
         {
@@ -7355,7 +7523,7 @@
       "annotation" : "The Command Sequencer issued a command and received an error status in return."
     },
     {
-      "name" : "ReferenceDeployment.cmdSeq.CS_InvalidMode",
+      "name" : "FprimeYamcsReference.cmdSeq.CS_InvalidMode",
       "severity" : "WARNING_HI",
       "formalParams" : [
       ],
@@ -7364,7 +7532,7 @@
       "annotation" : "The Command Sequencer received a command that was invalid for its current mode."
     },
     {
-      "name" : "ReferenceDeployment.cmdSeq.CS_RecordMismatch",
+      "name" : "FprimeYamcsReference.cmdSeq.CS_RecordMismatch",
       "severity" : "WARNING_HI",
       "formalParams" : [
         {
@@ -7405,7 +7573,7 @@
       "annotation" : "Number of records in header doesn't match number in file"
     },
     {
-      "name" : "ReferenceDeployment.cmdSeq.CS_TimeBaseMismatch",
+      "name" : "FprimeYamcsReference.cmdSeq.CS_TimeBaseMismatch",
       "severity" : "WARNING_HI",
       "formalParams" : [
         {
@@ -7446,7 +7614,7 @@
       "annotation" : "The running time base doesn't match the time base in the sequence files"
     },
     {
-      "name" : "ReferenceDeployment.cmdSeq.CS_TimeContextMismatch",
+      "name" : "FprimeYamcsReference.cmdSeq.CS_TimeContextMismatch",
       "severity" : "WARNING_HI",
       "formalParams" : [
         {
@@ -7487,7 +7655,7 @@
       "annotation" : "The running time base doesn't match the time base in the sequence files"
     },
     {
-      "name" : "ReferenceDeployment.cmdSeq.CS_PortSequenceStarted",
+      "name" : "FprimeYamcsReference.cmdSeq.CS_PortSequenceStarted",
       "severity" : "ACTIVITY_HI",
       "formalParams" : [
         {
@@ -7506,7 +7674,7 @@
       "annotation" : "A local port request to run a sequence was started"
     },
     {
-      "name" : "ReferenceDeployment.cmdSeq.CS_UnexpectedCompletion",
+      "name" : "FprimeYamcsReference.cmdSeq.CS_UnexpectedCompletion",
       "severity" : "WARNING_HI",
       "formalParams" : [
         {
@@ -7524,7 +7692,7 @@
       "annotation" : "A command status came back when no sequence was running"
     },
     {
-      "name" : "ReferenceDeployment.cmdSeq.CS_ModeSwitched",
+      "name" : "FprimeYamcsReference.cmdSeq.CS_ModeSwitched",
       "severity" : "ACTIVITY_HI",
       "formalParams" : [
         {
@@ -7542,7 +7710,7 @@
       "annotation" : "Switched step mode"
     },
     {
-      "name" : "ReferenceDeployment.cmdSeq.CS_NoSequenceActive",
+      "name" : "FprimeYamcsReference.cmdSeq.CS_NoSequenceActive",
       "severity" : "WARNING_LO",
       "formalParams" : [
       ],
@@ -7551,7 +7719,7 @@
       "annotation" : "A sequence related command came with no active sequence"
     },
     {
-      "name" : "ReferenceDeployment.cmdSeq.CS_SequenceValid",
+      "name" : "FprimeYamcsReference.cmdSeq.CS_SequenceValid",
       "severity" : "ACTIVITY_HI",
       "formalParams" : [
         {
@@ -7570,7 +7738,7 @@
       "annotation" : "A sequence passed validation"
     },
     {
-      "name" : "ReferenceDeployment.cmdSeq.CS_SequenceTimeout",
+      "name" : "FprimeYamcsReference.cmdSeq.CS_SequenceTimeout",
       "severity" : "WARNING_HI",
       "formalParams" : [
         {
@@ -7600,7 +7768,7 @@
       "annotation" : "A sequence passed validation"
     },
     {
-      "name" : "ReferenceDeployment.cmdSeq.CS_CmdStepped",
+      "name" : "FprimeYamcsReference.cmdSeq.CS_CmdStepped",
       "severity" : "ACTIVITY_HI",
       "formalParams" : [
         {
@@ -7630,7 +7798,7 @@
       "annotation" : "A command in a sequence was stepped through"
     },
     {
-      "name" : "ReferenceDeployment.cmdSeq.CS_CmdStarted",
+      "name" : "FprimeYamcsReference.cmdSeq.CS_CmdStarted",
       "severity" : "ACTIVITY_HI",
       "formalParams" : [
         {
@@ -7649,7 +7817,7 @@
       "annotation" : "A manual sequence was started"
     },
     {
-      "name" : "ReferenceDeployment.cmdSeq.CS_JoinWaiting",
+      "name" : "FprimeYamcsReference.cmdSeq.CS_JoinWaiting",
       "severity" : "ACTIVITY_HI",
       "formalParams" : [
         {
@@ -7688,7 +7856,7 @@
       "annotation" : "Wait for the current running sequence file complete"
     },
     {
-      "name" : "ReferenceDeployment.cmdSeq.CS_JoinWaitingNotComplete",
+      "name" : "FprimeYamcsReference.cmdSeq.CS_JoinWaitingNotComplete",
       "severity" : "WARNING_HI",
       "formalParams" : [
       ],
@@ -7697,7 +7865,7 @@
       "annotation" : "Cannot run new sequence when current sequence file is still running."
     },
     {
-      "name" : "ReferenceDeployment.cmdSeq.CS_NoRecords",
+      "name" : "FprimeYamcsReference.cmdSeq.CS_NoRecords",
       "severity" : "WARNING_LO",
       "formalParams" : [
         {
@@ -7713,732 +7881,6 @@
       ],
       "id" : 268451865,
       "format" : "Sequence file {} has no records. Ignoring."
-    },
-    {
-      "name" : "Bmp280.bmpManager.PressureOversamplingUpdated",
-      "severity" : "ACTIVITY_HI",
-      "formalParams" : [
-        {
-          "name" : "newOversampling",
-          "type" : {
-            "name" : "Bmp280.PressureOversampling",
-            "kind" : "qualifiedIdentifier"
-          },
-          "ref" : false
-        }
-      ],
-      "id" : 3489665024,
-      "format" : "Pressure oversampling updated to {}"
-    },
-    {
-      "name" : "Bmp280.bmpManager.TemperatureOversamplingUpdated",
-      "severity" : "ACTIVITY_HI",
-      "formalParams" : [
-        {
-          "name" : "newOversampling",
-          "type" : {
-            "name" : "Bmp280.TemperatureOversampling",
-            "kind" : "qualifiedIdentifier"
-          },
-          "ref" : false
-        }
-      ],
-      "id" : 3489665025,
-      "format" : "Temperature oversampling updated to {}"
-    },
-    {
-      "name" : "Bmp280.bmpManager.DeviceFailure",
-      "severity" : "WARNING_HI",
-      "formalParams" : [
-      ],
-      "id" : 3489665026,
-      "format" : "BMP280 Device failure",
-      "throttle" : {
-        "count" : 5,
-        "every" : null
-      }
-    },
-    {
-      "name" : "Bmp280.bmpManager.ChipIdCheckFailure",
-      "severity" : "WARNING_HI",
-      "formalParams" : [
-      ],
-      "id" : 3489665027,
-      "format" : "BMP280 Chip ID check failure",
-      "throttle" : {
-        "count" : 5,
-        "every" : null
-      }
-    },
-    {
-      "name" : "Bmp280.bmpManager.CalibrationFailure",
-      "severity" : "WARNING_HI",
-      "formalParams" : [
-      ],
-      "id" : 3489665028,
-      "format" : "BMP280 Calibration Read failure",
-      "throttle" : {
-        "count" : 5,
-        "every" : null
-      }
-    },
-    {
-      "name" : "Bmp280.bmpManager.DeviceConfigureFailure",
-      "severity" : "WARNING_HI",
-      "formalParams" : [
-      ],
-      "id" : 3489665029,
-      "format" : "BMP280 Configure failure",
-      "throttle" : {
-        "count" : 5,
-        "every" : null
-      }
-    },
-    {
-      "name" : "Bmp280.bmpManager.MeasurementTriggerFailure",
-      "severity" : "WARNING_HI",
-      "formalParams" : [
-      ],
-      "id" : 3489665030,
-      "format" : "BMP280 Measurement Trigger failure",
-      "throttle" : {
-        "count" : 5,
-        "every" : null
-      }
-    },
-    {
-      "name" : "Bmp280.bmpManager.DeviceReadFailure",
-      "severity" : "WARNING_HI",
-      "formalParams" : [
-      ],
-      "id" : 3489665031,
-      "format" : "BMP280 Device Measurement Read failure",
-      "throttle" : {
-        "count" : 5,
-        "every" : null
-      }
-    },
-    {
-      "name" : "Bmp280.bmpDriver.SPI_OpenError",
-      "severity" : "WARNING_HI",
-      "formalParams" : [
-        {
-          "name" : "device",
-          "type" : {
-            "name" : "I32",
-            "kind" : "integer",
-            "size" : 32,
-            "signed" : true
-          },
-          "ref" : false,
-          "annotation" : "The device"
-        },
-        {
-          "name" : "select",
-          "type" : {
-            "name" : "I32",
-            "kind" : "integer",
-            "size" : 32,
-            "signed" : true
-          },
-          "ref" : false,
-          "annotation" : "The chip select"
-        },
-        {
-          "name" : "error",
-          "type" : {
-            "name" : "I32",
-            "kind" : "integer",
-            "size" : 32,
-            "signed" : true
-          },
-          "ref" : false,
-          "annotation" : "The error code"
-        }
-      ],
-      "id" : 3489669120,
-      "format" : "Error opening SPI device {}.{}: {}",
-      "annotation" : "SPI open error"
-    },
-    {
-      "name" : "Bmp280.bmpDriver.SPI_ConfigError",
-      "severity" : "WARNING_HI",
-      "formalParams" : [
-        {
-          "name" : "device",
-          "type" : {
-            "name" : "I32",
-            "kind" : "integer",
-            "size" : 32,
-            "signed" : true
-          },
-          "ref" : false,
-          "annotation" : "The device"
-        },
-        {
-          "name" : "select",
-          "type" : {
-            "name" : "I32",
-            "kind" : "integer",
-            "size" : 32,
-            "signed" : true
-          },
-          "ref" : false,
-          "annotation" : "The chip select"
-        },
-        {
-          "name" : "error",
-          "type" : {
-            "name" : "I32",
-            "kind" : "integer",
-            "size" : 32,
-            "signed" : true
-          },
-          "ref" : false,
-          "annotation" : "The error code"
-        }
-      ],
-      "id" : 3489669121,
-      "format" : "Error configuring SPI device {}.{}: {}",
-      "annotation" : "SPI config error"
-    },
-    {
-      "name" : "Bmp280.bmpDriver.SPI_WriteError",
-      "severity" : "WARNING_HI",
-      "formalParams" : [
-        {
-          "name" : "device",
-          "type" : {
-            "name" : "I32",
-            "kind" : "integer",
-            "size" : 32,
-            "signed" : true
-          },
-          "ref" : false,
-          "annotation" : "The device"
-        },
-        {
-          "name" : "select",
-          "type" : {
-            "name" : "I32",
-            "kind" : "integer",
-            "size" : 32,
-            "signed" : true
-          },
-          "ref" : false,
-          "annotation" : "The chip select"
-        },
-        {
-          "name" : "error",
-          "type" : {
-            "name" : "I32",
-            "kind" : "integer",
-            "size" : 32,
-            "signed" : true
-          },
-          "ref" : false,
-          "annotation" : "The error code"
-        }
-      ],
-      "id" : 3489669122,
-      "format" : "Error writing/reading SPI device {}.{}: {}",
-      "annotation" : "SPI write error",
-      "throttle" : {
-        "count" : 5,
-        "every" : null
-      }
-    },
-    {
-      "name" : "Bmp280.bmpDriver.SPI_ConfigMismatch",
-      "severity" : "WARNING_LO",
-      "formalParams" : [
-        {
-          "name" : "device",
-          "type" : {
-            "name" : "I32",
-            "kind" : "integer",
-            "size" : 32,
-            "signed" : true
-          },
-          "ref" : false,
-          "annotation" : "The device"
-        },
-        {
-          "name" : "select",
-          "type" : {
-            "name" : "I32",
-            "kind" : "integer",
-            "size" : 32,
-            "signed" : true
-          },
-          "ref" : false,
-          "annotation" : "The chip select"
-        },
-        {
-          "name" : "parameter",
-          "type" : {
-            "name" : "string",
-            "kind" : "string",
-            "size" : 80
-          },
-          "ref" : false,
-          "annotation" : "The parameter being configured"
-        },
-        {
-          "name" : "write_value",
-          "type" : {
-            "name" : "U32",
-            "kind" : "integer",
-            "size" : 32,
-            "signed" : false
-          },
-          "ref" : false,
-          "annotation" : "The value written"
-        },
-        {
-          "name" : "read_value",
-          "type" : {
-            "name" : "U32",
-            "kind" : "integer",
-            "size" : 32,
-            "signed" : false
-          },
-          "ref" : false,
-          "annotation" : "The value read"
-        }
-      ],
-      "id" : 3489669123,
-      "format" : "SPI device {}.{} configuration mismatch for {}: wrote {}, read {}",
-      "annotation" : "SPI configuration mismatch"
-    },
-    {
-      "name" : "Bmp280.bmpDriver.SPI_PortOpened",
-      "severity" : "ACTIVITY_HI",
-      "formalParams" : [
-        {
-          "name" : "device",
-          "type" : {
-            "name" : "I32",
-            "kind" : "integer",
-            "size" : 32,
-            "signed" : true
-          },
-          "ref" : false,
-          "annotation" : "The device"
-        },
-        {
-          "name" : "select",
-          "type" : {
-            "name" : "I32",
-            "kind" : "integer",
-            "size" : 32,
-            "signed" : true
-          },
-          "ref" : false,
-          "annotation" : "The chip select"
-        }
-      ],
-      "id" : 3489669124,
-      "format" : "SPI Device {}.{} configured",
-      "annotation" : "SPI open notification"
-    },
-    {
-      "name" : "MpuImu.imuManager.AccelerometerRangeUpdated",
-      "severity" : "ACTIVITY_HI",
-      "formalParams" : [
-        {
-          "name" : "newRange",
-          "type" : {
-            "name" : "MpuImu.AccelerationRange",
-            "kind" : "qualifiedIdentifier"
-          },
-          "ref" : false
-        }
-      ],
-      "id" : 3758100480,
-      "format" : "Accelerometer range updated to {}"
-    },
-    {
-      "name" : "MpuImu.imuManager.GyroscopeRangeUpdated",
-      "severity" : "ACTIVITY_HI",
-      "formalParams" : [
-        {
-          "name" : "newRange",
-          "type" : {
-            "name" : "MpuImu.GyroscopeRange",
-            "kind" : "qualifiedIdentifier"
-          },
-          "ref" : false
-        }
-      ],
-      "id" : 3758100481,
-      "format" : "Gyroscope range updated to {}"
-    },
-    {
-      "name" : "MpuImu.imuManager.I2cError",
-      "severity" : "WARNING_HI",
-      "formalParams" : [
-        {
-          "name" : "address",
-          "type" : {
-            "name" : "U32",
-            "kind" : "integer",
-            "size" : 32,
-            "signed" : false
-          },
-          "ref" : false
-        },
-        {
-          "name" : "status",
-          "type" : {
-            "name" : "Drv.I2cStatus",
-            "kind" : "qualifiedIdentifier"
-          },
-          "ref" : false
-        }
-      ],
-      "id" : 3758100482,
-      "format" : "I2C error on address {} with status {}",
-      "throttle" : {
-        "count" : 5,
-        "every" : null
-      }
-    },
-    {
-      "name" : "NmeaGps.gpsManager.MalformedMessage",
-      "severity" : "WARNING_LO",
-      "formalParams" : [
-        {
-          "name" : "message_type",
-          "type" : {
-            "name" : "string",
-            "kind" : "string",
-            "size" : 80
-          },
-          "ref" : false
-        },
-        {
-          "name" : "successful_fields",
-          "type" : {
-            "name" : "U8",
-            "kind" : "integer",
-            "size" : 8,
-            "signed" : false
-          },
-          "ref" : false
-        }
-      ],
-      "id" : 4026535936,
-      "format" : "Malformed {} message after {} fields",
-      "annotation" : "Report for malformed message",
-      "throttle" : {
-        "count" : 5,
-        "every" : null
-      }
-    },
-    {
-      "name" : "NmeaGps.gpsManager.InvalidData",
-      "severity" : "WARNING_LO",
-      "formalParams" : [
-        {
-          "name" : "message_type",
-          "type" : {
-            "name" : "string",
-            "kind" : "string",
-            "size" : 80
-          },
-          "ref" : false
-        }
-      ],
-      "id" : 4026535937,
-      "format" : "{} data  marked invalid",
-      "annotation" : "Report for invalid message",
-      "throttle" : {
-        "count" : 5,
-        "every" : null
-      }
-    },
-    {
-      "name" : "NmeaGps.frameAccumulator.NoBufferAvailable",
-      "severity" : "WARNING_HI",
-      "formalParams" : [
-      ],
-      "id" : 4026544128,
-      "format" : "Could not allocate a valid buffer to fit the detected frame",
-      "annotation" : "An error occurred while deserializing a packet"
-    },
-    {
-      "name" : "NmeaGps.frameAccumulator.FrameDetectionSizeError",
-      "severity" : "WARNING_HI",
-      "formalParams" : [
-        {
-          "name" : "size_out",
-          "type" : {
-            "name" : "FwSizeType",
-            "kind" : "qualifiedIdentifier"
-          },
-          "ref" : false
-        }
-      ],
-      "id" : 4026544129,
-      "format" : "Reported size_out={} exceeds accumulation buffer capacity",
-      "annotation" : "A frame was detected whose size exceeds the internal accumulation buffer\ncapacity. No choice but to drop the frame."
-    },
-    {
-      "name" : "NmeaGps.bufferManager.NoBuffsAvailable",
-      "severity" : "WARNING_HI",
-      "formalParams" : [
-        {
-          "name" : "size",
-          "type" : {
-            "name" : "FwSizeType",
-            "kind" : "qualifiedIdentifier"
-          },
-          "ref" : false,
-          "annotation" : "The requested size"
-        }
-      ],
-      "id" : 4027645952,
-      "format" : "No available buffers of size {}",
-      "annotation" : "The BufferManager was unable to allocate a requested buffer",
-      "throttle" : {
-        "count" : 10,
-        "every" : null
-      }
-    },
-    {
-      "name" : "NmeaGps.bufferManager.NullEmptyBuffer",
-      "severity" : "WARNING_HI",
-      "formalParams" : [
-      ],
-      "id" : 4027645953,
-      "format" : "Received null pointer and zero size buffer",
-      "annotation" : "The buffer manager received a null pointer and zero-sized buffer as a return. Probably undetected failed buffer allocation",
-      "throttle" : {
-        "count" : 10,
-        "every" : null
-      }
-    },
-    {
-      "name" : "NmeaGps.driver.OpenError",
-      "severity" : "WARNING_HI",
-      "formalParams" : [
-        {
-          "name" : "device",
-          "type" : {
-            "name" : "string",
-            "kind" : "string",
-            "size" : 40
-          },
-          "ref" : false,
-          "annotation" : "The device"
-        },
-        {
-          "name" : "error",
-          "type" : {
-            "name" : "I32",
-            "kind" : "integer",
-            "size" : 32,
-            "signed" : true
-          },
-          "ref" : false,
-          "annotation" : "The error code"
-        },
-        {
-          "name" : "name",
-          "type" : {
-            "name" : "string",
-            "kind" : "string",
-            "size" : 40
-          },
-          "ref" : false,
-          "annotation" : "error string"
-        }
-      ],
-      "id" : 4027650048,
-      "format" : "Error opening UART device {}: {} {}",
-      "annotation" : "UART open error"
-    },
-    {
-      "name" : "NmeaGps.driver.ConfigError",
-      "severity" : "WARNING_HI",
-      "formalParams" : [
-        {
-          "name" : "device",
-          "type" : {
-            "name" : "string",
-            "kind" : "string",
-            "size" : 40
-          },
-          "ref" : false,
-          "annotation" : "The device"
-        },
-        {
-          "name" : "error",
-          "type" : {
-            "name" : "I32",
-            "kind" : "integer",
-            "size" : 32,
-            "signed" : true
-          },
-          "ref" : false,
-          "annotation" : "The error code"
-        }
-      ],
-      "id" : 4027650049,
-      "format" : "Error configuring UART device {}: {}",
-      "annotation" : "UART config error"
-    },
-    {
-      "name" : "NmeaGps.driver.WriteError",
-      "severity" : "WARNING_HI",
-      "formalParams" : [
-        {
-          "name" : "device",
-          "type" : {
-            "name" : "string",
-            "kind" : "string",
-            "size" : 40
-          },
-          "ref" : false,
-          "annotation" : "The device"
-        },
-        {
-          "name" : "error",
-          "type" : {
-            "name" : "I32",
-            "kind" : "integer",
-            "size" : 32,
-            "signed" : true
-          },
-          "ref" : false,
-          "annotation" : "The error code"
-        }
-      ],
-      "id" : 4027650050,
-      "format" : "Error writing UART device {}: {}",
-      "annotation" : "UART write error",
-      "throttle" : {
-        "count" : 5,
-        "every" : null
-      }
-    },
-    {
-      "name" : "NmeaGps.driver.ReadError",
-      "severity" : "WARNING_HI",
-      "formalParams" : [
-        {
-          "name" : "device",
-          "type" : {
-            "name" : "string",
-            "kind" : "string",
-            "size" : 40
-          },
-          "ref" : false,
-          "annotation" : "The device"
-        },
-        {
-          "name" : "error",
-          "type" : {
-            "name" : "I32",
-            "kind" : "integer",
-            "size" : 32,
-            "signed" : true
-          },
-          "ref" : false,
-          "annotation" : "The error code"
-        }
-      ],
-      "id" : 4027650051,
-      "format" : "Error reading UART device {}: {}",
-      "annotation" : "UART read error",
-      "throttle" : {
-        "count" : 5,
-        "every" : null
-      }
-    },
-    {
-      "name" : "NmeaGps.driver.PortOpened",
-      "severity" : "ACTIVITY_HI",
-      "formalParams" : [
-        {
-          "name" : "device",
-          "type" : {
-            "name" : "string",
-            "kind" : "string",
-            "size" : 40
-          },
-          "ref" : false,
-          "annotation" : "The device"
-        }
-      ],
-      "id" : 4027650052,
-      "format" : "UART Device {} configured",
-      "annotation" : "UART port opened event"
-    },
-    {
-      "name" : "NmeaGps.driver.NoBuffers",
-      "severity" : "WARNING_HI",
-      "formalParams" : [
-        {
-          "name" : "device",
-          "type" : {
-            "name" : "string",
-            "kind" : "string",
-            "size" : 40
-          },
-          "ref" : false,
-          "annotation" : "The device"
-        }
-      ],
-      "id" : 4027650053,
-      "format" : "UART Device {} ran out of buffers",
-      "annotation" : "UART ran out of buffers",
-      "throttle" : {
-        "count" : 20,
-        "every" : null
-      }
-    },
-    {
-      "name" : "NmeaGps.driver.BufferTooSmall",
-      "severity" : "WARNING_HI",
-      "formalParams" : [
-        {
-          "name" : "device",
-          "type" : {
-            "name" : "string",
-            "kind" : "string",
-            "size" : 40
-          },
-          "ref" : false,
-          "annotation" : "The device"
-        },
-        {
-          "name" : "size",
-          "type" : {
-            "name" : "U32",
-            "kind" : "integer",
-            "size" : 32,
-            "signed" : false
-          },
-          "ref" : false,
-          "annotation" : "The provided buffer size"
-        },
-        {
-          "name" : "needed",
-          "type" : {
-            "name" : "U32",
-            "kind" : "integer",
-            "size" : 32,
-            "signed" : false
-          },
-          "ref" : false,
-          "annotation" : "The buffer size needed"
-        }
-      ],
-      "id" : 4027650054,
-      "format" : "UART Device {} target buffer too small. Size: {} Needs: {}",
-      "annotation" : "UART ran out of buffers"
     }
   ],
   "telemetryChannels" : [
@@ -8703,6 +8145,16 @@
       },
       "id" : 16789525,
       "telemetryUpdate" : "always"
+    },
+    {
+      "name" : "CdhCore.tlmSend.SendLevel",
+      "type" : {
+        "name" : "FwChanIdType",
+        "kind" : "qualifiedIdentifier"
+      },
+      "id" : 16801792,
+      "telemetryUpdate" : "always",
+      "annotation" : "Telemetry send level"
     },
     {
       "name" : "ComCcsds.comQueue.comQueueDepth",
@@ -9093,7 +8545,7 @@
       "annotation" : "The total number of errors"
     },
     {
-      "name" : "ReferenceDeployment.rateGroup1.RgMaxTime",
+      "name" : "FprimeYamcsReference.rateGroup1.RgMaxTime",
       "type" : {
         "name" : "U32",
         "kind" : "integer",
@@ -9106,7 +8558,7 @@
       "annotation" : "Max execution time rate group"
     },
     {
-      "name" : "ReferenceDeployment.rateGroup1.RgCycleSlips",
+      "name" : "FprimeYamcsReference.rateGroup1.RgCycleSlips",
       "type" : {
         "name" : "U32",
         "kind" : "integer",
@@ -9118,7 +8570,7 @@
       "annotation" : "Cycle slips for rate group"
     },
     {
-      "name" : "ReferenceDeployment.rateGroup2.RgMaxTime",
+      "name" : "FprimeYamcsReference.rateGroup2.RgMaxTime",
       "type" : {
         "name" : "U32",
         "kind" : "integer",
@@ -9131,7 +8583,7 @@
       "annotation" : "Max execution time rate group"
     },
     {
-      "name" : "ReferenceDeployment.rateGroup2.RgCycleSlips",
+      "name" : "FprimeYamcsReference.rateGroup2.RgCycleSlips",
       "type" : {
         "name" : "U32",
         "kind" : "integer",
@@ -9143,7 +8595,7 @@
       "annotation" : "Cycle slips for rate group"
     },
     {
-      "name" : "ReferenceDeployment.rateGroup3.RgMaxTime",
+      "name" : "FprimeYamcsReference.rateGroup3.RgMaxTime",
       "type" : {
         "name" : "U32",
         "kind" : "integer",
@@ -9156,7 +8608,7 @@
       "annotation" : "Max execution time rate group"
     },
     {
-      "name" : "ReferenceDeployment.rateGroup3.RgCycleSlips",
+      "name" : "FprimeYamcsReference.rateGroup3.RgCycleSlips",
       "type" : {
         "name" : "U32",
         "kind" : "integer",
@@ -9168,7 +8620,7 @@
       "annotation" : "Cycle slips for rate group"
     },
     {
-      "name" : "ReferenceDeployment.cmdSeq.CS_LoadCommands",
+      "name" : "FprimeYamcsReference.cmdSeq.CS_LoadCommands",
       "type" : {
         "name" : "U32",
         "kind" : "integer",
@@ -9180,7 +8632,7 @@
       "annotation" : "The number of Load commands executed"
     },
     {
-      "name" : "ReferenceDeployment.cmdSeq.CS_CancelCommands",
+      "name" : "FprimeYamcsReference.cmdSeq.CS_CancelCommands",
       "type" : {
         "name" : "U32",
         "kind" : "integer",
@@ -9192,7 +8644,7 @@
       "annotation" : "The number of Cancel commands executed"
     },
     {
-      "name" : "ReferenceDeployment.cmdSeq.CS_Errors",
+      "name" : "FprimeYamcsReference.cmdSeq.CS_Errors",
       "type" : {
         "name" : "U32",
         "kind" : "integer",
@@ -9204,7 +8656,7 @@
       "annotation" : "The number of errors that have occurred"
     },
     {
-      "name" : "ReferenceDeployment.cmdSeq.CS_CommandsExecuted",
+      "name" : "FprimeYamcsReference.cmdSeq.CS_CommandsExecuted",
       "type" : {
         "name" : "U32",
         "kind" : "integer",
@@ -9216,7 +8668,7 @@
       "annotation" : "The number of commands executed across all sequences."
     },
     {
-      "name" : "ReferenceDeployment.cmdSeq.CS_SequencesCompleted",
+      "name" : "FprimeYamcsReference.cmdSeq.CS_SequencesCompleted",
       "type" : {
         "name" : "U32",
         "kind" : "integer",
@@ -9228,7 +8680,7 @@
       "annotation" : "The number of sequences completed."
     },
     {
-      "name" : "ReferenceDeployment.systemResources.MEMORY_TOTAL",
+      "name" : "FprimeYamcsReference.systemResources.MEMORY_TOTAL",
       "type" : {
         "name" : "U64",
         "kind" : "integer",
@@ -9241,7 +8693,7 @@
       "annotation" : "Total system memory in KB"
     },
     {
-      "name" : "ReferenceDeployment.systemResources.MEMORY_USED",
+      "name" : "FprimeYamcsReference.systemResources.MEMORY_USED",
       "type" : {
         "name" : "U64",
         "kind" : "integer",
@@ -9254,7 +8706,7 @@
       "annotation" : "System memory used in KB"
     },
     {
-      "name" : "ReferenceDeployment.systemResources.NON_VOLATILE_TOTAL",
+      "name" : "FprimeYamcsReference.systemResources.NON_VOLATILE_TOTAL",
       "type" : {
         "name" : "U64",
         "kind" : "integer",
@@ -9267,7 +8719,7 @@
       "annotation" : "System non-volatile available in KB"
     },
     {
-      "name" : "ReferenceDeployment.systemResources.NON_VOLATILE_FREE",
+      "name" : "FprimeYamcsReference.systemResources.NON_VOLATILE_FREE",
       "type" : {
         "name" : "U64",
         "kind" : "integer",
@@ -9280,7 +8732,7 @@
       "annotation" : "System non-volatile available in KB"
     },
     {
-      "name" : "ReferenceDeployment.systemResources.CPU",
+      "name" : "FprimeYamcsReference.systemResources.CPU",
       "type" : {
         "name" : "F32",
         "kind" : "float",
@@ -9292,7 +8744,7 @@
       "annotation" : "System's CPU Percentage"
     },
     {
-      "name" : "ReferenceDeployment.systemResources.CPU_00",
+      "name" : "FprimeYamcsReference.systemResources.CPU_00",
       "type" : {
         "name" : "F32",
         "kind" : "float",
@@ -9304,7 +8756,7 @@
       "annotation" : "System's CPU Percentage"
     },
     {
-      "name" : "ReferenceDeployment.systemResources.CPU_01",
+      "name" : "FprimeYamcsReference.systemResources.CPU_01",
       "type" : {
         "name" : "F32",
         "kind" : "float",
@@ -9316,7 +8768,7 @@
       "annotation" : "System's CPU Percentage"
     },
     {
-      "name" : "ReferenceDeployment.systemResources.CPU_02",
+      "name" : "FprimeYamcsReference.systemResources.CPU_02",
       "type" : {
         "name" : "F32",
         "kind" : "float",
@@ -9328,7 +8780,7 @@
       "annotation" : "System's CPU Percentage"
     },
     {
-      "name" : "ReferenceDeployment.systemResources.CPU_03",
+      "name" : "FprimeYamcsReference.systemResources.CPU_03",
       "type" : {
         "name" : "F32",
         "kind" : "float",
@@ -9340,7 +8792,7 @@
       "annotation" : "System's CPU Percentage"
     },
     {
-      "name" : "ReferenceDeployment.systemResources.CPU_04",
+      "name" : "FprimeYamcsReference.systemResources.CPU_04",
       "type" : {
         "name" : "F32",
         "kind" : "float",
@@ -9352,7 +8804,7 @@
       "annotation" : "System's CPU Percentage"
     },
     {
-      "name" : "ReferenceDeployment.systemResources.CPU_05",
+      "name" : "FprimeYamcsReference.systemResources.CPU_05",
       "type" : {
         "name" : "F32",
         "kind" : "float",
@@ -9364,7 +8816,7 @@
       "annotation" : "System's CPU Percentage"
     },
     {
-      "name" : "ReferenceDeployment.systemResources.CPU_06",
+      "name" : "FprimeYamcsReference.systemResources.CPU_06",
       "type" : {
         "name" : "F32",
         "kind" : "float",
@@ -9376,7 +8828,7 @@
       "annotation" : "System's CPU Percentage"
     },
     {
-      "name" : "ReferenceDeployment.systemResources.CPU_07",
+      "name" : "FprimeYamcsReference.systemResources.CPU_07",
       "type" : {
         "name" : "F32",
         "kind" : "float",
@@ -9388,7 +8840,7 @@
       "annotation" : "System's CPU Percentage"
     },
     {
-      "name" : "ReferenceDeployment.systemResources.CPU_08",
+      "name" : "FprimeYamcsReference.systemResources.CPU_08",
       "type" : {
         "name" : "F32",
         "kind" : "float",
@@ -9400,7 +8852,7 @@
       "annotation" : "System's CPU Percentage"
     },
     {
-      "name" : "ReferenceDeployment.systemResources.CPU_09",
+      "name" : "FprimeYamcsReference.systemResources.CPU_09",
       "type" : {
         "name" : "F32",
         "kind" : "float",
@@ -9412,7 +8864,7 @@
       "annotation" : "System's CPU Percentage"
     },
     {
-      "name" : "ReferenceDeployment.systemResources.CPU_10",
+      "name" : "FprimeYamcsReference.systemResources.CPU_10",
       "type" : {
         "name" : "F32",
         "kind" : "float",
@@ -9424,7 +8876,7 @@
       "annotation" : "System's CPU Percentage"
     },
     {
-      "name" : "ReferenceDeployment.systemResources.CPU_11",
+      "name" : "FprimeYamcsReference.systemResources.CPU_11",
       "type" : {
         "name" : "F32",
         "kind" : "float",
@@ -9436,7 +8888,7 @@
       "annotation" : "System's CPU Percentage"
     },
     {
-      "name" : "ReferenceDeployment.systemResources.CPU_12",
+      "name" : "FprimeYamcsReference.systemResources.CPU_12",
       "type" : {
         "name" : "F32",
         "kind" : "float",
@@ -9448,7 +8900,7 @@
       "annotation" : "System's CPU Percentage"
     },
     {
-      "name" : "ReferenceDeployment.systemResources.CPU_13",
+      "name" : "FprimeYamcsReference.systemResources.CPU_13",
       "type" : {
         "name" : "F32",
         "kind" : "float",
@@ -9460,7 +8912,7 @@
       "annotation" : "System's CPU Percentage"
     },
     {
-      "name" : "ReferenceDeployment.systemResources.CPU_14",
+      "name" : "FprimeYamcsReference.systemResources.CPU_14",
       "type" : {
         "name" : "F32",
         "kind" : "float",
@@ -9472,7 +8924,7 @@
       "annotation" : "System's CPU Percentage"
     },
     {
-      "name" : "ReferenceDeployment.systemResources.CPU_15",
+      "name" : "FprimeYamcsReference.systemResources.CPU_15",
       "type" : {
         "name" : "F32",
         "kind" : "float",
@@ -9482,136 +8934,6 @@
       "telemetryUpdate" : "always",
       "format" : "{.2f} percent",
       "annotation" : "System's CPU Percentage"
-    },
-    {
-      "name" : "Bmp280.bmpManager.Reading",
-      "type" : {
-        "name" : "Bmp280.Bmp280Data",
-        "kind" : "qualifiedIdentifier"
-      },
-      "id" : 3489665024,
-      "telemetryUpdate" : "always",
-      "annotation" : "Telemetry channel for BMP280 data"
-    },
-    {
-      "name" : "Bmp280.bmpDriver.SPI_Bytes",
-      "type" : {
-        "name" : "FwSizeType",
-        "kind" : "qualifiedIdentifier"
-      },
-      "id" : 3489669120,
-      "telemetryUpdate" : "always",
-      "annotation" : "Bytes Sent/Received"
-    },
-    {
-      "name" : "MpuImu.imuManager.Reading",
-      "type" : {
-        "name" : "MpuImu.ImuData",
-        "kind" : "qualifiedIdentifier"
-      },
-      "id" : 3758100480,
-      "telemetryUpdate" : "always",
-      "annotation" : "Telemetry channel for IMU data"
-    },
-    {
-      "name" : "NmeaGps.gpsManager.Reading",
-      "type" : {
-        "name" : "NmeaGps.GpsData",
-        "kind" : "qualifiedIdentifier"
-      },
-      "id" : 4026535936,
-      "telemetryUpdate" : "always",
-      "annotation" : "Channel for publishing GPS readings"
-    },
-    {
-      "name" : "NmeaGps.bufferManager.TotalBuffs",
-      "type" : {
-        "name" : "U32",
-        "kind" : "integer",
-        "size" : 32,
-        "signed" : false
-      },
-      "id" : 4027645952,
-      "telemetryUpdate" : "on change",
-      "annotation" : "The total buffers allocated"
-    },
-    {
-      "name" : "NmeaGps.bufferManager.CurrBuffs",
-      "type" : {
-        "name" : "U32",
-        "kind" : "integer",
-        "size" : 32,
-        "signed" : false
-      },
-      "id" : 4027645953,
-      "telemetryUpdate" : "on change",
-      "annotation" : "The current number of allocated buffers"
-    },
-    {
-      "name" : "NmeaGps.bufferManager.HiBuffs",
-      "type" : {
-        "name" : "U32",
-        "kind" : "integer",
-        "size" : 32,
-        "signed" : false
-      },
-      "id" : 4027645954,
-      "telemetryUpdate" : "on change",
-      "annotation" : "The high water mark of allocated buffers"
-    },
-    {
-      "name" : "NmeaGps.bufferManager.NoBuffs",
-      "type" : {
-        "name" : "U32",
-        "kind" : "integer",
-        "size" : 32,
-        "signed" : false
-      },
-      "id" : 4027645955,
-      "telemetryUpdate" : "on change",
-      "annotation" : "The number of requests that couldn't return a buffer",
-      "limits" : {
-        "high" : {
-          "red" : 1
-        }
-      }
-    },
-    {
-      "name" : "NmeaGps.bufferManager.EmptyBuffs",
-      "type" : {
-        "name" : "U32",
-        "kind" : "integer",
-        "size" : 32,
-        "signed" : false
-      },
-      "id" : 4027645956,
-      "telemetryUpdate" : "on change",
-      "annotation" : "The number of empty buffers returned",
-      "limits" : {
-        "high" : {
-          "red" : 1
-        }
-      }
-    },
-    {
-      "name" : "NmeaGps.driver.BytesSent",
-      "type" : {
-        "name" : "FwSizeType",
-        "kind" : "qualifiedIdentifier"
-      },
-      "id" : 4027650048,
-      "telemetryUpdate" : "always",
-      "annotation" : "Bytes Sent"
-    },
-    {
-      "name" : "NmeaGps.driver.BytesRecv",
-      "type" : {
-        "name" : "FwSizeType",
-        "kind" : "qualifiedIdentifier"
-      },
-      "id" : 4027650049,
-      "telemetryUpdate" : "always",
-      "annotation" : "Bytes Received"
     }
   ],
   "records" : [
@@ -9619,5 +8941,249 @@
   "containers" : [
   ],
   "telemetryPacketSets" : [
+    {
+      "name" : "YamcsDeploymentPackets",
+      "members" : [
+        {
+          "name" : "SystemRes1",
+          "id" : 5,
+          "group" : 2,
+          "members" : [
+            "FprimeYamcsReference.systemResources.MEMORY_TOTAL",
+            "FprimeYamcsReference.systemResources.MEMORY_USED",
+            "FprimeYamcsReference.systemResources.NON_VOLATILE_TOTAL",
+            "FprimeYamcsReference.systemResources.NON_VOLATILE_FREE"
+          ]
+        },
+        {
+          "name" : "Version_Custom2",
+          "id" : 29,
+          "group" : 2,
+          "members" : [
+            "CdhCore.version.CustomVersion02"
+          ]
+        },
+        {
+          "name" : "CDH",
+          "id" : 1,
+          "group" : 1,
+          "members" : [
+            "CdhCore.cmdDisp.CommandsDispatched",
+            "CdhCore.cmdDisp.CommandsDropped",
+            "FileHandling.fileUplink.FilesReceived",
+            "FileHandling.fileUplink.PacketsReceived",
+            "FileHandling.fileDownlink.FilesSent",
+            "FileHandling.fileDownlink.PacketsSent",
+            "FileHandling.fileManager.CommandsExecuted",
+            "FprimeYamcsReference.cmdSeq.CS_LoadCommands",
+            "FprimeYamcsReference.cmdSeq.CS_CancelCommands",
+            "FprimeYamcsReference.cmdSeq.CS_CommandsExecuted",
+            "FprimeYamcsReference.cmdSeq.CS_SequencesCompleted",
+            "ComCcsds.comQueue.comQueueDepth",
+            "ComCcsds.comQueue.buffQueueDepth",
+            "ComCcsds.commsBufferManager.TotalBuffs",
+            "ComCcsds.commsBufferManager.CurrBuffs",
+            "ComCcsds.commsBufferManager.HiBuffs",
+            "CdhCore.tlmSend.SendLevel",
+            "FprimeYamcsReference.rateGroup1.RgMaxTime",
+            "FprimeYamcsReference.rateGroup2.RgMaxTime",
+            "FprimeYamcsReference.rateGroup3.RgMaxTime"
+          ]
+        },
+        {
+          "name" : "SystemRes3",
+          "id" : 6,
+          "group" : 2,
+          "members" : [
+            "FprimeYamcsReference.systemResources.CPU",
+            "FprimeYamcsReference.systemResources.CPU_00",
+            "FprimeYamcsReference.systemResources.CPU_01",
+            "FprimeYamcsReference.systemResources.CPU_02",
+            "FprimeYamcsReference.systemResources.CPU_03",
+            "FprimeYamcsReference.systemResources.CPU_04",
+            "FprimeYamcsReference.systemResources.CPU_05",
+            "FprimeYamcsReference.systemResources.CPU_06",
+            "FprimeYamcsReference.systemResources.CPU_07",
+            "FprimeYamcsReference.systemResources.CPU_08",
+            "FprimeYamcsReference.systemResources.CPU_09",
+            "FprimeYamcsReference.systemResources.CPU_10",
+            "FprimeYamcsReference.systemResources.CPU_11",
+            "FprimeYamcsReference.systemResources.CPU_12",
+            "FprimeYamcsReference.systemResources.CPU_13",
+            "FprimeYamcsReference.systemResources.CPU_14",
+            "FprimeYamcsReference.systemResources.CPU_15"
+          ]
+        },
+        {
+          "name" : "CDHErrors",
+          "id" : 2,
+          "group" : 1,
+          "members" : [
+            "CdhCore.health.PingLateWarnings",
+            "FileHandling.fileUplink.Warnings",
+            "FileHandling.fileDownlink.Warnings",
+            "FileHandling.fileManager.Errors",
+            "FprimeYamcsReference.cmdSeq.CS_Errors",
+            "ComCcsds.commsBufferManager.NoBuffs",
+            "ComCcsds.commsBufferManager.EmptyBuffs",
+            "FprimeYamcsReference.rateGroup1.RgCycleSlips",
+            "FprimeYamcsReference.rateGroup2.RgCycleSlips",
+            "FprimeYamcsReference.rateGroup3.RgCycleSlips"
+          ]
+        },
+        {
+          "name" : "Version_Custom8",
+          "id" : 35,
+          "group" : 2,
+          "members" : [
+            "CdhCore.version.CustomVersion08"
+          ]
+        },
+        {
+          "name" : "Version_Custom4",
+          "id" : 31,
+          "group" : 2,
+          "members" : [
+            "CdhCore.version.CustomVersion04"
+          ]
+        },
+        {
+          "name" : "Version_Library2",
+          "id" : 24,
+          "group" : 2,
+          "members" : [
+            "CdhCore.version.LibraryVersion03",
+            "CdhCore.version.LibraryVersion04"
+          ]
+        },
+        {
+          "name" : "Version_Custom10",
+          "id" : 37,
+          "group" : 2,
+          "members" : [
+            "CdhCore.version.CustomVersion10"
+          ]
+        },
+        {
+          "name" : "Version_Library3",
+          "id" : 25,
+          "group" : 2,
+          "members" : [
+            "CdhCore.version.LibraryVersion05",
+            "CdhCore.version.LibraryVersion06"
+          ]
+        },
+        {
+          "name" : "Version_Custom1",
+          "id" : 28,
+          "group" : 2,
+          "members" : [
+            "CdhCore.version.CustomVersion01"
+          ]
+        },
+        {
+          "name" : "DataProducts",
+          "id" : 21,
+          "group" : 3,
+          "members" : [
+            "DataProducts.dpCat.CatalogDps",
+            "DataProducts.dpCat.DpsSent",
+            "DataProducts.dpMgr.NumSuccessfulAllocations",
+            "DataProducts.dpMgr.NumFailedAllocations",
+            "DataProducts.dpMgr.NumDataProducts",
+            "DataProducts.dpMgr.NumBytes",
+            "DataProducts.dpWriter.NumBuffersReceived",
+            "DataProducts.dpWriter.NumBytesWritten",
+            "DataProducts.dpWriter.NumSuccessfulWrites",
+            "DataProducts.dpWriter.NumFailedWrites",
+            "DataProducts.dpWriter.NumErrors",
+            "DataProducts.dpBufferManager.TotalBuffs",
+            "DataProducts.dpBufferManager.CurrBuffs",
+            "DataProducts.dpBufferManager.HiBuffs",
+            "DataProducts.dpBufferManager.NoBuffs",
+            "DataProducts.dpBufferManager.EmptyBuffs"
+          ]
+        },
+        {
+          "name" : "Version_Custom6",
+          "id" : 33,
+          "group" : 2,
+          "members" : [
+            "CdhCore.version.CustomVersion06"
+          ]
+        },
+        {
+          "name" : "Version_Custom5",
+          "id" : 32,
+          "group" : 2,
+          "members" : [
+            "CdhCore.version.CustomVersion05"
+          ]
+        },
+        {
+          "name" : "Version_Custom7",
+          "id" : 34,
+          "group" : 2,
+          "members" : [
+            "CdhCore.version.CustomVersion07"
+          ]
+        },
+        {
+          "name" : "Version1",
+          "id" : 22,
+          "group" : 2,
+          "members" : [
+            "CdhCore.version.FrameworkVersion",
+            "CdhCore.version.ProjectVersion"
+          ]
+        },
+        {
+          "name" : "Version_Library5",
+          "id" : 27,
+          "group" : 2,
+          "members" : [
+            "CdhCore.version.LibraryVersion09",
+            "CdhCore.version.LibraryVersion10"
+          ]
+        },
+        {
+          "name" : "Version_Library4",
+          "id" : 26,
+          "group" : 2,
+          "members" : [
+            "CdhCore.version.LibraryVersion07",
+            "CdhCore.version.LibraryVersion08"
+          ]
+        },
+        {
+          "name" : "Version_Library1",
+          "id" : 23,
+          "group" : 2,
+          "members" : [
+            "CdhCore.version.LibraryVersion01",
+            "CdhCore.version.LibraryVersion02"
+          ]
+        },
+        {
+          "name" : "Version_Custom9",
+          "id" : 36,
+          "group" : 2,
+          "members" : [
+            "CdhCore.version.CustomVersion09"
+          ]
+        },
+        {
+          "name" : "Version_Custom3",
+          "id" : 30,
+          "group" : 2,
+          "members" : [
+            "CdhCore.version.CustomVersion03"
+          ]
+        }
+      ],
+      "omitted" : [
+        "CdhCore.cmdDisp.CommandErrors"
+      ]
+    }
   ]
 }

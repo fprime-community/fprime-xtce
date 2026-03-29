@@ -84,15 +84,9 @@ def main(args=None):
     verbose_print(f"[INFO] Converting {parsed_args.input} to {parsed_args.output}")
 
     try:
-        deployment = json_data["metadata"]["deploymentName"]
         # Handle dots in deployment name (not allowed in XTCE names)
-        # If name has duplicates (e.g. "Ref.Ref"), use just the first part
-        if '.' in deployment:
-            parts = deployment.split('.')
-            if len(set(parts)) == 1:
-                deployment = parts[0]
-            else:
-                deployment = deployment.replace('.', '|')
+        deployment = json_data["metadata"]["deploymentName"]
+        deployment = deployment.replace(".", "|")
     except KeyError:
         print("[ERROR] metadata.deploymentName missing from F Prime dictionary")
         return 1
@@ -127,6 +121,14 @@ def main(args=None):
         deployment
     )
     write_xtce_xml(xtce_structure, parsed_args.output)
+
+    # Step 7: Validate output file
+    #is_valid, errors = validate_xtce(parsed_args.output)
+    if False and not is_valid:
+        print(f"[ERROR] XTCE validation errors:", file=sys.stderr)
+        for error in errors:
+            print(f"  - {error}", file=sys.stderr)
+        sys.exit(1)
 
 if __name__ == "__main__":
     sys.exit(main())

@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='utf-8'?>
-<SpaceSystem xmlns="http://www.omg.org/spec/XTCE/20180204" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.omg.org/spec/XTCE/20180204 https://www.omg.org/spec/XTCE/20180204/SpaceSystem.xsd" name="ReferenceDeployment">
+<SpaceSystem xmlns="http://www.omg.org/spec/XTCE/20180204" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.omg.org/spec/XTCE/20180204 https://www.omg.org/spec/XTCE/20180204/SpaceSystem.xsd" name="FprimeYamcsReference|YamcsDeployment">
   <TelemetryMetaData>
     <ParameterTypeSet>
       <IntegerParameterType name="U8" signed="false" sizeInBits="8">
@@ -98,15 +98,18 @@
           </Variable>
         </StringDataEncoding>
       </StringParameterType>
+      <IntegerParameterType name="PlatformSizeType" shortDescription="The unsigned type of larger sizes internal to the software,&#10;e.g., memory buffer sizes, file sizes. Must be unsigned.&#10;Supplied by platform, overridable by project." baseType="U64" signed="false" sizeInBits="64" />
+      <IntegerParameterType name="FwIdType" shortDescription="The id type." baseType="U32" signed="false" sizeInBits="32" />
+      <IntegerParameterType name="FwIndexType" shortDescription="The type of smaller indices internal to the software, used&#10;for array indices, e.g., port indices. Must be signed." baseType="PlatformIndexType" signed="true" sizeInBits="16" />
+      <IntegerParameterType name="FwTlmPacketizeIdType" shortDescription="The type of a telemetry packet identifier" baseType="U16" signed="false" sizeInBits="16" />
       <IntegerParameterType name="FwOpcodeType" shortDescription="The type of a command opcode" baseType="FwIdType" signed="false" sizeInBits="32" />
+      <IntegerParameterType name="FwPacketDescriptorType" shortDescription="The width of packet descriptors when they are serialized by the framework" baseType="U16" signed="false" sizeInBits="16" />
       <IntegerParameterType name="FwPrmIdType" shortDescription="The type of a parameter identifier" baseType="FwIdType" signed="false" sizeInBits="32" />
       <IntegerParameterType name="FwDpPriorityType" shortDescription="The type of a data product priority" baseType="U32" signed="false" sizeInBits="32" />
-      <IntegerParameterType name="PlatformSizeType" shortDescription="The unsigned type of larger sizes internal to the software,&#10;e.g., memory buffer sizes, file sizes. Must be unsigned.&#10;Supplied by platform, overridable by project." baseType="U64" signed="false" sizeInBits="64" />
+      <IntegerParameterType name="PlatformIndexType" shortDescription="The type of smaller indices internal to the software, used&#10;for array indices, e.g., port indices. Must be signed." baseType="I16" signed="true" sizeInBits="16" />
       <IntegerParameterType name="FwChanIdType" shortDescription="The type of a telemetry channel identifier" baseType="FwIdType" signed="false" sizeInBits="32" />
       <IntegerParameterType name="FwTimeContextStoreType" shortDescription="The type used to serialize a time context value" baseType="U8" signed="false" sizeInBits="8" />
       <IntegerParameterType name="FwDpIdType" shortDescription="The type of a data product identifier" baseType="FwIdType" signed="false" sizeInBits="32" />
-      <IntegerParameterType name="FwIdType" shortDescription="The id type." baseType="U32" signed="false" sizeInBits="32" />
-      <IntegerParameterType name="FwTlmPacketizeIdType" shortDescription="The type of a telemetry packet identifier" baseType="U16" signed="false" sizeInBits="16" />
       <EnumeratedParameterType name="TimeBase" shortDescription="Define enumeration for Time base types">
         <IntegerDataEncoding sizeInBits="16" encoding="unsigned" byteOrder="mostSignificantByteFirst" />
         <EnumerationList>
@@ -119,7 +122,6 @@
       </EnumeratedParameterType>
       <IntegerParameterType name="FwSizeType" shortDescription="The unsigned type of larger sizes internal to the software,&#10;e.g., memory buffer sizes, file sizes. Must be unsigned." baseType="PlatformSizeType" signed="false" sizeInBits="64" />
       <IntegerParameterType name="FwSizeStoreType" shortDescription="The type used to serialize a size value" baseType="U16" signed="false" sizeInBits="16" />
-      <IntegerParameterType name="FwPacketDescriptorType" shortDescription="The width of packet descriptors when they are serialized by the framework" baseType="U16" signed="false" sizeInBits="16" />
       <IntegerParameterType name="FwTimeBaseStoreType" shortDescription="The type used to serialize a time base value" baseType="U16" signed="false" sizeInBits="16" />
       <IntegerParameterType name="FwEventIdType" shortDescription="The type of an event identifier" baseType="FwIdType" signed="false" sizeInBits="32" />
       <StringParameterType name="string40">
@@ -236,6 +238,326 @@
           </RestrictionCriteria>
         </BaseContainer>
       </SequenceContainer>
+      <SequenceContainer name="SystemRes1">
+        <EntryList>
+          <ParameterRefEntry parameterRef="FprimeYamcsReference/systemResources/MEMORY_TOTAL" />
+          <ParameterRefEntry parameterRef="FprimeYamcsReference/systemResources/MEMORY_USED" />
+          <ParameterRefEntry parameterRef="FprimeYamcsReference/systemResources/NON_VOLATILE_TOTAL" />
+          <ParameterRefEntry parameterRef="FprimeYamcsReference/systemResources/NON_VOLATILE_FREE" />
+        </EntryList>
+        <BaseContainer containerRef="FPrimeTelemetryPacket">
+          <RestrictionCriteria>
+            <ComparisonList>
+              <Comparison parameterRef="FPrimePacketId" value="5" />
+            </ComparisonList>
+          </RestrictionCriteria>
+        </BaseContainer>
+      </SequenceContainer>
+      <SequenceContainer name="Version_Custom2">
+        <EntryList>
+          <ParameterRefEntry parameterRef="CdhCore/version/CustomVersion02" />
+        </EntryList>
+        <BaseContainer containerRef="FPrimeTelemetryPacket">
+          <RestrictionCriteria>
+            <ComparisonList>
+              <Comparison parameterRef="FPrimePacketId" value="29" />
+            </ComparisonList>
+          </RestrictionCriteria>
+        </BaseContainer>
+      </SequenceContainer>
+      <SequenceContainer name="CDH">
+        <EntryList>
+          <ParameterRefEntry parameterRef="CdhCore/cmdDisp/CommandsDispatched" />
+          <ParameterRefEntry parameterRef="CdhCore/cmdDisp/CommandsDropped" />
+          <ParameterRefEntry parameterRef="FileHandling/fileUplink/FilesReceived" />
+          <ParameterRefEntry parameterRef="FileHandling/fileUplink/PacketsReceived" />
+          <ParameterRefEntry parameterRef="FileHandling/fileDownlink/FilesSent" />
+          <ParameterRefEntry parameterRef="FileHandling/fileDownlink/PacketsSent" />
+          <ParameterRefEntry parameterRef="FileHandling/fileManager/CommandsExecuted" />
+          <ParameterRefEntry parameterRef="FprimeYamcsReference/cmdSeq/CS_LoadCommands" />
+          <ParameterRefEntry parameterRef="FprimeYamcsReference/cmdSeq/CS_CancelCommands" />
+          <ParameterRefEntry parameterRef="FprimeYamcsReference/cmdSeq/CS_CommandsExecuted" />
+          <ParameterRefEntry parameterRef="FprimeYamcsReference/cmdSeq/CS_SequencesCompleted" />
+          <ParameterRefEntry parameterRef="ComCcsds/comQueue/comQueueDepth" />
+          <ParameterRefEntry parameterRef="ComCcsds/comQueue/buffQueueDepth" />
+          <ParameterRefEntry parameterRef="ComCcsds/commsBufferManager/TotalBuffs" />
+          <ParameterRefEntry parameterRef="ComCcsds/commsBufferManager/CurrBuffs" />
+          <ParameterRefEntry parameterRef="ComCcsds/commsBufferManager/HiBuffs" />
+          <ParameterRefEntry parameterRef="CdhCore/tlmSend/SendLevel" />
+          <ParameterRefEntry parameterRef="FprimeYamcsReference/rateGroup1/RgMaxTime" />
+          <ParameterRefEntry parameterRef="FprimeYamcsReference/rateGroup2/RgMaxTime" />
+          <ParameterRefEntry parameterRef="FprimeYamcsReference/rateGroup3/RgMaxTime" />
+        </EntryList>
+        <BaseContainer containerRef="FPrimeTelemetryPacket">
+          <RestrictionCriteria>
+            <ComparisonList>
+              <Comparison parameterRef="FPrimePacketId" value="1" />
+            </ComparisonList>
+          </RestrictionCriteria>
+        </BaseContainer>
+      </SequenceContainer>
+      <SequenceContainer name="SystemRes3">
+        <EntryList>
+          <ParameterRefEntry parameterRef="FprimeYamcsReference/systemResources/CPU" />
+          <ParameterRefEntry parameterRef="FprimeYamcsReference/systemResources/CPU_00" />
+          <ParameterRefEntry parameterRef="FprimeYamcsReference/systemResources/CPU_01" />
+          <ParameterRefEntry parameterRef="FprimeYamcsReference/systemResources/CPU_02" />
+          <ParameterRefEntry parameterRef="FprimeYamcsReference/systemResources/CPU_03" />
+          <ParameterRefEntry parameterRef="FprimeYamcsReference/systemResources/CPU_04" />
+          <ParameterRefEntry parameterRef="FprimeYamcsReference/systemResources/CPU_05" />
+          <ParameterRefEntry parameterRef="FprimeYamcsReference/systemResources/CPU_06" />
+          <ParameterRefEntry parameterRef="FprimeYamcsReference/systemResources/CPU_07" />
+          <ParameterRefEntry parameterRef="FprimeYamcsReference/systemResources/CPU_08" />
+          <ParameterRefEntry parameterRef="FprimeYamcsReference/systemResources/CPU_09" />
+          <ParameterRefEntry parameterRef="FprimeYamcsReference/systemResources/CPU_10" />
+          <ParameterRefEntry parameterRef="FprimeYamcsReference/systemResources/CPU_11" />
+          <ParameterRefEntry parameterRef="FprimeYamcsReference/systemResources/CPU_12" />
+          <ParameterRefEntry parameterRef="FprimeYamcsReference/systemResources/CPU_13" />
+          <ParameterRefEntry parameterRef="FprimeYamcsReference/systemResources/CPU_14" />
+          <ParameterRefEntry parameterRef="FprimeYamcsReference/systemResources/CPU_15" />
+        </EntryList>
+        <BaseContainer containerRef="FPrimeTelemetryPacket">
+          <RestrictionCriteria>
+            <ComparisonList>
+              <Comparison parameterRef="FPrimePacketId" value="6" />
+            </ComparisonList>
+          </RestrictionCriteria>
+        </BaseContainer>
+      </SequenceContainer>
+      <SequenceContainer name="CDHErrors">
+        <EntryList>
+          <ParameterRefEntry parameterRef="CdhCore/health/PingLateWarnings" />
+          <ParameterRefEntry parameterRef="FileHandling/fileUplink/Warnings" />
+          <ParameterRefEntry parameterRef="FileHandling/fileDownlink/Warnings" />
+          <ParameterRefEntry parameterRef="FileHandling/fileManager/Errors" />
+          <ParameterRefEntry parameterRef="FprimeYamcsReference/cmdSeq/CS_Errors" />
+          <ParameterRefEntry parameterRef="ComCcsds/commsBufferManager/NoBuffs" />
+          <ParameterRefEntry parameterRef="ComCcsds/commsBufferManager/EmptyBuffs" />
+          <ParameterRefEntry parameterRef="FprimeYamcsReference/rateGroup1/RgCycleSlips" />
+          <ParameterRefEntry parameterRef="FprimeYamcsReference/rateGroup2/RgCycleSlips" />
+          <ParameterRefEntry parameterRef="FprimeYamcsReference/rateGroup3/RgCycleSlips" />
+        </EntryList>
+        <BaseContainer containerRef="FPrimeTelemetryPacket">
+          <RestrictionCriteria>
+            <ComparisonList>
+              <Comparison parameterRef="FPrimePacketId" value="2" />
+            </ComparisonList>
+          </RestrictionCriteria>
+        </BaseContainer>
+      </SequenceContainer>
+      <SequenceContainer name="Version_Custom8">
+        <EntryList>
+          <ParameterRefEntry parameterRef="CdhCore/version/CustomVersion08" />
+        </EntryList>
+        <BaseContainer containerRef="FPrimeTelemetryPacket">
+          <RestrictionCriteria>
+            <ComparisonList>
+              <Comparison parameterRef="FPrimePacketId" value="35" />
+            </ComparisonList>
+          </RestrictionCriteria>
+        </BaseContainer>
+      </SequenceContainer>
+      <SequenceContainer name="Version_Custom4">
+        <EntryList>
+          <ParameterRefEntry parameterRef="CdhCore/version/CustomVersion04" />
+        </EntryList>
+        <BaseContainer containerRef="FPrimeTelemetryPacket">
+          <RestrictionCriteria>
+            <ComparisonList>
+              <Comparison parameterRef="FPrimePacketId" value="31" />
+            </ComparisonList>
+          </RestrictionCriteria>
+        </BaseContainer>
+      </SequenceContainer>
+      <SequenceContainer name="Version_Library2">
+        <EntryList>
+          <ParameterRefEntry parameterRef="CdhCore/version/LibraryVersion03" />
+          <ParameterRefEntry parameterRef="CdhCore/version/LibraryVersion04" />
+        </EntryList>
+        <BaseContainer containerRef="FPrimeTelemetryPacket">
+          <RestrictionCriteria>
+            <ComparisonList>
+              <Comparison parameterRef="FPrimePacketId" value="24" />
+            </ComparisonList>
+          </RestrictionCriteria>
+        </BaseContainer>
+      </SequenceContainer>
+      <SequenceContainer name="Version_Custom10">
+        <EntryList>
+          <ParameterRefEntry parameterRef="CdhCore/version/CustomVersion10" />
+        </EntryList>
+        <BaseContainer containerRef="FPrimeTelemetryPacket">
+          <RestrictionCriteria>
+            <ComparisonList>
+              <Comparison parameterRef="FPrimePacketId" value="37" />
+            </ComparisonList>
+          </RestrictionCriteria>
+        </BaseContainer>
+      </SequenceContainer>
+      <SequenceContainer name="Version_Library3">
+        <EntryList>
+          <ParameterRefEntry parameterRef="CdhCore/version/LibraryVersion05" />
+          <ParameterRefEntry parameterRef="CdhCore/version/LibraryVersion06" />
+        </EntryList>
+        <BaseContainer containerRef="FPrimeTelemetryPacket">
+          <RestrictionCriteria>
+            <ComparisonList>
+              <Comparison parameterRef="FPrimePacketId" value="25" />
+            </ComparisonList>
+          </RestrictionCriteria>
+        </BaseContainer>
+      </SequenceContainer>
+      <SequenceContainer name="Version_Custom1">
+        <EntryList>
+          <ParameterRefEntry parameterRef="CdhCore/version/CustomVersion01" />
+        </EntryList>
+        <BaseContainer containerRef="FPrimeTelemetryPacket">
+          <RestrictionCriteria>
+            <ComparisonList>
+              <Comparison parameterRef="FPrimePacketId" value="28" />
+            </ComparisonList>
+          </RestrictionCriteria>
+        </BaseContainer>
+      </SequenceContainer>
+      <SequenceContainer name="DataProducts">
+        <EntryList>
+          <ParameterRefEntry parameterRef="DataProducts/dpCat/CatalogDps" />
+          <ParameterRefEntry parameterRef="DataProducts/dpCat/DpsSent" />
+          <ParameterRefEntry parameterRef="DataProducts/dpMgr/NumSuccessfulAllocations" />
+          <ParameterRefEntry parameterRef="DataProducts/dpMgr/NumFailedAllocations" />
+          <ParameterRefEntry parameterRef="DataProducts/dpMgr/NumDataProducts" />
+          <ParameterRefEntry parameterRef="DataProducts/dpMgr/NumBytes" />
+          <ParameterRefEntry parameterRef="DataProducts/dpWriter/NumBuffersReceived" />
+          <ParameterRefEntry parameterRef="DataProducts/dpWriter/NumBytesWritten" />
+          <ParameterRefEntry parameterRef="DataProducts/dpWriter/NumSuccessfulWrites" />
+          <ParameterRefEntry parameterRef="DataProducts/dpWriter/NumFailedWrites" />
+          <ParameterRefEntry parameterRef="DataProducts/dpWriter/NumErrors" />
+          <ParameterRefEntry parameterRef="DataProducts/dpBufferManager/TotalBuffs" />
+          <ParameterRefEntry parameterRef="DataProducts/dpBufferManager/CurrBuffs" />
+          <ParameterRefEntry parameterRef="DataProducts/dpBufferManager/HiBuffs" />
+          <ParameterRefEntry parameterRef="DataProducts/dpBufferManager/NoBuffs" />
+          <ParameterRefEntry parameterRef="DataProducts/dpBufferManager/EmptyBuffs" />
+        </EntryList>
+        <BaseContainer containerRef="FPrimeTelemetryPacket">
+          <RestrictionCriteria>
+            <ComparisonList>
+              <Comparison parameterRef="FPrimePacketId" value="21" />
+            </ComparisonList>
+          </RestrictionCriteria>
+        </BaseContainer>
+      </SequenceContainer>
+      <SequenceContainer name="Version_Custom6">
+        <EntryList>
+          <ParameterRefEntry parameterRef="CdhCore/version/CustomVersion06" />
+        </EntryList>
+        <BaseContainer containerRef="FPrimeTelemetryPacket">
+          <RestrictionCriteria>
+            <ComparisonList>
+              <Comparison parameterRef="FPrimePacketId" value="33" />
+            </ComparisonList>
+          </RestrictionCriteria>
+        </BaseContainer>
+      </SequenceContainer>
+      <SequenceContainer name="Version_Custom5">
+        <EntryList>
+          <ParameterRefEntry parameterRef="CdhCore/version/CustomVersion05" />
+        </EntryList>
+        <BaseContainer containerRef="FPrimeTelemetryPacket">
+          <RestrictionCriteria>
+            <ComparisonList>
+              <Comparison parameterRef="FPrimePacketId" value="32" />
+            </ComparisonList>
+          </RestrictionCriteria>
+        </BaseContainer>
+      </SequenceContainer>
+      <SequenceContainer name="Version_Custom7">
+        <EntryList>
+          <ParameterRefEntry parameterRef="CdhCore/version/CustomVersion07" />
+        </EntryList>
+        <BaseContainer containerRef="FPrimeTelemetryPacket">
+          <RestrictionCriteria>
+            <ComparisonList>
+              <Comparison parameterRef="FPrimePacketId" value="34" />
+            </ComparisonList>
+          </RestrictionCriteria>
+        </BaseContainer>
+      </SequenceContainer>
+      <SequenceContainer name="Version1">
+        <EntryList>
+          <ParameterRefEntry parameterRef="CdhCore/version/FrameworkVersion" />
+          <ParameterRefEntry parameterRef="CdhCore/version/ProjectVersion" />
+        </EntryList>
+        <BaseContainer containerRef="FPrimeTelemetryPacket">
+          <RestrictionCriteria>
+            <ComparisonList>
+              <Comparison parameterRef="FPrimePacketId" value="22" />
+            </ComparisonList>
+          </RestrictionCriteria>
+        </BaseContainer>
+      </SequenceContainer>
+      <SequenceContainer name="Version_Library5">
+        <EntryList>
+          <ParameterRefEntry parameterRef="CdhCore/version/LibraryVersion09" />
+          <ParameterRefEntry parameterRef="CdhCore/version/LibraryVersion10" />
+        </EntryList>
+        <BaseContainer containerRef="FPrimeTelemetryPacket">
+          <RestrictionCriteria>
+            <ComparisonList>
+              <Comparison parameterRef="FPrimePacketId" value="27" />
+            </ComparisonList>
+          </RestrictionCriteria>
+        </BaseContainer>
+      </SequenceContainer>
+      <SequenceContainer name="Version_Library4">
+        <EntryList>
+          <ParameterRefEntry parameterRef="CdhCore/version/LibraryVersion07" />
+          <ParameterRefEntry parameterRef="CdhCore/version/LibraryVersion08" />
+        </EntryList>
+        <BaseContainer containerRef="FPrimeTelemetryPacket">
+          <RestrictionCriteria>
+            <ComparisonList>
+              <Comparison parameterRef="FPrimePacketId" value="26" />
+            </ComparisonList>
+          </RestrictionCriteria>
+        </BaseContainer>
+      </SequenceContainer>
+      <SequenceContainer name="Version_Library1">
+        <EntryList>
+          <ParameterRefEntry parameterRef="CdhCore/version/LibraryVersion01" />
+          <ParameterRefEntry parameterRef="CdhCore/version/LibraryVersion02" />
+        </EntryList>
+        <BaseContainer containerRef="FPrimeTelemetryPacket">
+          <RestrictionCriteria>
+            <ComparisonList>
+              <Comparison parameterRef="FPrimePacketId" value="23" />
+            </ComparisonList>
+          </RestrictionCriteria>
+        </BaseContainer>
+      </SequenceContainer>
+      <SequenceContainer name="Version_Custom9">
+        <EntryList>
+          <ParameterRefEntry parameterRef="CdhCore/version/CustomVersion09" />
+        </EntryList>
+        <BaseContainer containerRef="FPrimeTelemetryPacket">
+          <RestrictionCriteria>
+            <ComparisonList>
+              <Comparison parameterRef="FPrimePacketId" value="36" />
+            </ComparisonList>
+          </RestrictionCriteria>
+        </BaseContainer>
+      </SequenceContainer>
+      <SequenceContainer name="Version_Custom3">
+        <EntryList>
+          <ParameterRefEntry parameterRef="CdhCore/version/CustomVersion03" />
+        </EntryList>
+        <BaseContainer containerRef="FPrimeTelemetryPacket">
+          <RestrictionCriteria>
+            <ComparisonList>
+              <Comparison parameterRef="FPrimePacketId" value="30" />
+            </ComparisonList>
+          </RestrictionCriteria>
+        </BaseContainer>
+      </SequenceContainer>
     </ContainerSet>
   </TelemetryMetaData>
   <CommandMetaData>
@@ -336,15 +658,18 @@
           </Variable>
         </StringDataEncoding>
       </StringArgumentType>
+      <IntegerArgumentType name="PlatformSizeType" shortDescription="The unsigned type of larger sizes internal to the software,&#10;e.g., memory buffer sizes, file sizes. Must be unsigned.&#10;Supplied by platform, overridable by project." baseType="U64" signed="false" sizeInBits="64" />
+      <IntegerArgumentType name="FwIdType" shortDescription="The id type." baseType="U32" signed="false" sizeInBits="32" />
+      <IntegerArgumentType name="FwIndexType" shortDescription="The type of smaller indices internal to the software, used&#10;for array indices, e.g., port indices. Must be signed." baseType="PlatformIndexType" signed="true" sizeInBits="16" />
+      <IntegerArgumentType name="FwTlmPacketizeIdType" shortDescription="The type of a telemetry packet identifier" baseType="U16" signed="false" sizeInBits="16" />
       <IntegerArgumentType name="FwOpcodeType" shortDescription="The type of a command opcode" baseType="FwIdType" signed="false" sizeInBits="32" />
+      <IntegerArgumentType name="FwPacketDescriptorType" shortDescription="The width of packet descriptors when they are serialized by the framework" baseType="U16" signed="false" sizeInBits="16" />
       <IntegerArgumentType name="FwPrmIdType" shortDescription="The type of a parameter identifier" baseType="FwIdType" signed="false" sizeInBits="32" />
       <IntegerArgumentType name="FwDpPriorityType" shortDescription="The type of a data product priority" baseType="U32" signed="false" sizeInBits="32" />
-      <IntegerArgumentType name="PlatformSizeType" shortDescription="The unsigned type of larger sizes internal to the software,&#10;e.g., memory buffer sizes, file sizes. Must be unsigned.&#10;Supplied by platform, overridable by project." baseType="U64" signed="false" sizeInBits="64" />
+      <IntegerArgumentType name="PlatformIndexType" shortDescription="The type of smaller indices internal to the software, used&#10;for array indices, e.g., port indices. Must be signed." baseType="I16" signed="true" sizeInBits="16" />
       <IntegerArgumentType name="FwChanIdType" shortDescription="The type of a telemetry channel identifier" baseType="FwIdType" signed="false" sizeInBits="32" />
       <IntegerArgumentType name="FwTimeContextStoreType" shortDescription="The type used to serialize a time context value" baseType="U8" signed="false" sizeInBits="8" />
       <IntegerArgumentType name="FwDpIdType" shortDescription="The type of a data product identifier" baseType="FwIdType" signed="false" sizeInBits="32" />
-      <IntegerArgumentType name="FwIdType" shortDescription="The id type." baseType="U32" signed="false" sizeInBits="32" />
-      <IntegerArgumentType name="FwTlmPacketizeIdType" shortDescription="The type of a telemetry packet identifier" baseType="U16" signed="false" sizeInBits="16" />
       <EnumeratedArgumentType name="TimeBase" shortDescription="Define enumeration for Time base types">
         <IntegerDataEncoding sizeInBits="16" encoding="unsigned" byteOrder="mostSignificantByteFirst" />
         <EnumerationList>
@@ -357,7 +682,6 @@
       </EnumeratedArgumentType>
       <IntegerArgumentType name="FwSizeType" shortDescription="The unsigned type of larger sizes internal to the software,&#10;e.g., memory buffer sizes, file sizes. Must be unsigned." baseType="PlatformSizeType" signed="false" sizeInBits="64" />
       <IntegerArgumentType name="FwSizeStoreType" shortDescription="The type used to serialize a size value" baseType="U16" signed="false" sizeInBits="16" />
-      <IntegerArgumentType name="FwPacketDescriptorType" shortDescription="The width of packet descriptors when they are serialized by the framework" baseType="U16" signed="false" sizeInBits="16" />
       <IntegerArgumentType name="FwTimeBaseStoreType" shortDescription="The type used to serialize a time base value" baseType="U16" signed="false" sizeInBits="16" />
       <IntegerArgumentType name="FwEventIdType" shortDescription="The type of an event identifier" baseType="FwIdType" signed="false" sizeInBits="32" />
       <StringArgumentType name="string100">
@@ -455,201 +779,6 @@
       </MetaCommand>
     </MetaCommandSet>
   </CommandMetaData>
-  <SpaceSystem name="Bmp280">
-    <TelemetryMetaData>
-      <ParameterTypeSet>
-        <EnumeratedParameterType name="TemperatureOversampling" shortDescription="Oversampling setting for temperature measurement">
-          <IntegerDataEncoding sizeInBits="8" encoding="unsigned" byteOrder="mostSignificantByteFirst" />
-          <EnumerationList>
-            <Enumeration value="0" label="SKIP" />
-            <Enumeration value="32" label="OVERSAMPLE_1X" />
-            <Enumeration value="64" label="OVERSAMPLE_2X" />
-            <Enumeration value="96" label="OVERSAMPLE_4X" />
-            <Enumeration value="128" label="OVERSAMPLE_8X" />
-            <Enumeration value="160" label="OVERSAMPLE_16X" />
-          </EnumerationList>
-        </EnumeratedParameterType>
-        <AggregateParameterType name="Bmp280Data" shortDescription="Struct representing Bmp280 sensor data">
-          <MemberList>
-            <Member name="pressure" shortDescription="Pressure in Pascals (Pa)" typeRef="F32" />
-            <Member name="temperature" shortDescription="Temperature in degrees Celsius (°C)" typeRef="F32" />
-            <Member name="altitude" shortDescription="Altitude in meters (m)" typeRef="F32" />
-          </MemberList>
-        </AggregateParameterType>
-        <EnumeratedParameterType name="PressureOversampling" shortDescription="Oversampling setting for pressure measurement">
-          <IntegerDataEncoding sizeInBits="8" encoding="unsigned" byteOrder="mostSignificantByteFirst" />
-          <EnumerationList>
-            <Enumeration value="0" label="SKIP" />
-            <Enumeration value="4" label="OVERSAMPLE_1X" />
-            <Enumeration value="8" label="OVERSAMPLE_2X" />
-            <Enumeration value="12" label="OVERSAMPLE_4X" />
-            <Enumeration value="16" label="OVERSAMPLE_8X" />
-            <Enumeration value="20" label="OVERSAMPLE_16X" />
-          </EnumerationList>
-        </EnumeratedParameterType>
-      </ParameterTypeSet>
-    </TelemetryMetaData>
-    <CommandMetaData>
-      <ArgumentTypeSet>
-        <EnumeratedArgumentType name="TemperatureOversampling" shortDescription="Oversampling setting for temperature measurement">
-          <IntegerDataEncoding sizeInBits="8" encoding="unsigned" byteOrder="mostSignificantByteFirst" />
-          <EnumerationList>
-            <Enumeration value="0" label="SKIP" />
-            <Enumeration value="32" label="OVERSAMPLE_1X" />
-            <Enumeration value="64" label="OVERSAMPLE_2X" />
-            <Enumeration value="96" label="OVERSAMPLE_4X" />
-            <Enumeration value="128" label="OVERSAMPLE_8X" />
-            <Enumeration value="160" label="OVERSAMPLE_16X" />
-          </EnumerationList>
-        </EnumeratedArgumentType>
-        <AggregateArgumentType name="Bmp280Data" shortDescription="Struct representing Bmp280 sensor data">
-          <MemberList>
-            <Member name="pressure" shortDescription="Pressure in Pascals (Pa)" typeRef="F32" />
-            <Member name="temperature" shortDescription="Temperature in degrees Celsius (°C)" typeRef="F32" />
-            <Member name="altitude" shortDescription="Altitude in meters (m)" typeRef="F32" />
-          </MemberList>
-        </AggregateArgumentType>
-        <EnumeratedArgumentType name="PressureOversampling" shortDescription="Oversampling setting for pressure measurement">
-          <IntegerDataEncoding sizeInBits="8" encoding="unsigned" byteOrder="mostSignificantByteFirst" />
-          <EnumerationList>
-            <Enumeration value="0" label="SKIP" />
-            <Enumeration value="4" label="OVERSAMPLE_1X" />
-            <Enumeration value="8" label="OVERSAMPLE_2X" />
-            <Enumeration value="12" label="OVERSAMPLE_4X" />
-            <Enumeration value="16" label="OVERSAMPLE_8X" />
-            <Enumeration value="20" label="OVERSAMPLE_16X" />
-          </EnumerationList>
-        </EnumeratedArgumentType>
-      </ArgumentTypeSet>
-    </CommandMetaData>
-    <SpaceSystem name="bmpDriver">
-      <TelemetryMetaData>
-        <ParameterSet>
-          <Parameter name="SPI_Bytes" shortDescription="Bytes Sent/Received" parameterTypeRef="FwSizeType" />
-        </ParameterSet>
-        <ContainerSet>
-          <SequenceContainer name="SPI_Bytes">
-            <EntryList>
-              <ParameterRefEntry parameterRef="Bmp280/bmpDriver/SPI_Bytes" />
-            </EntryList>
-            <BaseContainer containerRef="FPrimeTelemetryChannel">
-              <RestrictionCriteria>
-                <ComparisonList>
-                  <Comparison parameterRef="FPrimeChannelId" value="3489669120" />
-                </ComparisonList>
-              </RestrictionCriteria>
-            </BaseContainer>
-          </SequenceContainer>
-        </ContainerSet>
-      </TelemetryMetaData>
-    </SpaceSystem>
-    <SpaceSystem name="bmpManager">
-      <TelemetryMetaData>
-        <ParameterSet>
-          <Parameter name="Reading" shortDescription="Telemetry channel for BMP280 data" parameterTypeRef="Bmp280/Bmp280Data" />
-        </ParameterSet>
-        <ContainerSet>
-          <SequenceContainer name="Reading">
-            <EntryList>
-              <ParameterRefEntry parameterRef="Bmp280/bmpManager/Reading" />
-            </EntryList>
-            <BaseContainer containerRef="FPrimeTelemetryChannel">
-              <RestrictionCriteria>
-                <ComparisonList>
-                  <Comparison parameterRef="FPrimeChannelId" value="3489665024" />
-                </ComparisonList>
-              </RestrictionCriteria>
-            </BaseContainer>
-          </SequenceContainer>
-        </ContainerSet>
-      </TelemetryMetaData>
-      <CommandMetaData>
-        <MetaCommandSet>
-          <MetaCommand name="PRESSURE_OVERSAMPLING_PRM_SET">
-            <BaseMetaCommand metaCommandRef="FPrimeCommand">
-              <ArgumentAssignmentList>
-                <ArgumentAssignment argumentName="OpCode" argumentValue="3489665024" />
-              </ArgumentAssignmentList>
-            </BaseMetaCommand>
-            <ArgumentList>
-              <Argument name="val" argumentTypeRef="/ReferenceDeployment/Bmp280/PressureOversampling" />
-            </ArgumentList>
-            <CommandContainer name="Bmp280|bmpManager|PRESSURE_OVERSAMPLING_PRM_SET">
-              <EntryList>
-                <ArgumentRefEntry argumentRef="val" />
-              </EntryList>
-              <BaseContainer containerRef="FPrimeCommand" />
-            </CommandContainer>
-          </MetaCommand>
-          <MetaCommand name="PRESSURE_OVERSAMPLING_PRM_SAVE">
-            <BaseMetaCommand metaCommandRef="FPrimeCommand">
-              <ArgumentAssignmentList>
-                <ArgumentAssignment argumentName="OpCode" argumentValue="3489665025" />
-              </ArgumentAssignmentList>
-            </BaseMetaCommand>
-            <CommandContainer name="Bmp280|bmpManager|PRESSURE_OVERSAMPLING_PRM_SAVE">
-              <EntryList />
-              <BaseContainer containerRef="FPrimeCommand" />
-            </CommandContainer>
-          </MetaCommand>
-          <MetaCommand name="TEMPERATURE_OVERSAMPLING_PRM_SET">
-            <BaseMetaCommand metaCommandRef="FPrimeCommand">
-              <ArgumentAssignmentList>
-                <ArgumentAssignment argumentName="OpCode" argumentValue="3489665026" />
-              </ArgumentAssignmentList>
-            </BaseMetaCommand>
-            <ArgumentList>
-              <Argument name="val" argumentTypeRef="/ReferenceDeployment/Bmp280/TemperatureOversampling" />
-            </ArgumentList>
-            <CommandContainer name="Bmp280|bmpManager|TEMPERATURE_OVERSAMPLING_PRM_SET">
-              <EntryList>
-                <ArgumentRefEntry argumentRef="val" />
-              </EntryList>
-              <BaseContainer containerRef="FPrimeCommand" />
-            </CommandContainer>
-          </MetaCommand>
-          <MetaCommand name="TEMPERATURE_OVERSAMPLING_PRM_SAVE">
-            <BaseMetaCommand metaCommandRef="FPrimeCommand">
-              <ArgumentAssignmentList>
-                <ArgumentAssignment argumentName="OpCode" argumentValue="3489665027" />
-              </ArgumentAssignmentList>
-            </BaseMetaCommand>
-            <CommandContainer name="Bmp280|bmpManager|TEMPERATURE_OVERSAMPLING_PRM_SAVE">
-              <EntryList />
-              <BaseContainer containerRef="FPrimeCommand" />
-            </CommandContainer>
-          </MetaCommand>
-          <MetaCommand name="SEA_LEVEL_PRESSURE_PRM_SET">
-            <BaseMetaCommand metaCommandRef="FPrimeCommand">
-              <ArgumentAssignmentList>
-                <ArgumentAssignment argumentName="OpCode" argumentValue="3489665028" />
-              </ArgumentAssignmentList>
-            </BaseMetaCommand>
-            <ArgumentList>
-              <Argument name="val" argumentTypeRef="/ReferenceDeployment/F32" />
-            </ArgumentList>
-            <CommandContainer name="Bmp280|bmpManager|SEA_LEVEL_PRESSURE_PRM_SET">
-              <EntryList>
-                <ArgumentRefEntry argumentRef="val" />
-              </EntryList>
-              <BaseContainer containerRef="FPrimeCommand" />
-            </CommandContainer>
-          </MetaCommand>
-          <MetaCommand name="SEA_LEVEL_PRESSURE_PRM_SAVE">
-            <BaseMetaCommand metaCommandRef="FPrimeCommand">
-              <ArgumentAssignmentList>
-                <ArgumentAssignment argumentName="OpCode" argumentValue="3489665029" />
-              </ArgumentAssignmentList>
-            </BaseMetaCommand>
-            <CommandContainer name="Bmp280|bmpManager|SEA_LEVEL_PRESSURE_PRM_SAVE">
-              <EntryList />
-              <BaseContainer containerRef="FPrimeCommand" />
-            </CommandContainer>
-          </MetaCommand>
-        </MetaCommandSet>
-      </CommandMetaData>
-    </SpaceSystem>
-  </SpaceSystem>
   <SpaceSystem name="CdhCore">
     <SpaceSystem name="cmdDisp">
       <TelemetryMetaData>
@@ -717,7 +846,7 @@
               </ArgumentAssignmentList>
             </BaseMetaCommand>
             <ArgumentList>
-              <Argument name="arg1" argumentTypeRef="/ReferenceDeployment/string40" />
+              <Argument name="arg1" argumentTypeRef="/FprimeYamcsReference|YamcsDeployment/string40" />
             </ArgumentList>
             <CommandContainer name="CdhCore|cmdDisp|CMD_NO_OP_STRING">
               <EntryList>
@@ -733,9 +862,9 @@
               </ArgumentAssignmentList>
             </BaseMetaCommand>
             <ArgumentList>
-              <Argument name="arg1" argumentTypeRef="/ReferenceDeployment/I32" />
-              <Argument name="arg2" argumentTypeRef="/ReferenceDeployment/F32" />
-              <Argument name="arg3" argumentTypeRef="/ReferenceDeployment/U8" />
+              <Argument name="arg1" argumentTypeRef="/FprimeYamcsReference|YamcsDeployment/I32" />
+              <Argument name="arg2" argumentTypeRef="/FprimeYamcsReference|YamcsDeployment/F32" />
+              <Argument name="arg3" argumentTypeRef="/FprimeYamcsReference|YamcsDeployment/U8" />
             </ArgumentList>
             <CommandContainer name="CdhCore|cmdDisp|CMD_TEST_CMD_1">
               <EntryList>
@@ -770,8 +899,8 @@
               </ArgumentAssignmentList>
             </BaseMetaCommand>
             <ArgumentList>
-              <Argument name="filterLevel" argumentTypeRef="/ReferenceDeployment/Svc/EventManager/FilterSeverity" />
-              <Argument name="filterEnabled" argumentTypeRef="/ReferenceDeployment/Svc/EventManager/Enabled" />
+              <Argument name="filterLevel" argumentTypeRef="/FprimeYamcsReference|YamcsDeployment/Svc/EventManager/FilterSeverity" />
+              <Argument name="filterEnabled" argumentTypeRef="/FprimeYamcsReference|YamcsDeployment/Svc/EventManager/Enabled" />
             </ArgumentList>
             <CommandContainer name="CdhCore|events|SET_EVENT_FILTER">
               <EntryList>
@@ -788,8 +917,8 @@
               </ArgumentAssignmentList>
             </BaseMetaCommand>
             <ArgumentList>
-              <Argument name="ID" argumentTypeRef="/ReferenceDeployment/FwEventIdType" />
-              <Argument name="idFilterEnabled" argumentTypeRef="/ReferenceDeployment/Svc/EventManager/Enabled" />
+              <Argument name="ID" argumentTypeRef="/FprimeYamcsReference|YamcsDeployment/FwEventIdType" />
+              <Argument name="idFilterEnabled" argumentTypeRef="/FprimeYamcsReference|YamcsDeployment/Svc/EventManager/Enabled" />
             </ArgumentList>
             <CommandContainer name="CdhCore|events|SET_ID_FILTER">
               <EntryList>
@@ -842,7 +971,7 @@
               </ArgumentAssignmentList>
             </BaseMetaCommand>
             <ArgumentList>
-              <Argument name="enable" argumentTypeRef="/ReferenceDeployment/Fw/Enabled" />
+              <Argument name="enable" argumentTypeRef="/FprimeYamcsReference|YamcsDeployment/Fw/Enabled" />
             </ArgumentList>
             <CommandContainer name="CdhCore|health|HLTH_ENABLE">
               <EntryList>
@@ -858,8 +987,8 @@
               </ArgumentAssignmentList>
             </BaseMetaCommand>
             <ArgumentList>
-              <Argument name="entry" argumentTypeRef="/ReferenceDeployment/string40" />
-              <Argument name="enable" argumentTypeRef="/ReferenceDeployment/Fw/Enabled" />
+              <Argument name="entry" argumentTypeRef="/FprimeYamcsReference|YamcsDeployment/string40" />
+              <Argument name="enable" argumentTypeRef="/FprimeYamcsReference|YamcsDeployment/Fw/Enabled" />
             </ArgumentList>
             <CommandContainer name="CdhCore|health|HLTH_PING_ENABLE">
               <EntryList>
@@ -876,15 +1005,72 @@
               </ArgumentAssignmentList>
             </BaseMetaCommand>
             <ArgumentList>
-              <Argument name="entry" argumentTypeRef="/ReferenceDeployment/string40" />
-              <Argument name="warningValue" argumentTypeRef="/ReferenceDeployment/U32" />
-              <Argument name="fatalValue" argumentTypeRef="/ReferenceDeployment/U32" />
+              <Argument name="entry" argumentTypeRef="/FprimeYamcsReference|YamcsDeployment/string40" />
+              <Argument name="warningValue" argumentTypeRef="/FprimeYamcsReference|YamcsDeployment/U32" />
+              <Argument name="fatalValue" argumentTypeRef="/FprimeYamcsReference|YamcsDeployment/U32" />
             </ArgumentList>
             <CommandContainer name="CdhCore|health|HLTH_CHNG_PING">
               <EntryList>
                 <ArgumentRefEntry argumentRef="entry" />
                 <ArgumentRefEntry argumentRef="warningValue" />
                 <ArgumentRefEntry argumentRef="fatalValue" />
+              </EntryList>
+              <BaseContainer containerRef="FPrimeCommand" />
+            </CommandContainer>
+          </MetaCommand>
+        </MetaCommandSet>
+      </CommandMetaData>
+    </SpaceSystem>
+    <SpaceSystem name="tlmSend">
+      <TelemetryMetaData>
+        <ParameterSet>
+          <Parameter name="SendLevel" shortDescription="Telemetry send level" parameterTypeRef="FwChanIdType" />
+        </ParameterSet>
+        <ContainerSet>
+          <SequenceContainer name="SendLevel">
+            <EntryList>
+              <ParameterRefEntry parameterRef="CdhCore/tlmSend/SendLevel" />
+            </EntryList>
+            <BaseContainer containerRef="FPrimeTelemetryChannel">
+              <RestrictionCriteria>
+                <ComparisonList>
+                  <Comparison parameterRef="FPrimeChannelId" value="16801792" />
+                </ComparisonList>
+              </RestrictionCriteria>
+            </BaseContainer>
+          </SequenceContainer>
+        </ContainerSet>
+      </TelemetryMetaData>
+      <CommandMetaData>
+        <MetaCommandSet>
+          <MetaCommand name="SET_LEVEL">
+            <BaseMetaCommand metaCommandRef="FPrimeCommand">
+              <ArgumentAssignmentList>
+                <ArgumentAssignment argumentName="OpCode" argumentValue="16801792" />
+              </ArgumentAssignmentList>
+            </BaseMetaCommand>
+            <ArgumentList>
+              <Argument name="level" argumentTypeRef="/FprimeYamcsReference|YamcsDeployment/FwChanIdType" />
+            </ArgumentList>
+            <CommandContainer name="CdhCore|tlmSend|SET_LEVEL">
+              <EntryList>
+                <ArgumentRefEntry argumentRef="level" />
+              </EntryList>
+              <BaseContainer containerRef="FPrimeCommand" />
+            </CommandContainer>
+          </MetaCommand>
+          <MetaCommand name="SEND_PKT">
+            <BaseMetaCommand metaCommandRef="FPrimeCommand">
+              <ArgumentAssignmentList>
+                <ArgumentAssignment argumentName="OpCode" argumentValue="16801793" />
+              </ArgumentAssignmentList>
+            </BaseMetaCommand>
+            <ArgumentList>
+              <Argument name="id" argumentTypeRef="/FprimeYamcsReference|YamcsDeployment/U32" />
+            </ArgumentList>
+            <CommandContainer name="CdhCore|tlmSend|SEND_PKT">
+              <EntryList>
+                <ArgumentRefEntry argumentRef="id" />
               </EntryList>
               <BaseContainer containerRef="FPrimeCommand" />
             </CommandContainer>
@@ -1194,7 +1380,7 @@
               </ArgumentAssignmentList>
             </BaseMetaCommand>
             <ArgumentList>
-              <Argument name="enable" argumentTypeRef="/ReferenceDeployment/Svc/VersionEnabled" />
+              <Argument name="enable" argumentTypeRef="/FprimeYamcsReference|YamcsDeployment/Svc/VersionEnabled" />
             </ArgumentList>
             <CommandContainer name="CdhCore|version|ENABLE">
               <EntryList>
@@ -1210,7 +1396,7 @@
               </ArgumentAssignmentList>
             </BaseMetaCommand>
             <ArgumentList>
-              <Argument name="version_type" argumentTypeRef="/ReferenceDeployment/Svc/VersionType" />
+              <Argument name="version_type" argumentTypeRef="/FprimeYamcsReference|YamcsDeployment/Svc/VersionType" />
             </ArgumentList>
             <CommandContainer name="CdhCore|version|VERSION">
               <EntryList>
@@ -1257,6 +1443,59 @@
           </SequenceContainer>
         </ContainerSet>
       </TelemetryMetaData>
+      <CommandMetaData>
+        <MetaCommandSet>
+          <MetaCommand name="FLUSH_QUEUE">
+            <BaseMetaCommand metaCommandRef="FPrimeCommand">
+              <ArgumentAssignmentList>
+                <ArgumentAssignment argumentName="OpCode" argumentValue="33554432" />
+              </ArgumentAssignmentList>
+            </BaseMetaCommand>
+            <ArgumentList>
+              <Argument name="queueType" argumentTypeRef="/FprimeYamcsReference|YamcsDeployment/Svc/QueueType" />
+              <Argument name="indexType" argumentTypeRef="/FprimeYamcsReference|YamcsDeployment/FwIndexType" />
+            </ArgumentList>
+            <CommandContainer name="ComCcsds|comQueue|FLUSH_QUEUE">
+              <EntryList>
+                <ArgumentRefEntry argumentRef="queueType" />
+                <ArgumentRefEntry argumentRef="indexType" />
+              </EntryList>
+              <BaseContainer containerRef="FPrimeCommand" />
+            </CommandContainer>
+          </MetaCommand>
+          <MetaCommand name="FLUSH_ALL_QUEUES">
+            <BaseMetaCommand metaCommandRef="FPrimeCommand">
+              <ArgumentAssignmentList>
+                <ArgumentAssignment argumentName="OpCode" argumentValue="33554433" />
+              </ArgumentAssignmentList>
+            </BaseMetaCommand>
+            <CommandContainer name="ComCcsds|comQueue|FLUSH_ALL_QUEUES">
+              <EntryList />
+              <BaseContainer containerRef="FPrimeCommand" />
+            </CommandContainer>
+          </MetaCommand>
+          <MetaCommand name="SET_QUEUE_PRIORITY">
+            <BaseMetaCommand metaCommandRef="FPrimeCommand">
+              <ArgumentAssignmentList>
+                <ArgumentAssignment argumentName="OpCode" argumentValue="33554434" />
+              </ArgumentAssignmentList>
+            </BaseMetaCommand>
+            <ArgumentList>
+              <Argument name="queueType" argumentTypeRef="/FprimeYamcsReference|YamcsDeployment/Svc/QueueType" />
+              <Argument name="indexType" argumentTypeRef="/FprimeYamcsReference|YamcsDeployment/FwIndexType" />
+              <Argument name="newPriority" argumentTypeRef="/FprimeYamcsReference|YamcsDeployment/FwIndexType" />
+            </ArgumentList>
+            <CommandContainer name="ComCcsds|comQueue|SET_QUEUE_PRIORITY">
+              <EntryList>
+                <ArgumentRefEntry argumentRef="queueType" />
+                <ArgumentRefEntry argumentRef="indexType" />
+                <ArgumentRefEntry argumentRef="newPriority" />
+              </EntryList>
+              <BaseContainer containerRef="FPrimeCommand" />
+            </CommandContainer>
+          </MetaCommand>
+        </MetaCommandSet>
+      </CommandMetaData>
     </SpaceSystem>
     <SpaceSystem name="commsBufferManager">
       <TelemetryMetaData>
@@ -1501,11 +1740,13 @@
               </ArgumentAssignmentList>
             </BaseMetaCommand>
             <ArgumentList>
-              <Argument name="wait" argumentTypeRef="/ReferenceDeployment/Fw/Wait" />
+              <Argument name="wait" argumentTypeRef="/FprimeYamcsReference|YamcsDeployment/Fw/Wait" />
+              <Argument name="remainActive" argumentTypeRef="/FprimeYamcsReference|YamcsDeployment/bool" />
             </ArgumentList>
             <CommandContainer name="DataProducts|dpCat|START_XMIT_CATALOG">
               <EntryList>
                 <ArgumentRefEntry argumentRef="wait" />
+                <ArgumentRefEntry argumentRef="remainActive" />
               </EntryList>
               <BaseContainer containerRef="FPrimeCommand" />
             </CommandContainer>
@@ -1699,38 +1940,6 @@
       </CommandMetaData>
     </SpaceSystem>
   </SpaceSystem>
-  <SpaceSystem name="Drv">
-    <TelemetryMetaData>
-      <ParameterTypeSet>
-        <EnumeratedParameterType name="I2cStatus">
-          <IntegerDataEncoding sizeInBits="8" encoding="unsigned" byteOrder="mostSignificantByteFirst" />
-          <EnumerationList>
-            <Enumeration shortDescription="Transaction okay" value="0" label="I2C_OK" />
-            <Enumeration shortDescription="I2C address invalid" value="1" label="I2C_ADDRESS_ERR" />
-            <Enumeration shortDescription="I2C write failed" value="2" label="I2C_WRITE_ERR" />
-            <Enumeration shortDescription="I2C read failed" value="3" label="I2C_READ_ERR" />
-            <Enumeration shortDescription="I2C driver failed to open device" value="4" label="I2C_OPEN_ERR" />
-            <Enumeration shortDescription="Other errors that don't fit" value="5" label="I2C_OTHER_ERR" />
-          </EnumerationList>
-        </EnumeratedParameterType>
-      </ParameterTypeSet>
-    </TelemetryMetaData>
-    <CommandMetaData>
-      <ArgumentTypeSet>
-        <EnumeratedArgumentType name="I2cStatus">
-          <IntegerDataEncoding sizeInBits="8" encoding="unsigned" byteOrder="mostSignificantByteFirst" />
-          <EnumerationList>
-            <Enumeration shortDescription="Transaction okay" value="0" label="I2C_OK" />
-            <Enumeration shortDescription="I2C address invalid" value="1" label="I2C_ADDRESS_ERR" />
-            <Enumeration shortDescription="I2C write failed" value="2" label="I2C_WRITE_ERR" />
-            <Enumeration shortDescription="I2C read failed" value="3" label="I2C_READ_ERR" />
-            <Enumeration shortDescription="I2C driver failed to open device" value="4" label="I2C_OPEN_ERR" />
-            <Enumeration shortDescription="Other errors that don't fit" value="5" label="I2C_OTHER_ERR" />
-          </EnumerationList>
-        </EnumeratedArgumentType>
-      </ArgumentTypeSet>
-    </CommandMetaData>
-  </SpaceSystem>
   <SpaceSystem name="FileHandling">
     <SpaceSystem name="fileDownlink">
       <TelemetryMetaData>
@@ -1787,8 +1996,8 @@
               </ArgumentAssignmentList>
             </BaseMetaCommand>
             <ArgumentList>
-              <Argument name="sourceFileName" argumentTypeRef="/ReferenceDeployment/string100" />
-              <Argument name="destFileName" argumentTypeRef="/ReferenceDeployment/string100" />
+              <Argument name="sourceFileName" argumentTypeRef="/FprimeYamcsReference|YamcsDeployment/string100" />
+              <Argument name="destFileName" argumentTypeRef="/FprimeYamcsReference|YamcsDeployment/string100" />
             </ArgumentList>
             <CommandContainer name="FileHandling|fileDownlink|SendFile">
               <EntryList>
@@ -1816,10 +2025,10 @@
               </ArgumentAssignmentList>
             </BaseMetaCommand>
             <ArgumentList>
-              <Argument name="sourceFileName" argumentTypeRef="/ReferenceDeployment/string100" />
-              <Argument name="destFileName" argumentTypeRef="/ReferenceDeployment/string100" />
-              <Argument name="startOffset" argumentTypeRef="/ReferenceDeployment/U32" />
-              <Argument name="length" argumentTypeRef="/ReferenceDeployment/U32" />
+              <Argument name="sourceFileName" argumentTypeRef="/FprimeYamcsReference|YamcsDeployment/string100" />
+              <Argument name="destFileName" argumentTypeRef="/FprimeYamcsReference|YamcsDeployment/string100" />
+              <Argument name="startOffset" argumentTypeRef="/FprimeYamcsReference|YamcsDeployment/U32" />
+              <Argument name="length" argumentTypeRef="/FprimeYamcsReference|YamcsDeployment/U32" />
             </ArgumentList>
             <CommandContainer name="FileHandling|fileDownlink|SendPartial">
               <EntryList>
@@ -1876,7 +2085,7 @@
               </ArgumentAssignmentList>
             </BaseMetaCommand>
             <ArgumentList>
-              <Argument name="dirName" argumentTypeRef="/ReferenceDeployment/string200" />
+              <Argument name="dirName" argumentTypeRef="/FprimeYamcsReference|YamcsDeployment/string200" />
             </ArgumentList>
             <CommandContainer name="FileHandling|fileManager|CreateDirectory">
               <EntryList>
@@ -1892,8 +2101,8 @@
               </ArgumentAssignmentList>
             </BaseMetaCommand>
             <ArgumentList>
-              <Argument name="sourceFileName" argumentTypeRef="/ReferenceDeployment/string200" />
-              <Argument name="destFileName" argumentTypeRef="/ReferenceDeployment/string200" />
+              <Argument name="sourceFileName" argumentTypeRef="/FprimeYamcsReference|YamcsDeployment/string200" />
+              <Argument name="destFileName" argumentTypeRef="/FprimeYamcsReference|YamcsDeployment/string200" />
             </ArgumentList>
             <CommandContainer name="FileHandling|fileManager|MoveFile">
               <EntryList>
@@ -1910,7 +2119,7 @@
               </ArgumentAssignmentList>
             </BaseMetaCommand>
             <ArgumentList>
-              <Argument name="dirName" argumentTypeRef="/ReferenceDeployment/string200" />
+              <Argument name="dirName" argumentTypeRef="/FprimeYamcsReference|YamcsDeployment/string200" />
             </ArgumentList>
             <CommandContainer name="FileHandling|fileManager|RemoveDirectory">
               <EntryList>
@@ -1926,8 +2135,8 @@
               </ArgumentAssignmentList>
             </BaseMetaCommand>
             <ArgumentList>
-              <Argument name="fileName" argumentTypeRef="/ReferenceDeployment/string200" />
-              <Argument name="ignoreErrors" argumentTypeRef="/ReferenceDeployment/bool" />
+              <Argument name="fileName" argumentTypeRef="/FprimeYamcsReference|YamcsDeployment/string200" />
+              <Argument name="ignoreErrors" argumentTypeRef="/FprimeYamcsReference|YamcsDeployment/bool" />
             </ArgumentList>
             <CommandContainer name="FileHandling|fileManager|RemoveFile">
               <EntryList>
@@ -1944,8 +2153,8 @@
               </ArgumentAssignmentList>
             </BaseMetaCommand>
             <ArgumentList>
-              <Argument name="command" argumentTypeRef="/ReferenceDeployment/string256" />
-              <Argument name="logFileName" argumentTypeRef="/ReferenceDeployment/string200" />
+              <Argument name="command" argumentTypeRef="/FprimeYamcsReference|YamcsDeployment/string256" />
+              <Argument name="logFileName" argumentTypeRef="/FprimeYamcsReference|YamcsDeployment/string200" />
             </ArgumentList>
             <CommandContainer name="FileHandling|fileManager|ShellCommand">
               <EntryList>
@@ -1962,8 +2171,8 @@
               </ArgumentAssignmentList>
             </BaseMetaCommand>
             <ArgumentList>
-              <Argument name="source" argumentTypeRef="/ReferenceDeployment/string200" />
-              <Argument name="target" argumentTypeRef="/ReferenceDeployment/string200" />
+              <Argument name="source" argumentTypeRef="/FprimeYamcsReference|YamcsDeployment/string200" />
+              <Argument name="target" argumentTypeRef="/FprimeYamcsReference|YamcsDeployment/string200" />
             </ArgumentList>
             <CommandContainer name="FileHandling|fileManager|AppendFile">
               <EntryList>
@@ -1980,7 +2189,7 @@
               </ArgumentAssignmentList>
             </BaseMetaCommand>
             <ArgumentList>
-              <Argument name="fileName" argumentTypeRef="/ReferenceDeployment/string200" />
+              <Argument name="fileName" argumentTypeRef="/FprimeYamcsReference|YamcsDeployment/string200" />
             </ArgumentList>
             <CommandContainer name="FileHandling|fileManager|FileSize">
               <EntryList>
@@ -1996,11 +2205,27 @@
               </ArgumentAssignmentList>
             </BaseMetaCommand>
             <ArgumentList>
-              <Argument name="dirName" argumentTypeRef="/ReferenceDeployment/string200" />
+              <Argument name="dirName" argumentTypeRef="/FprimeYamcsReference|YamcsDeployment/string200" />
             </ArgumentList>
             <CommandContainer name="FileHandling|fileManager|ListDirectory">
               <EntryList>
                 <ArgumentRefEntry argumentRef="dirName" />
+              </EntryList>
+              <BaseContainer containerRef="FPrimeCommand" />
+            </CommandContainer>
+          </MetaCommand>
+          <MetaCommand name="CalculateCrc">
+            <BaseMetaCommand metaCommandRef="FPrimeCommand">
+              <ArgumentAssignmentList>
+                <ArgumentAssignment argumentName="OpCode" argumentValue="83894280" />
+              </ArgumentAssignmentList>
+            </BaseMetaCommand>
+            <ArgumentList>
+              <Argument name="filename" argumentTypeRef="/FprimeYamcsReference|YamcsDeployment/string200" />
+            </ArgumentList>
+            <CommandContainer name="FileHandling|fileManager|CalculateCrc">
+              <EntryList>
+                <ArgumentRefEntry argumentRef="filename" />
               </EntryList>
               <BaseContainer containerRef="FPrimeCommand" />
             </CommandContainer>
@@ -2076,8 +2301,8 @@
               </ArgumentAssignmentList>
             </BaseMetaCommand>
             <ArgumentList>
-              <Argument name="fileName" argumentTypeRef="/ReferenceDeployment/string200" />
-              <Argument name="merge" argumentTypeRef="/ReferenceDeployment/Svc/PrmDb/Merge" />
+              <Argument name="fileName" argumentTypeRef="/FprimeYamcsReference|YamcsDeployment/string200" />
+              <Argument name="merge" argumentTypeRef="/FprimeYamcsReference|YamcsDeployment/Svc/PrmDb/Merge" />
             </ArgumentList>
             <CommandContainer name="FileHandling|prmDb|PRM_LOAD_FILE">
               <EntryList>
@@ -2102,455 +2327,7 @@
       </CommandMetaData>
     </SpaceSystem>
   </SpaceSystem>
-  <SpaceSystem name="FprimeSensors">
-    <TelemetryMetaData>
-      <ParameterTypeSet>
-        <AggregateParameterType name="GeometricVector3" shortDescription="Struct representing X, Y, Z data">
-          <MemberList>
-            <Member name="x" shortDescription="X component of the vector" typeRef="F32" />
-            <Member name="y" shortDescription="Y component of the vector" typeRef="F32" />
-            <Member name="z" shortDescription="Z component of the vector" typeRef="F32" />
-          </MemberList>
-        </AggregateParameterType>
-      </ParameterTypeSet>
-    </TelemetryMetaData>
-    <CommandMetaData>
-      <ArgumentTypeSet>
-        <AggregateArgumentType name="GeometricVector3" shortDescription="Struct representing X, Y, Z data">
-          <MemberList>
-            <Member name="x" shortDescription="X component of the vector" typeRef="F32" />
-            <Member name="y" shortDescription="Y component of the vector" typeRef="F32" />
-            <Member name="z" shortDescription="Z component of the vector" typeRef="F32" />
-          </MemberList>
-        </AggregateArgumentType>
-      </ArgumentTypeSet>
-    </CommandMetaData>
-  </SpaceSystem>
-  <SpaceSystem name="Fw">
-    <TelemetryMetaData>
-      <ParameterTypeSet>
-        <EnumeratedParameterType name="DpState">
-          <IntegerDataEncoding sizeInBits="8" encoding="unsigned" byteOrder="mostSignificantByteFirst" />
-          <EnumerationList>
-            <Enumeration shortDescription="The untransmitted state" value="0" label="UNTRANSMITTED" />
-            <Enumeration shortDescription="The partially transmitted state&#10;A data product is in this state from the start of transmission&#10;until transmission is complete." value="1" label="PARTIAL" />
-            <Enumeration shortDescription="The transmitted state" value="2" label="TRANSMITTED" />
-          </EnumerationList>
-        </EnumeratedParameterType>
-        <EnumeratedParameterType name="CmdResponse" shortDescription="Enum representing a command response">
-          <IntegerDataEncoding sizeInBits="8" encoding="unsigned" byteOrder="mostSignificantByteFirst" />
-          <EnumerationList>
-            <Enumeration shortDescription="Command successfully executed" value="0" label="OK" />
-            <Enumeration shortDescription="Invalid opcode dispatched" value="1" label="INVALID_OPCODE" />
-            <Enumeration shortDescription="Command failed validation" value="2" label="VALIDATION_ERROR" />
-            <Enumeration shortDescription="Command failed to deserialize" value="3" label="FORMAT_ERROR" />
-            <Enumeration shortDescription="Command had execution error" value="4" label="EXECUTION_ERROR" />
-            <Enumeration shortDescription="Component busy" value="5" label="BUSY" />
-          </EnumerationList>
-        </EnumeratedParameterType>
-        <EnumeratedParameterType name="DeserialStatus" shortDescription="Deserialization status">
-          <IntegerDataEncoding sizeInBits="8" encoding="unsigned" byteOrder="mostSignificantByteFirst" />
-          <EnumerationList>
-            <Enumeration value="0" label="OK" />
-            <Enumeration shortDescription="Deserialization buffer was empty when trying to read data" value="3" label="BUFFER_EMPTY" />
-            <Enumeration shortDescription="Deserialization data had incorrect values (unexpected data types)" value="4" label="FORMAT_ERROR" />
-            <Enumeration shortDescription="Data was left in in the buffer, but not enough to deserialize" value="5" label="SIZE_MISMATCH" />
-            <Enumeration shortDescription="Deserialized type ID didn't match" value="6" label="TYPE_MISMATCH" />
-          </EnumerationList>
-        </EnumeratedParameterType>
-        <EnumeratedParameterType name="Wait" shortDescription="Wait or don't wait for something">
-          <IntegerDataEncoding sizeInBits="8" encoding="unsigned" byteOrder="mostSignificantByteFirst" />
-          <EnumerationList>
-            <Enumeration shortDescription="Wait for something" value="0" label="WAIT" />
-            <Enumeration shortDescription="Don't wait for something" value="1" label="NO_WAIT" />
-          </EnumerationList>
-        </EnumeratedParameterType>
-        <EnumeratedParameterType name="Enabled" shortDescription="Enabled and disabled states">
-          <IntegerDataEncoding sizeInBits="8" encoding="unsigned" byteOrder="mostSignificantByteFirst" />
-          <EnumerationList>
-            <Enumeration shortDescription="Disabled state" value="0" label="DISABLED" />
-            <Enumeration shortDescription="Enabled state" value="1" label="ENABLED" />
-          </EnumerationList>
-        </EnumeratedParameterType>
-      </ParameterTypeSet>
-    </TelemetryMetaData>
-    <CommandMetaData>
-      <ArgumentTypeSet>
-        <EnumeratedArgumentType name="DpState">
-          <IntegerDataEncoding sizeInBits="8" encoding="unsigned" byteOrder="mostSignificantByteFirst" />
-          <EnumerationList>
-            <Enumeration shortDescription="The untransmitted state" value="0" label="UNTRANSMITTED" />
-            <Enumeration shortDescription="The partially transmitted state&#10;A data product is in this state from the start of transmission&#10;until transmission is complete." value="1" label="PARTIAL" />
-            <Enumeration shortDescription="The transmitted state" value="2" label="TRANSMITTED" />
-          </EnumerationList>
-        </EnumeratedArgumentType>
-        <EnumeratedArgumentType name="CmdResponse" shortDescription="Enum representing a command response">
-          <IntegerDataEncoding sizeInBits="8" encoding="unsigned" byteOrder="mostSignificantByteFirst" />
-          <EnumerationList>
-            <Enumeration shortDescription="Command successfully executed" value="0" label="OK" />
-            <Enumeration shortDescription="Invalid opcode dispatched" value="1" label="INVALID_OPCODE" />
-            <Enumeration shortDescription="Command failed validation" value="2" label="VALIDATION_ERROR" />
-            <Enumeration shortDescription="Command failed to deserialize" value="3" label="FORMAT_ERROR" />
-            <Enumeration shortDescription="Command had execution error" value="4" label="EXECUTION_ERROR" />
-            <Enumeration shortDescription="Component busy" value="5" label="BUSY" />
-          </EnumerationList>
-        </EnumeratedArgumentType>
-        <EnumeratedArgumentType name="DeserialStatus" shortDescription="Deserialization status">
-          <IntegerDataEncoding sizeInBits="8" encoding="unsigned" byteOrder="mostSignificantByteFirst" />
-          <EnumerationList>
-            <Enumeration value="0" label="OK" />
-            <Enumeration shortDescription="Deserialization buffer was empty when trying to read data" value="3" label="BUFFER_EMPTY" />
-            <Enumeration shortDescription="Deserialization data had incorrect values (unexpected data types)" value="4" label="FORMAT_ERROR" />
-            <Enumeration shortDescription="Data was left in in the buffer, but not enough to deserialize" value="5" label="SIZE_MISMATCH" />
-            <Enumeration shortDescription="Deserialized type ID didn't match" value="6" label="TYPE_MISMATCH" />
-          </EnumerationList>
-        </EnumeratedArgumentType>
-        <EnumeratedArgumentType name="Wait" shortDescription="Wait or don't wait for something">
-          <IntegerDataEncoding sizeInBits="8" encoding="unsigned" byteOrder="mostSignificantByteFirst" />
-          <EnumerationList>
-            <Enumeration shortDescription="Wait for something" value="0" label="WAIT" />
-            <Enumeration shortDescription="Don't wait for something" value="1" label="NO_WAIT" />
-          </EnumerationList>
-        </EnumeratedArgumentType>
-        <EnumeratedArgumentType name="Enabled" shortDescription="Enabled and disabled states">
-          <IntegerDataEncoding sizeInBits="8" encoding="unsigned" byteOrder="mostSignificantByteFirst" />
-          <EnumerationList>
-            <Enumeration shortDescription="Disabled state" value="0" label="DISABLED" />
-            <Enumeration shortDescription="Enabled state" value="1" label="ENABLED" />
-          </EnumerationList>
-        </EnumeratedArgumentType>
-      </ArgumentTypeSet>
-    </CommandMetaData>
-    <SpaceSystem name="DpCfg">
-      <TelemetryMetaData>
-        <ParameterTypeSet>
-          <EnumeratedParameterType name="ProcType" shortDescription="A bit mask for selecting the type of processing to perform on&#10;a container before writing it to disk.">
-            <IntegerDataEncoding sizeInBits="8" encoding="unsigned" byteOrder="mostSignificantByteFirst" />
-            <EnumerationList>
-              <Enumeration shortDescription="Processing type 0" value="1" label="PROC_TYPE_ZERO" />
-              <Enumeration shortDescription="Processing type 1" value="2" label="PROC_TYPE_ONE" />
-              <Enumeration shortDescription="Processing type 2" value="4" label="PROC_TYPE_TWO" />
-            </EnumerationList>
-          </EnumeratedParameterType>
-        </ParameterTypeSet>
-      </TelemetryMetaData>
-      <CommandMetaData>
-        <ArgumentTypeSet>
-          <EnumeratedArgumentType name="ProcType" shortDescription="A bit mask for selecting the type of processing to perform on&#10;a container before writing it to disk.">
-            <IntegerDataEncoding sizeInBits="8" encoding="unsigned" byteOrder="mostSignificantByteFirst" />
-            <EnumerationList>
-              <Enumeration shortDescription="Processing type 0" value="1" label="PROC_TYPE_ZERO" />
-              <Enumeration shortDescription="Processing type 1" value="2" label="PROC_TYPE_ONE" />
-              <Enumeration shortDescription="Processing type 2" value="4" label="PROC_TYPE_TWO" />
-            </EnumerationList>
-          </EnumeratedArgumentType>
-        </ArgumentTypeSet>
-      </CommandMetaData>
-    </SpaceSystem>
-  </SpaceSystem>
-  <SpaceSystem name="MpuImu">
-    <TelemetryMetaData>
-      <ParameterTypeSet>
-        <EnumeratedParameterType name="GyroscopeRange" shortDescription="Range of the gyroscope in degrees per second, integer values represent the conversion factor for the raw values from&#10;the gyroscope registers to 10ths of a degree per second">
-          <IntegerDataEncoding sizeInBits="16" encoding="unsigned" byteOrder="mostSignificantByteFirst" />
-          <EnumerationList>
-            <Enumeration value="1310" label="RANGE_250DEG" />
-            <Enumeration value="655" label="RANGE_500DEG" />
-            <Enumeration value="328" label="RANGE_1000DEG" />
-            <Enumeration value="164" label="RANGE_2000DEG" />
-          </EnumerationList>
-        </EnumeratedParameterType>
-        <EnumeratedParameterType name="AccelerationRange" shortDescription="Range of the accelerometer in G's, integer values represent the conversion factor for the raw values from&#10;the accelerometer registers to Gs">
-          <IntegerDataEncoding sizeInBits="16" encoding="unsigned" byteOrder="mostSignificantByteFirst" />
-          <EnumerationList>
-            <Enumeration value="16384" label="RANGE_2G" />
-            <Enumeration value="8192" label="RANGE_4G" />
-            <Enumeration value="4096" label="RANGE_8G" />
-            <Enumeration value="2048" label="RANGE_16G" />
-          </EnumerationList>
-        </EnumeratedParameterType>
-        <AggregateParameterType name="ImuData" shortDescription="Struct representing ImuData">
-          <MemberList>
-            <Member name="acceleration" shortDescription="Accelerations from the accelerometer" typeRef="FprimeSensors/GeometricVector3" />
-            <Member name="rotation" shortDescription="Angular rates from the gyroscope" typeRef="FprimeSensors/GeometricVector3" />
-            <Member name="temperature" shortDescription="Temperature in degrees Celsius" typeRef="F32" />
-          </MemberList>
-        </AggregateParameterType>
-      </ParameterTypeSet>
-    </TelemetryMetaData>
-    <CommandMetaData>
-      <ArgumentTypeSet>
-        <EnumeratedArgumentType name="GyroscopeRange" shortDescription="Range of the gyroscope in degrees per second, integer values represent the conversion factor for the raw values from&#10;the gyroscope registers to 10ths of a degree per second">
-          <IntegerDataEncoding sizeInBits="16" encoding="unsigned" byteOrder="mostSignificantByteFirst" />
-          <EnumerationList>
-            <Enumeration value="1310" label="RANGE_250DEG" />
-            <Enumeration value="655" label="RANGE_500DEG" />
-            <Enumeration value="328" label="RANGE_1000DEG" />
-            <Enumeration value="164" label="RANGE_2000DEG" />
-          </EnumerationList>
-        </EnumeratedArgumentType>
-        <EnumeratedArgumentType name="AccelerationRange" shortDescription="Range of the accelerometer in G's, integer values represent the conversion factor for the raw values from&#10;the accelerometer registers to Gs">
-          <IntegerDataEncoding sizeInBits="16" encoding="unsigned" byteOrder="mostSignificantByteFirst" />
-          <EnumerationList>
-            <Enumeration value="16384" label="RANGE_2G" />
-            <Enumeration value="8192" label="RANGE_4G" />
-            <Enumeration value="4096" label="RANGE_8G" />
-            <Enumeration value="2048" label="RANGE_16G" />
-          </EnumerationList>
-        </EnumeratedArgumentType>
-        <AggregateArgumentType name="ImuData" shortDescription="Struct representing ImuData">
-          <MemberList>
-            <Member name="acceleration" shortDescription="Accelerations from the accelerometer" typeRef="FprimeSensors/GeometricVector3" />
-            <Member name="rotation" shortDescription="Angular rates from the gyroscope" typeRef="FprimeSensors/GeometricVector3" />
-            <Member name="temperature" shortDescription="Temperature in degrees Celsius" typeRef="F32" />
-          </MemberList>
-        </AggregateArgumentType>
-      </ArgumentTypeSet>
-    </CommandMetaData>
-    <SpaceSystem name="imuManager">
-      <TelemetryMetaData>
-        <ParameterSet>
-          <Parameter name="Reading" shortDescription="Telemetry channel for IMU data" parameterTypeRef="MpuImu/ImuData" />
-        </ParameterSet>
-        <ContainerSet>
-          <SequenceContainer name="Reading">
-            <EntryList>
-              <ParameterRefEntry parameterRef="MpuImu/imuManager/Reading" />
-            </EntryList>
-            <BaseContainer containerRef="FPrimeTelemetryChannel">
-              <RestrictionCriteria>
-                <ComparisonList>
-                  <Comparison parameterRef="FPrimeChannelId" value="3758100480" />
-                </ComparisonList>
-              </RestrictionCriteria>
-            </BaseContainer>
-          </SequenceContainer>
-        </ContainerSet>
-      </TelemetryMetaData>
-      <CommandMetaData>
-        <MetaCommandSet>
-          <MetaCommand name="ACCELEROMETER_RANGE_PRM_SET">
-            <BaseMetaCommand metaCommandRef="FPrimeCommand">
-              <ArgumentAssignmentList>
-                <ArgumentAssignment argumentName="OpCode" argumentValue="3758100480" />
-              </ArgumentAssignmentList>
-            </BaseMetaCommand>
-            <ArgumentList>
-              <Argument name="val" argumentTypeRef="/ReferenceDeployment/MpuImu/AccelerationRange" />
-            </ArgumentList>
-            <CommandContainer name="MpuImu|imuManager|ACCELEROMETER_RANGE_PRM_SET">
-              <EntryList>
-                <ArgumentRefEntry argumentRef="val" />
-              </EntryList>
-              <BaseContainer containerRef="FPrimeCommand" />
-            </CommandContainer>
-          </MetaCommand>
-          <MetaCommand name="ACCELEROMETER_RANGE_PRM_SAVE">
-            <BaseMetaCommand metaCommandRef="FPrimeCommand">
-              <ArgumentAssignmentList>
-                <ArgumentAssignment argumentName="OpCode" argumentValue="3758100481" />
-              </ArgumentAssignmentList>
-            </BaseMetaCommand>
-            <CommandContainer name="MpuImu|imuManager|ACCELEROMETER_RANGE_PRM_SAVE">
-              <EntryList />
-              <BaseContainer containerRef="FPrimeCommand" />
-            </CommandContainer>
-          </MetaCommand>
-          <MetaCommand name="GYROSCOPE_RANGE_PRM_SET">
-            <BaseMetaCommand metaCommandRef="FPrimeCommand">
-              <ArgumentAssignmentList>
-                <ArgumentAssignment argumentName="OpCode" argumentValue="3758100482" />
-              </ArgumentAssignmentList>
-            </BaseMetaCommand>
-            <ArgumentList>
-              <Argument name="val" argumentTypeRef="/ReferenceDeployment/MpuImu/GyroscopeRange" />
-            </ArgumentList>
-            <CommandContainer name="MpuImu|imuManager|GYROSCOPE_RANGE_PRM_SET">
-              <EntryList>
-                <ArgumentRefEntry argumentRef="val" />
-              </EntryList>
-              <BaseContainer containerRef="FPrimeCommand" />
-            </CommandContainer>
-          </MetaCommand>
-          <MetaCommand name="GYROSCOPE_RANGE_PRM_SAVE">
-            <BaseMetaCommand metaCommandRef="FPrimeCommand">
-              <ArgumentAssignmentList>
-                <ArgumentAssignment argumentName="OpCode" argumentValue="3758100483" />
-              </ArgumentAssignmentList>
-            </BaseMetaCommand>
-            <CommandContainer name="MpuImu|imuManager|GYROSCOPE_RANGE_PRM_SAVE">
-              <EntryList />
-              <BaseContainer containerRef="FPrimeCommand" />
-            </CommandContainer>
-          </MetaCommand>
-          <MetaCommand name="RESET">
-            <BaseMetaCommand metaCommandRef="FPrimeCommand">
-              <ArgumentAssignmentList>
-                <ArgumentAssignment argumentName="OpCode" argumentValue="3758100484" />
-              </ArgumentAssignmentList>
-            </BaseMetaCommand>
-            <CommandContainer name="MpuImu|imuManager|RESET">
-              <EntryList />
-              <BaseContainer containerRef="FPrimeCommand" />
-            </CommandContainer>
-          </MetaCommand>
-        </MetaCommandSet>
-      </CommandMetaData>
-    </SpaceSystem>
-  </SpaceSystem>
-  <SpaceSystem name="NmeaGps">
-    <TelemetryMetaData>
-      <ParameterTypeSet>
-        <AggregateParameterType name="GpsData" shortDescription="Struct representing GPS data">
-          <MemberList>
-            <Member name="latitude" shortDescription="Latitude in degrees" typeRef="F64" />
-            <Member name="longitude" shortDescription="Longitude in degrees" typeRef="F64" />
-            <Member name="altitude" shortDescription="Altitude in meters" typeRef="F64" />
-          </MemberList>
-        </AggregateParameterType>
-      </ParameterTypeSet>
-    </TelemetryMetaData>
-    <CommandMetaData>
-      <ArgumentTypeSet>
-        <AggregateArgumentType name="GpsData" shortDescription="Struct representing GPS data">
-          <MemberList>
-            <Member name="latitude" shortDescription="Latitude in degrees" typeRef="F64" />
-            <Member name="longitude" shortDescription="Longitude in degrees" typeRef="F64" />
-            <Member name="altitude" shortDescription="Altitude in meters" typeRef="F64" />
-          </MemberList>
-        </AggregateArgumentType>
-      </ArgumentTypeSet>
-    </CommandMetaData>
-    <SpaceSystem name="bufferManager">
-      <TelemetryMetaData>
-        <ParameterSet>
-          <Parameter name="TotalBuffs" shortDescription="The total buffers allocated" parameterTypeRef="U32" />
-          <Parameter name="CurrBuffs" shortDescription="The current number of allocated buffers" parameterTypeRef="U32" />
-          <Parameter name="HiBuffs" shortDescription="The high water mark of allocated buffers" parameterTypeRef="U32" />
-          <Parameter name="NoBuffs" shortDescription="The number of requests that couldn't return a buffer" parameterTypeRef="U32" />
-          <Parameter name="EmptyBuffs" shortDescription="The number of empty buffers returned" parameterTypeRef="U32" />
-        </ParameterSet>
-        <ContainerSet>
-          <SequenceContainer name="TotalBuffs">
-            <EntryList>
-              <ParameterRefEntry parameterRef="NmeaGps/bufferManager/TotalBuffs" />
-            </EntryList>
-            <BaseContainer containerRef="FPrimeTelemetryChannel">
-              <RestrictionCriteria>
-                <ComparisonList>
-                  <Comparison parameterRef="FPrimeChannelId" value="4027645952" />
-                </ComparisonList>
-              </RestrictionCriteria>
-            </BaseContainer>
-          </SequenceContainer>
-          <SequenceContainer name="CurrBuffs">
-            <EntryList>
-              <ParameterRefEntry parameterRef="NmeaGps/bufferManager/CurrBuffs" />
-            </EntryList>
-            <BaseContainer containerRef="FPrimeTelemetryChannel">
-              <RestrictionCriteria>
-                <ComparisonList>
-                  <Comparison parameterRef="FPrimeChannelId" value="4027645953" />
-                </ComparisonList>
-              </RestrictionCriteria>
-            </BaseContainer>
-          </SequenceContainer>
-          <SequenceContainer name="HiBuffs">
-            <EntryList>
-              <ParameterRefEntry parameterRef="NmeaGps/bufferManager/HiBuffs" />
-            </EntryList>
-            <BaseContainer containerRef="FPrimeTelemetryChannel">
-              <RestrictionCriteria>
-                <ComparisonList>
-                  <Comparison parameterRef="FPrimeChannelId" value="4027645954" />
-                </ComparisonList>
-              </RestrictionCriteria>
-            </BaseContainer>
-          </SequenceContainer>
-          <SequenceContainer name="NoBuffs">
-            <EntryList>
-              <ParameterRefEntry parameterRef="NmeaGps/bufferManager/NoBuffs" />
-            </EntryList>
-            <BaseContainer containerRef="FPrimeTelemetryChannel">
-              <RestrictionCriteria>
-                <ComparisonList>
-                  <Comparison parameterRef="FPrimeChannelId" value="4027645955" />
-                </ComparisonList>
-              </RestrictionCriteria>
-            </BaseContainer>
-          </SequenceContainer>
-          <SequenceContainer name="EmptyBuffs">
-            <EntryList>
-              <ParameterRefEntry parameterRef="NmeaGps/bufferManager/EmptyBuffs" />
-            </EntryList>
-            <BaseContainer containerRef="FPrimeTelemetryChannel">
-              <RestrictionCriteria>
-                <ComparisonList>
-                  <Comparison parameterRef="FPrimeChannelId" value="4027645956" />
-                </ComparisonList>
-              </RestrictionCriteria>
-            </BaseContainer>
-          </SequenceContainer>
-        </ContainerSet>
-      </TelemetryMetaData>
-    </SpaceSystem>
-    <SpaceSystem name="driver">
-      <TelemetryMetaData>
-        <ParameterSet>
-          <Parameter name="BytesSent" shortDescription="Bytes Sent" parameterTypeRef="FwSizeType" />
-          <Parameter name="BytesRecv" shortDescription="Bytes Received" parameterTypeRef="FwSizeType" />
-        </ParameterSet>
-        <ContainerSet>
-          <SequenceContainer name="BytesSent">
-            <EntryList>
-              <ParameterRefEntry parameterRef="NmeaGps/driver/BytesSent" />
-            </EntryList>
-            <BaseContainer containerRef="FPrimeTelemetryChannel">
-              <RestrictionCriteria>
-                <ComparisonList>
-                  <Comparison parameterRef="FPrimeChannelId" value="4027650048" />
-                </ComparisonList>
-              </RestrictionCriteria>
-            </BaseContainer>
-          </SequenceContainer>
-          <SequenceContainer name="BytesRecv">
-            <EntryList>
-              <ParameterRefEntry parameterRef="NmeaGps/driver/BytesRecv" />
-            </EntryList>
-            <BaseContainer containerRef="FPrimeTelemetryChannel">
-              <RestrictionCriteria>
-                <ComparisonList>
-                  <Comparison parameterRef="FPrimeChannelId" value="4027650049" />
-                </ComparisonList>
-              </RestrictionCriteria>
-            </BaseContainer>
-          </SequenceContainer>
-        </ContainerSet>
-      </TelemetryMetaData>
-    </SpaceSystem>
-    <SpaceSystem name="gpsManager">
-      <TelemetryMetaData>
-        <ParameterSet>
-          <Parameter name="Reading" shortDescription="Channel for publishing GPS readings" parameterTypeRef="NmeaGps/GpsData" />
-        </ParameterSet>
-        <ContainerSet>
-          <SequenceContainer name="Reading">
-            <EntryList>
-              <ParameterRefEntry parameterRef="NmeaGps/gpsManager/Reading" />
-            </EntryList>
-            <BaseContainer containerRef="FPrimeTelemetryChannel">
-              <RestrictionCriteria>
-                <ComparisonList>
-                  <Comparison parameterRef="FPrimeChannelId" value="4026535936" />
-                </ComparisonList>
-              </RestrictionCriteria>
-            </BaseContainer>
-          </SequenceContainer>
-        </ContainerSet>
-      </TelemetryMetaData>
-    </SpaceSystem>
-  </SpaceSystem>
-  <SpaceSystem name="ReferenceDeployment">
+  <SpaceSystem name="FprimeYamcsReference">
     <SpaceSystem name="cmdSeq">
       <TelemetryMetaData>
         <ParameterSet>
@@ -2563,7 +2340,7 @@
         <ContainerSet>
           <SequenceContainer name="CS_LoadCommands">
             <EntryList>
-              <ParameterRefEntry parameterRef="ReferenceDeployment/cmdSeq/CS_LoadCommands" />
+              <ParameterRefEntry parameterRef="FprimeYamcsReference/cmdSeq/CS_LoadCommands" />
             </EntryList>
             <BaseContainer containerRef="FPrimeTelemetryChannel">
               <RestrictionCriteria>
@@ -2575,7 +2352,7 @@
           </SequenceContainer>
           <SequenceContainer name="CS_CancelCommands">
             <EntryList>
-              <ParameterRefEntry parameterRef="ReferenceDeployment/cmdSeq/CS_CancelCommands" />
+              <ParameterRefEntry parameterRef="FprimeYamcsReference/cmdSeq/CS_CancelCommands" />
             </EntryList>
             <BaseContainer containerRef="FPrimeTelemetryChannel">
               <RestrictionCriteria>
@@ -2587,7 +2364,7 @@
           </SequenceContainer>
           <SequenceContainer name="CS_Errors">
             <EntryList>
-              <ParameterRefEntry parameterRef="ReferenceDeployment/cmdSeq/CS_Errors" />
+              <ParameterRefEntry parameterRef="FprimeYamcsReference/cmdSeq/CS_Errors" />
             </EntryList>
             <BaseContainer containerRef="FPrimeTelemetryChannel">
               <RestrictionCriteria>
@@ -2599,7 +2376,7 @@
           </SequenceContainer>
           <SequenceContainer name="CS_CommandsExecuted">
             <EntryList>
-              <ParameterRefEntry parameterRef="ReferenceDeployment/cmdSeq/CS_CommandsExecuted" />
+              <ParameterRefEntry parameterRef="FprimeYamcsReference/cmdSeq/CS_CommandsExecuted" />
             </EntryList>
             <BaseContainer containerRef="FPrimeTelemetryChannel">
               <RestrictionCriteria>
@@ -2611,7 +2388,7 @@
           </SequenceContainer>
           <SequenceContainer name="CS_SequencesCompleted">
             <EntryList>
-              <ParameterRefEntry parameterRef="ReferenceDeployment/cmdSeq/CS_SequencesCompleted" />
+              <ParameterRefEntry parameterRef="FprimeYamcsReference/cmdSeq/CS_SequencesCompleted" />
             </EntryList>
             <BaseContainer containerRef="FPrimeTelemetryChannel">
               <RestrictionCriteria>
@@ -2632,10 +2409,10 @@
               </ArgumentAssignmentList>
             </BaseMetaCommand>
             <ArgumentList>
-              <Argument name="fileName" argumentTypeRef="/ReferenceDeployment/string240" />
-              <Argument name="block" argumentTypeRef="/ReferenceDeployment/Svc/CmdSequencer/BlockState" />
+              <Argument name="fileName" argumentTypeRef="/FprimeYamcsReference|YamcsDeployment/string240" />
+              <Argument name="block" argumentTypeRef="/FprimeYamcsReference|YamcsDeployment/Svc/CmdSequencer/BlockState" />
             </ArgumentList>
-            <CommandContainer name="ReferenceDeployment|cmdSeq|CS_RUN">
+            <CommandContainer name="FprimeYamcsReference|cmdSeq|CS_RUN">
               <EntryList>
                 <ArgumentRefEntry argumentRef="fileName" />
                 <ArgumentRefEntry argumentRef="block" />
@@ -2650,9 +2427,9 @@
               </ArgumentAssignmentList>
             </BaseMetaCommand>
             <ArgumentList>
-              <Argument name="fileName" argumentTypeRef="/ReferenceDeployment/string240" />
+              <Argument name="fileName" argumentTypeRef="/FprimeYamcsReference|YamcsDeployment/string240" />
             </ArgumentList>
-            <CommandContainer name="ReferenceDeployment|cmdSeq|CS_VALIDATE">
+            <CommandContainer name="FprimeYamcsReference|cmdSeq|CS_VALIDATE">
               <EntryList>
                 <ArgumentRefEntry argumentRef="fileName" />
               </EntryList>
@@ -2665,7 +2442,7 @@
                 <ArgumentAssignment argumentName="OpCode" argumentValue="268451842" />
               </ArgumentAssignmentList>
             </BaseMetaCommand>
-            <CommandContainer name="ReferenceDeployment|cmdSeq|CS_CANCEL">
+            <CommandContainer name="FprimeYamcsReference|cmdSeq|CS_CANCEL">
               <EntryList />
               <BaseContainer containerRef="FPrimeCommand" />
             </CommandContainer>
@@ -2676,7 +2453,7 @@
                 <ArgumentAssignment argumentName="OpCode" argumentValue="268451843" />
               </ArgumentAssignmentList>
             </BaseMetaCommand>
-            <CommandContainer name="ReferenceDeployment|cmdSeq|CS_START">
+            <CommandContainer name="FprimeYamcsReference|cmdSeq|CS_START">
               <EntryList />
               <BaseContainer containerRef="FPrimeCommand" />
             </CommandContainer>
@@ -2687,7 +2464,7 @@
                 <ArgumentAssignment argumentName="OpCode" argumentValue="268451844" />
               </ArgumentAssignmentList>
             </BaseMetaCommand>
-            <CommandContainer name="ReferenceDeployment|cmdSeq|CS_STEP">
+            <CommandContainer name="FprimeYamcsReference|cmdSeq|CS_STEP">
               <EntryList />
               <BaseContainer containerRef="FPrimeCommand" />
             </CommandContainer>
@@ -2698,7 +2475,7 @@
                 <ArgumentAssignment argumentName="OpCode" argumentValue="268451845" />
               </ArgumentAssignmentList>
             </BaseMetaCommand>
-            <CommandContainer name="ReferenceDeployment|cmdSeq|CS_AUTO">
+            <CommandContainer name="FprimeYamcsReference|cmdSeq|CS_AUTO">
               <EntryList />
               <BaseContainer containerRef="FPrimeCommand" />
             </CommandContainer>
@@ -2709,7 +2486,7 @@
                 <ArgumentAssignment argumentName="OpCode" argumentValue="268451846" />
               </ArgumentAssignmentList>
             </BaseMetaCommand>
-            <CommandContainer name="ReferenceDeployment|cmdSeq|CS_MANUAL">
+            <CommandContainer name="FprimeYamcsReference|cmdSeq|CS_MANUAL">
               <EntryList />
               <BaseContainer containerRef="FPrimeCommand" />
             </CommandContainer>
@@ -2720,7 +2497,7 @@
                 <ArgumentAssignment argumentName="OpCode" argumentValue="268451847" />
               </ArgumentAssignmentList>
             </BaseMetaCommand>
-            <CommandContainer name="ReferenceDeployment|cmdSeq|CS_JOIN_WAIT">
+            <CommandContainer name="FprimeYamcsReference|cmdSeq|CS_JOIN_WAIT">
               <EntryList />
               <BaseContainer containerRef="FPrimeCommand" />
             </CommandContainer>
@@ -2737,7 +2514,7 @@
         <ContainerSet>
           <SequenceContainer name="RgMaxTime">
             <EntryList>
-              <ParameterRefEntry parameterRef="ReferenceDeployment/rateGroup1/RgMaxTime" />
+              <ParameterRefEntry parameterRef="FprimeYamcsReference/rateGroup1/RgMaxTime" />
             </EntryList>
             <BaseContainer containerRef="FPrimeTelemetryChannel">
               <RestrictionCriteria>
@@ -2749,7 +2526,7 @@
           </SequenceContainer>
           <SequenceContainer name="RgCycleSlips">
             <EntryList>
-              <ParameterRefEntry parameterRef="ReferenceDeployment/rateGroup1/RgCycleSlips" />
+              <ParameterRefEntry parameterRef="FprimeYamcsReference/rateGroup1/RgCycleSlips" />
             </EntryList>
             <BaseContainer containerRef="FPrimeTelemetryChannel">
               <RestrictionCriteria>
@@ -2771,7 +2548,7 @@
         <ContainerSet>
           <SequenceContainer name="RgMaxTime">
             <EntryList>
-              <ParameterRefEntry parameterRef="ReferenceDeployment/rateGroup2/RgMaxTime" />
+              <ParameterRefEntry parameterRef="FprimeYamcsReference/rateGroup2/RgMaxTime" />
             </EntryList>
             <BaseContainer containerRef="FPrimeTelemetryChannel">
               <RestrictionCriteria>
@@ -2783,7 +2560,7 @@
           </SequenceContainer>
           <SequenceContainer name="RgCycleSlips">
             <EntryList>
-              <ParameterRefEntry parameterRef="ReferenceDeployment/rateGroup2/RgCycleSlips" />
+              <ParameterRefEntry parameterRef="FprimeYamcsReference/rateGroup2/RgCycleSlips" />
             </EntryList>
             <BaseContainer containerRef="FPrimeTelemetryChannel">
               <RestrictionCriteria>
@@ -2805,7 +2582,7 @@
         <ContainerSet>
           <SequenceContainer name="RgMaxTime">
             <EntryList>
-              <ParameterRefEntry parameterRef="ReferenceDeployment/rateGroup3/RgMaxTime" />
+              <ParameterRefEntry parameterRef="FprimeYamcsReference/rateGroup3/RgMaxTime" />
             </EntryList>
             <BaseContainer containerRef="FPrimeTelemetryChannel">
               <RestrictionCriteria>
@@ -2817,7 +2594,7 @@
           </SequenceContainer>
           <SequenceContainer name="RgCycleSlips">
             <EntryList>
-              <ParameterRefEntry parameterRef="ReferenceDeployment/rateGroup3/RgCycleSlips" />
+              <ParameterRefEntry parameterRef="FprimeYamcsReference/rateGroup3/RgCycleSlips" />
             </EntryList>
             <BaseContainer containerRef="FPrimeTelemetryChannel">
               <RestrictionCriteria>
@@ -2858,7 +2635,7 @@
         <ContainerSet>
           <SequenceContainer name="MEMORY_TOTAL">
             <EntryList>
-              <ParameterRefEntry parameterRef="ReferenceDeployment/systemResources/MEMORY_TOTAL" />
+              <ParameterRefEntry parameterRef="FprimeYamcsReference/systemResources/MEMORY_TOTAL" />
             </EntryList>
             <BaseContainer containerRef="FPrimeTelemetryChannel">
               <RestrictionCriteria>
@@ -2870,7 +2647,7 @@
           </SequenceContainer>
           <SequenceContainer name="MEMORY_USED">
             <EntryList>
-              <ParameterRefEntry parameterRef="ReferenceDeployment/systemResources/MEMORY_USED" />
+              <ParameterRefEntry parameterRef="FprimeYamcsReference/systemResources/MEMORY_USED" />
             </EntryList>
             <BaseContainer containerRef="FPrimeTelemetryChannel">
               <RestrictionCriteria>
@@ -2882,7 +2659,7 @@
           </SequenceContainer>
           <SequenceContainer name="NON_VOLATILE_TOTAL">
             <EntryList>
-              <ParameterRefEntry parameterRef="ReferenceDeployment/systemResources/NON_VOLATILE_TOTAL" />
+              <ParameterRefEntry parameterRef="FprimeYamcsReference/systemResources/NON_VOLATILE_TOTAL" />
             </EntryList>
             <BaseContainer containerRef="FPrimeTelemetryChannel">
               <RestrictionCriteria>
@@ -2894,7 +2671,7 @@
           </SequenceContainer>
           <SequenceContainer name="NON_VOLATILE_FREE">
             <EntryList>
-              <ParameterRefEntry parameterRef="ReferenceDeployment/systemResources/NON_VOLATILE_FREE" />
+              <ParameterRefEntry parameterRef="FprimeYamcsReference/systemResources/NON_VOLATILE_FREE" />
             </EntryList>
             <BaseContainer containerRef="FPrimeTelemetryChannel">
               <RestrictionCriteria>
@@ -2906,7 +2683,7 @@
           </SequenceContainer>
           <SequenceContainer name="CPU">
             <EntryList>
-              <ParameterRefEntry parameterRef="ReferenceDeployment/systemResources/CPU" />
+              <ParameterRefEntry parameterRef="FprimeYamcsReference/systemResources/CPU" />
             </EntryList>
             <BaseContainer containerRef="FPrimeTelemetryChannel">
               <RestrictionCriteria>
@@ -2918,7 +2695,7 @@
           </SequenceContainer>
           <SequenceContainer name="CPU_00">
             <EntryList>
-              <ParameterRefEntry parameterRef="ReferenceDeployment/systemResources/CPU_00" />
+              <ParameterRefEntry parameterRef="FprimeYamcsReference/systemResources/CPU_00" />
             </EntryList>
             <BaseContainer containerRef="FPrimeTelemetryChannel">
               <RestrictionCriteria>
@@ -2930,7 +2707,7 @@
           </SequenceContainer>
           <SequenceContainer name="CPU_01">
             <EntryList>
-              <ParameterRefEntry parameterRef="ReferenceDeployment/systemResources/CPU_01" />
+              <ParameterRefEntry parameterRef="FprimeYamcsReference/systemResources/CPU_01" />
             </EntryList>
             <BaseContainer containerRef="FPrimeTelemetryChannel">
               <RestrictionCriteria>
@@ -2942,7 +2719,7 @@
           </SequenceContainer>
           <SequenceContainer name="CPU_02">
             <EntryList>
-              <ParameterRefEntry parameterRef="ReferenceDeployment/systemResources/CPU_02" />
+              <ParameterRefEntry parameterRef="FprimeYamcsReference/systemResources/CPU_02" />
             </EntryList>
             <BaseContainer containerRef="FPrimeTelemetryChannel">
               <RestrictionCriteria>
@@ -2954,7 +2731,7 @@
           </SequenceContainer>
           <SequenceContainer name="CPU_03">
             <EntryList>
-              <ParameterRefEntry parameterRef="ReferenceDeployment/systemResources/CPU_03" />
+              <ParameterRefEntry parameterRef="FprimeYamcsReference/systemResources/CPU_03" />
             </EntryList>
             <BaseContainer containerRef="FPrimeTelemetryChannel">
               <RestrictionCriteria>
@@ -2966,7 +2743,7 @@
           </SequenceContainer>
           <SequenceContainer name="CPU_04">
             <EntryList>
-              <ParameterRefEntry parameterRef="ReferenceDeployment/systemResources/CPU_04" />
+              <ParameterRefEntry parameterRef="FprimeYamcsReference/systemResources/CPU_04" />
             </EntryList>
             <BaseContainer containerRef="FPrimeTelemetryChannel">
               <RestrictionCriteria>
@@ -2978,7 +2755,7 @@
           </SequenceContainer>
           <SequenceContainer name="CPU_05">
             <EntryList>
-              <ParameterRefEntry parameterRef="ReferenceDeployment/systemResources/CPU_05" />
+              <ParameterRefEntry parameterRef="FprimeYamcsReference/systemResources/CPU_05" />
             </EntryList>
             <BaseContainer containerRef="FPrimeTelemetryChannel">
               <RestrictionCriteria>
@@ -2990,7 +2767,7 @@
           </SequenceContainer>
           <SequenceContainer name="CPU_06">
             <EntryList>
-              <ParameterRefEntry parameterRef="ReferenceDeployment/systemResources/CPU_06" />
+              <ParameterRefEntry parameterRef="FprimeYamcsReference/systemResources/CPU_06" />
             </EntryList>
             <BaseContainer containerRef="FPrimeTelemetryChannel">
               <RestrictionCriteria>
@@ -3002,7 +2779,7 @@
           </SequenceContainer>
           <SequenceContainer name="CPU_07">
             <EntryList>
-              <ParameterRefEntry parameterRef="ReferenceDeployment/systemResources/CPU_07" />
+              <ParameterRefEntry parameterRef="FprimeYamcsReference/systemResources/CPU_07" />
             </EntryList>
             <BaseContainer containerRef="FPrimeTelemetryChannel">
               <RestrictionCriteria>
@@ -3014,7 +2791,7 @@
           </SequenceContainer>
           <SequenceContainer name="CPU_08">
             <EntryList>
-              <ParameterRefEntry parameterRef="ReferenceDeployment/systemResources/CPU_08" />
+              <ParameterRefEntry parameterRef="FprimeYamcsReference/systemResources/CPU_08" />
             </EntryList>
             <BaseContainer containerRef="FPrimeTelemetryChannel">
               <RestrictionCriteria>
@@ -3026,7 +2803,7 @@
           </SequenceContainer>
           <SequenceContainer name="CPU_09">
             <EntryList>
-              <ParameterRefEntry parameterRef="ReferenceDeployment/systemResources/CPU_09" />
+              <ParameterRefEntry parameterRef="FprimeYamcsReference/systemResources/CPU_09" />
             </EntryList>
             <BaseContainer containerRef="FPrimeTelemetryChannel">
               <RestrictionCriteria>
@@ -3038,7 +2815,7 @@
           </SequenceContainer>
           <SequenceContainer name="CPU_10">
             <EntryList>
-              <ParameterRefEntry parameterRef="ReferenceDeployment/systemResources/CPU_10" />
+              <ParameterRefEntry parameterRef="FprimeYamcsReference/systemResources/CPU_10" />
             </EntryList>
             <BaseContainer containerRef="FPrimeTelemetryChannel">
               <RestrictionCriteria>
@@ -3050,7 +2827,7 @@
           </SequenceContainer>
           <SequenceContainer name="CPU_11">
             <EntryList>
-              <ParameterRefEntry parameterRef="ReferenceDeployment/systemResources/CPU_11" />
+              <ParameterRefEntry parameterRef="FprimeYamcsReference/systemResources/CPU_11" />
             </EntryList>
             <BaseContainer containerRef="FPrimeTelemetryChannel">
               <RestrictionCriteria>
@@ -3062,7 +2839,7 @@
           </SequenceContainer>
           <SequenceContainer name="CPU_12">
             <EntryList>
-              <ParameterRefEntry parameterRef="ReferenceDeployment/systemResources/CPU_12" />
+              <ParameterRefEntry parameterRef="FprimeYamcsReference/systemResources/CPU_12" />
             </EntryList>
             <BaseContainer containerRef="FPrimeTelemetryChannel">
               <RestrictionCriteria>
@@ -3074,7 +2851,7 @@
           </SequenceContainer>
           <SequenceContainer name="CPU_13">
             <EntryList>
-              <ParameterRefEntry parameterRef="ReferenceDeployment/systemResources/CPU_13" />
+              <ParameterRefEntry parameterRef="FprimeYamcsReference/systemResources/CPU_13" />
             </EntryList>
             <BaseContainer containerRef="FPrimeTelemetryChannel">
               <RestrictionCriteria>
@@ -3086,7 +2863,7 @@
           </SequenceContainer>
           <SequenceContainer name="CPU_14">
             <EntryList>
-              <ParameterRefEntry parameterRef="ReferenceDeployment/systemResources/CPU_14" />
+              <ParameterRefEntry parameterRef="FprimeYamcsReference/systemResources/CPU_14" />
             </EntryList>
             <BaseContainer containerRef="FPrimeTelemetryChannel">
               <RestrictionCriteria>
@@ -3098,7 +2875,7 @@
           </SequenceContainer>
           <SequenceContainer name="CPU_15">
             <EntryList>
-              <ParameterRefEntry parameterRef="ReferenceDeployment/systemResources/CPU_15" />
+              <ParameterRefEntry parameterRef="FprimeYamcsReference/systemResources/CPU_15" />
             </EntryList>
             <BaseContainer containerRef="FPrimeTelemetryChannel">
               <RestrictionCriteria>
@@ -3119,9 +2896,9 @@
               </ArgumentAssignmentList>
             </BaseMetaCommand>
             <ArgumentList>
-              <Argument name="enable" argumentTypeRef="/ReferenceDeployment/Svc/SystemResourceEnabled" />
+              <Argument name="enable" argumentTypeRef="/FprimeYamcsReference|YamcsDeployment/Svc/SystemResourceEnabled" />
             </ArgumentList>
-            <CommandContainer name="ReferenceDeployment|systemResources|ENABLE">
+            <CommandContainer name="FprimeYamcsReference|systemResources|ENABLE">
               <EntryList>
                 <ArgumentRefEntry argumentRef="enable" />
               </EntryList>
@@ -3129,6 +2906,174 @@
             </CommandContainer>
           </MetaCommand>
         </MetaCommandSet>
+      </CommandMetaData>
+    </SpaceSystem>
+  </SpaceSystem>
+  <SpaceSystem name="Fw">
+    <TelemetryMetaData>
+      <ParameterTypeSet>
+        <AggregateParameterType name="TimeIntervalValue" shortDescription="Data structure for Time Interval">
+          <MemberList>
+            <Member name="seconds" shortDescription="seconds portion of TimeInterval" typeRef="U32" />
+            <Member name="useconds" shortDescription="microseconds portion of TimeInterval" typeRef="U32" />
+          </MemberList>
+        </AggregateParameterType>
+        <EnumeratedParameterType name="DpState">
+          <IntegerDataEncoding sizeInBits="8" encoding="unsigned" byteOrder="mostSignificantByteFirst" />
+          <EnumerationList>
+            <Enumeration shortDescription="The untransmitted state" value="0" label="UNTRANSMITTED" />
+            <Enumeration shortDescription="The partially transmitted state&#10;A data product is in this state from the start of transmission&#10;until transmission is complete." value="1" label="PARTIAL" />
+            <Enumeration shortDescription="The transmitted state" value="2" label="TRANSMITTED" />
+          </EnumerationList>
+        </EnumeratedParameterType>
+        <EnumeratedParameterType name="TimeComparison">
+          <IntegerDataEncoding sizeInBits="32" encoding="twosComplement" byteOrder="mostSignificantByteFirst" />
+          <EnumerationList>
+            <Enumeration value="-1" label="LT" />
+            <Enumeration value="0" label="EQ" />
+            <Enumeration value="1" label="GT" />
+            <Enumeration value="2" label="INCOMPARABLE" />
+          </EnumerationList>
+        </EnumeratedParameterType>
+        <EnumeratedParameterType name="CmdResponse" shortDescription="Enum representing a command response">
+          <IntegerDataEncoding sizeInBits="8" encoding="unsigned" byteOrder="mostSignificantByteFirst" />
+          <EnumerationList>
+            <Enumeration shortDescription="Command successfully executed" value="0" label="OK" />
+            <Enumeration shortDescription="Invalid opcode dispatched" value="1" label="INVALID_OPCODE" />
+            <Enumeration shortDescription="Command failed validation" value="2" label="VALIDATION_ERROR" />
+            <Enumeration shortDescription="Command failed to deserialize" value="3" label="FORMAT_ERROR" />
+            <Enumeration shortDescription="Command had execution error" value="4" label="EXECUTION_ERROR" />
+            <Enumeration shortDescription="Component busy" value="5" label="BUSY" />
+          </EnumerationList>
+        </EnumeratedParameterType>
+        <EnumeratedParameterType name="DeserialStatus" shortDescription="Deserialization status">
+          <IntegerDataEncoding sizeInBits="8" encoding="unsigned" byteOrder="mostSignificantByteFirst" />
+          <EnumerationList>
+            <Enumeration value="0" label="OK" />
+            <Enumeration shortDescription="Deserialization buffer was empty when trying to read data" value="3" label="BUFFER_EMPTY" />
+            <Enumeration shortDescription="Deserialization data had incorrect values (unexpected data types)" value="4" label="FORMAT_ERROR" />
+            <Enumeration shortDescription="Data was left in in the buffer, but not enough to deserialize" value="5" label="SIZE_MISMATCH" />
+            <Enumeration shortDescription="Deserialized type ID didn't match" value="6" label="TYPE_MISMATCH" />
+          </EnumerationList>
+        </EnumeratedParameterType>
+        <AggregateParameterType name="TimeValue" shortDescription="Data structure for Time">
+          <MemberList>
+            <Member name="timeBase" shortDescription="basis of time (defined by system)" typeRef="TimeBase" />
+            <Member name="timeContext" shortDescription="user settable value. Could be reboot count, node, etc" typeRef="FwTimeContextStoreType" />
+            <Member name="seconds" shortDescription="seconds portion of Time" typeRef="U32" />
+            <Member name="useconds" shortDescription="microseconds portion of Time" typeRef="U32" />
+          </MemberList>
+        </AggregateParameterType>
+        <EnumeratedParameterType name="Wait" shortDescription="Wait or don't wait for something">
+          <IntegerDataEncoding sizeInBits="8" encoding="unsigned" byteOrder="mostSignificantByteFirst" />
+          <EnumerationList>
+            <Enumeration shortDescription="Wait for something" value="0" label="WAIT" />
+            <Enumeration shortDescription="Don't wait for something" value="1" label="NO_WAIT" />
+          </EnumerationList>
+        </EnumeratedParameterType>
+        <EnumeratedParameterType name="Enabled" shortDescription="Enabled and disabled states">
+          <IntegerDataEncoding sizeInBits="8" encoding="unsigned" byteOrder="mostSignificantByteFirst" />
+          <EnumerationList>
+            <Enumeration shortDescription="Disabled state" value="0" label="DISABLED" />
+            <Enumeration shortDescription="Enabled state" value="1" label="ENABLED" />
+          </EnumerationList>
+        </EnumeratedParameterType>
+      </ParameterTypeSet>
+    </TelemetryMetaData>
+    <CommandMetaData>
+      <ArgumentTypeSet>
+        <AggregateArgumentType name="TimeIntervalValue" shortDescription="Data structure for Time Interval">
+          <MemberList>
+            <Member name="seconds" shortDescription="seconds portion of TimeInterval" typeRef="U32" />
+            <Member name="useconds" shortDescription="microseconds portion of TimeInterval" typeRef="U32" />
+          </MemberList>
+        </AggregateArgumentType>
+        <EnumeratedArgumentType name="DpState">
+          <IntegerDataEncoding sizeInBits="8" encoding="unsigned" byteOrder="mostSignificantByteFirst" />
+          <EnumerationList>
+            <Enumeration shortDescription="The untransmitted state" value="0" label="UNTRANSMITTED" />
+            <Enumeration shortDescription="The partially transmitted state&#10;A data product is in this state from the start of transmission&#10;until transmission is complete." value="1" label="PARTIAL" />
+            <Enumeration shortDescription="The transmitted state" value="2" label="TRANSMITTED" />
+          </EnumerationList>
+        </EnumeratedArgumentType>
+        <EnumeratedArgumentType name="TimeComparison">
+          <IntegerDataEncoding sizeInBits="32" encoding="twosComplement" byteOrder="mostSignificantByteFirst" />
+          <EnumerationList>
+            <Enumeration value="-1" label="LT" />
+            <Enumeration value="0" label="EQ" />
+            <Enumeration value="1" label="GT" />
+            <Enumeration value="2" label="INCOMPARABLE" />
+          </EnumerationList>
+        </EnumeratedArgumentType>
+        <EnumeratedArgumentType name="CmdResponse" shortDescription="Enum representing a command response">
+          <IntegerDataEncoding sizeInBits="8" encoding="unsigned" byteOrder="mostSignificantByteFirst" />
+          <EnumerationList>
+            <Enumeration shortDescription="Command successfully executed" value="0" label="OK" />
+            <Enumeration shortDescription="Invalid opcode dispatched" value="1" label="INVALID_OPCODE" />
+            <Enumeration shortDescription="Command failed validation" value="2" label="VALIDATION_ERROR" />
+            <Enumeration shortDescription="Command failed to deserialize" value="3" label="FORMAT_ERROR" />
+            <Enumeration shortDescription="Command had execution error" value="4" label="EXECUTION_ERROR" />
+            <Enumeration shortDescription="Component busy" value="5" label="BUSY" />
+          </EnumerationList>
+        </EnumeratedArgumentType>
+        <EnumeratedArgumentType name="DeserialStatus" shortDescription="Deserialization status">
+          <IntegerDataEncoding sizeInBits="8" encoding="unsigned" byteOrder="mostSignificantByteFirst" />
+          <EnumerationList>
+            <Enumeration value="0" label="OK" />
+            <Enumeration shortDescription="Deserialization buffer was empty when trying to read data" value="3" label="BUFFER_EMPTY" />
+            <Enumeration shortDescription="Deserialization data had incorrect values (unexpected data types)" value="4" label="FORMAT_ERROR" />
+            <Enumeration shortDescription="Data was left in in the buffer, but not enough to deserialize" value="5" label="SIZE_MISMATCH" />
+            <Enumeration shortDescription="Deserialized type ID didn't match" value="6" label="TYPE_MISMATCH" />
+          </EnumerationList>
+        </EnumeratedArgumentType>
+        <AggregateArgumentType name="TimeValue" shortDescription="Data structure for Time">
+          <MemberList>
+            <Member name="timeBase" shortDescription="basis of time (defined by system)" typeRef="TimeBase" />
+            <Member name="timeContext" shortDescription="user settable value. Could be reboot count, node, etc" typeRef="FwTimeContextStoreType" />
+            <Member name="seconds" shortDescription="seconds portion of Time" typeRef="U32" />
+            <Member name="useconds" shortDescription="microseconds portion of Time" typeRef="U32" />
+          </MemberList>
+        </AggregateArgumentType>
+        <EnumeratedArgumentType name="Wait" shortDescription="Wait or don't wait for something">
+          <IntegerDataEncoding sizeInBits="8" encoding="unsigned" byteOrder="mostSignificantByteFirst" />
+          <EnumerationList>
+            <Enumeration shortDescription="Wait for something" value="0" label="WAIT" />
+            <Enumeration shortDescription="Don't wait for something" value="1" label="NO_WAIT" />
+          </EnumerationList>
+        </EnumeratedArgumentType>
+        <EnumeratedArgumentType name="Enabled" shortDescription="Enabled and disabled states">
+          <IntegerDataEncoding sizeInBits="8" encoding="unsigned" byteOrder="mostSignificantByteFirst" />
+          <EnumerationList>
+            <Enumeration shortDescription="Disabled state" value="0" label="DISABLED" />
+            <Enumeration shortDescription="Enabled state" value="1" label="ENABLED" />
+          </EnumerationList>
+        </EnumeratedArgumentType>
+      </ArgumentTypeSet>
+    </CommandMetaData>
+    <SpaceSystem name="DpCfg">
+      <TelemetryMetaData>
+        <ParameterTypeSet>
+          <EnumeratedParameterType name="ProcType" shortDescription="A bit mask for selecting the type of processing to perform on&#10;a container before writing it to disk.">
+            <IntegerDataEncoding sizeInBits="8" encoding="unsigned" byteOrder="mostSignificantByteFirst" />
+            <EnumerationList>
+              <Enumeration shortDescription="Processing type 0" value="1" label="PROC_TYPE_ZERO" />
+              <Enumeration shortDescription="Processing type 1" value="2" label="PROC_TYPE_ONE" />
+              <Enumeration shortDescription="Processing type 2" value="4" label="PROC_TYPE_TWO" />
+            </EnumerationList>
+          </EnumeratedParameterType>
+        </ParameterTypeSet>
+      </TelemetryMetaData>
+      <CommandMetaData>
+        <ArgumentTypeSet>
+          <EnumeratedArgumentType name="ProcType" shortDescription="A bit mask for selecting the type of processing to perform on&#10;a container before writing it to disk.">
+            <IntegerDataEncoding sizeInBits="8" encoding="unsigned" byteOrder="mostSignificantByteFirst" />
+            <EnumerationList>
+              <Enumeration shortDescription="Processing type 0" value="1" label="PROC_TYPE_ZERO" />
+              <Enumeration shortDescription="Processing type 1" value="2" label="PROC_TYPE_ONE" />
+              <Enumeration shortDescription="Processing type 2" value="4" label="PROC_TYPE_TWO" />
+            </EnumerationList>
+          </EnumeratedArgumentType>
+        </ArgumentTypeSet>
       </CommandMetaData>
     </SpaceSystem>
   </SpaceSystem>
@@ -3176,6 +3121,13 @@
             <Enumeration value="1" label="BUFFER_QUEUE" />
           </EnumerationList>
         </EnumeratedParameterType>
+        <EnumeratedParameterType name="SystemResourceEnabled">
+          <IntegerDataEncoding sizeInBits="8" encoding="unsigned" byteOrder="mostSignificantByteFirst" />
+          <EnumerationList>
+            <Enumeration value="0" label="DISABLED" />
+            <Enumeration value="1" label="ENABLED" />
+          </EnumerationList>
+        </EnumeratedParameterType>
         <EnumeratedParameterType name="SendFileStatus" shortDescription="Send file status enum">
           <IntegerDataEncoding sizeInBits="8" encoding="unsigned" byteOrder="mostSignificantByteFirst" />
           <EnumerationList>
@@ -3203,13 +3155,6 @@
             <Member name="state" typeRef="Fw/DpState" />
           </MemberList>
         </AggregateParameterType>
-        <EnumeratedParameterType name="SystemResourceEnabled">
-          <IntegerDataEncoding sizeInBits="8" encoding="unsigned" byteOrder="mostSignificantByteFirst" />
-          <EnumerationList>
-            <Enumeration value="0" label="DISABLED" />
-            <Enumeration value="1" label="ENABLED" />
-          </EnumerationList>
-        </EnumeratedParameterType>
         <EnumeratedParameterType name="VersionStatus" shortDescription="An enumeration for version status">
           <IntegerDataEncoding sizeInBits="8" encoding="unsigned" byteOrder="mostSignificantByteFirst" />
           <EnumerationList>
@@ -3278,6 +3223,13 @@
             <Enumeration value="1" label="BUFFER_QUEUE" />
           </EnumerationList>
         </EnumeratedArgumentType>
+        <EnumeratedArgumentType name="SystemResourceEnabled">
+          <IntegerDataEncoding sizeInBits="8" encoding="unsigned" byteOrder="mostSignificantByteFirst" />
+          <EnumerationList>
+            <Enumeration value="0" label="DISABLED" />
+            <Enumeration value="1" label="ENABLED" />
+          </EnumerationList>
+        </EnumeratedArgumentType>
         <EnumeratedArgumentType name="SendFileStatus" shortDescription="Send file status enum">
           <IntegerDataEncoding sizeInBits="8" encoding="unsigned" byteOrder="mostSignificantByteFirst" />
           <EnumerationList>
@@ -3305,13 +3257,6 @@
             <Member name="state" typeRef="Fw/DpState" />
           </MemberList>
         </AggregateArgumentType>
-        <EnumeratedArgumentType name="SystemResourceEnabled">
-          <IntegerDataEncoding sizeInBits="8" encoding="unsigned" byteOrder="mostSignificantByteFirst" />
-          <EnumerationList>
-            <Enumeration value="0" label="DISABLED" />
-            <Enumeration value="1" label="ENABLED" />
-          </EnumerationList>
-        </EnumeratedArgumentType>
         <EnumeratedArgumentType name="VersionStatus" shortDescription="An enumeration for version status">
           <IntegerDataEncoding sizeInBits="8" encoding="unsigned" byteOrder="mostSignificantByteFirst" />
           <EnumerationList>
@@ -3406,6 +3351,13 @@
     <SpaceSystem name="EventManager">
       <TelemetryMetaData>
         <ParameterTypeSet>
+          <EnumeratedParameterType name="Enabled" shortDescription="Enabled and disabled state">
+            <IntegerDataEncoding sizeInBits="8" encoding="unsigned" byteOrder="mostSignificantByteFirst" />
+            <EnumerationList>
+              <Enumeration shortDescription="Enabled state" value="0" label="ENABLED" />
+              <Enumeration shortDescription="Disabled state" value="1" label="DISABLED" />
+            </EnumerationList>
+          </EnumeratedParameterType>
           <EnumeratedParameterType name="FilterSeverity" shortDescription="Severity level for event filtering&#10;Similar to Fw::LogSeverity, but no FATAL event">
             <IntegerDataEncoding sizeInBits="8" encoding="unsigned" byteOrder="mostSignificantByteFirst" />
             <EnumerationList>
@@ -3417,17 +3369,17 @@
               <Enumeration shortDescription="Filter DIAGNOSTIC events" value="5" label="DIAGNOSTIC" />
             </EnumerationList>
           </EnumeratedParameterType>
-          <EnumeratedParameterType name="Enabled" shortDescription="Enabled and disabled state">
+        </ParameterTypeSet>
+      </TelemetryMetaData>
+      <CommandMetaData>
+        <ArgumentTypeSet>
+          <EnumeratedArgumentType name="Enabled" shortDescription="Enabled and disabled state">
             <IntegerDataEncoding sizeInBits="8" encoding="unsigned" byteOrder="mostSignificantByteFirst" />
             <EnumerationList>
               <Enumeration shortDescription="Enabled state" value="0" label="ENABLED" />
               <Enumeration shortDescription="Disabled state" value="1" label="DISABLED" />
             </EnumerationList>
-          </EnumeratedParameterType>
-        </ParameterTypeSet>
-      </TelemetryMetaData>
-      <CommandMetaData>
-        <ArgumentTypeSet>
+          </EnumeratedArgumentType>
           <EnumeratedArgumentType name="FilterSeverity" shortDescription="Severity level for event filtering&#10;Similar to Fw::LogSeverity, but no FATAL event">
             <IntegerDataEncoding sizeInBits="8" encoding="unsigned" byteOrder="mostSignificantByteFirst" />
             <EnumerationList>
@@ -3437,13 +3389,6 @@
               <Enumeration shortDescription="Filter ACTIVITY_HI events" value="3" label="ACTIVITY_HI" />
               <Enumeration shortDescription="Filter ACTIVITY_LO events" value="4" label="ACTIVITY_LO" />
               <Enumeration shortDescription="Filter DIAGNOSTIC events" value="5" label="DIAGNOSTIC" />
-            </EnumerationList>
-          </EnumeratedArgumentType>
-          <EnumeratedArgumentType name="Enabled" shortDescription="Enabled and disabled state">
-            <IntegerDataEncoding sizeInBits="8" encoding="unsigned" byteOrder="mostSignificantByteFirst" />
-            <EnumerationList>
-              <Enumeration shortDescription="Enabled state" value="0" label="ENABLED" />
-              <Enumeration shortDescription="Disabled state" value="1" label="DISABLED" />
             </EnumerationList>
           </EnumeratedArgumentType>
         </ArgumentTypeSet>
@@ -3476,6 +3421,26 @@
     <SpaceSystem name="PrmDb">
       <TelemetryMetaData>
         <ParameterTypeSet>
+          <EnumeratedParameterType name="PrmReadError" shortDescription="Parameter read error">
+            <IntegerDataEncoding sizeInBits="8" encoding="unsigned" byteOrder="mostSignificantByteFirst" />
+            <EnumerationList>
+              <Enumeration value="0" label="OPEN" />
+              <Enumeration value="1" label="DELIMITER" />
+              <Enumeration value="2" label="DELIMITER_SIZE" />
+              <Enumeration value="3" label="DELIMITER_VALUE" />
+              <Enumeration value="4" label="RECORD_SIZE" />
+              <Enumeration value="5" label="RECORD_SIZE_SIZE" />
+              <Enumeration value="6" label="RECORD_SIZE_VALUE" />
+              <Enumeration value="7" label="PARAMETER_ID" />
+              <Enumeration value="8" label="PARAMETER_ID_SIZE" />
+              <Enumeration value="9" label="PARAMETER_VALUE" />
+              <Enumeration value="10" label="PARAMETER_VALUE_SIZE" />
+              <Enumeration value="11" label="CRC" />
+              <Enumeration value="12" label="CRC_SIZE" />
+              <Enumeration value="13" label="CRC_BUFFER" />
+              <Enumeration value="14" label="SEEK_ZERO" />
+            </EnumerationList>
+          </EnumeratedParameterType>
           <EnumeratedParameterType name="PrmLoadAction">
             <IntegerDataEncoding sizeInBits="8" encoding="unsigned" byteOrder="mostSignificantByteFirst" />
             <EnumerationList>
@@ -3492,22 +3457,6 @@
               <Enumeration value="1" label="RESET" />
             </EnumerationList>
           </EnumeratedParameterType>
-          <EnumeratedParameterType name="PrmReadError" shortDescription="Parameter read error">
-            <IntegerDataEncoding sizeInBits="8" encoding="unsigned" byteOrder="mostSignificantByteFirst" />
-            <EnumerationList>
-              <Enumeration value="0" label="OPEN" />
-              <Enumeration value="1" label="DELIMITER" />
-              <Enumeration value="2" label="DELIMITER_SIZE" />
-              <Enumeration value="3" label="DELIMITER_VALUE" />
-              <Enumeration value="4" label="RECORD_SIZE" />
-              <Enumeration value="5" label="RECORD_SIZE_SIZE" />
-              <Enumeration value="6" label="RECORD_SIZE_VALUE" />
-              <Enumeration value="7" label="PARAMETER_ID" />
-              <Enumeration value="8" label="PARAMETER_ID_SIZE" />
-              <Enumeration value="9" label="PARAMETER_VALUE" />
-              <Enumeration value="10" label="PARAMETER_VALUE_SIZE" />
-            </EnumerationList>
-          </EnumeratedParameterType>
           <EnumeratedParameterType name="PrmWriteError" shortDescription="Parameter write error">
             <IntegerDataEncoding sizeInBits="8" encoding="unsigned" byteOrder="mostSignificantByteFirst" />
             <EnumerationList>
@@ -3520,6 +3469,11 @@
               <Enumeration value="6" label="PARAMETER_ID_SIZE" />
               <Enumeration value="7" label="PARAMETER_VALUE" />
               <Enumeration value="8" label="PARAMETER_VALUE_SIZE" />
+              <Enumeration value="9" label="CRC_PLACE" />
+              <Enumeration value="10" label="CRC_REAL" />
+              <Enumeration value="11" label="CURR_POSITION" />
+              <Enumeration value="12" label="SEEK_ZERO" />
+              <Enumeration value="13" label="SEEK_POSITION" />
             </EnumerationList>
           </EnumeratedParameterType>
           <EnumeratedParameterType name="PrmDbFileLoadState" shortDescription="State of parameter DB file load operations">
@@ -3534,6 +3488,26 @@
       </TelemetryMetaData>
       <CommandMetaData>
         <ArgumentTypeSet>
+          <EnumeratedArgumentType name="PrmReadError" shortDescription="Parameter read error">
+            <IntegerDataEncoding sizeInBits="8" encoding="unsigned" byteOrder="mostSignificantByteFirst" />
+            <EnumerationList>
+              <Enumeration value="0" label="OPEN" />
+              <Enumeration value="1" label="DELIMITER" />
+              <Enumeration value="2" label="DELIMITER_SIZE" />
+              <Enumeration value="3" label="DELIMITER_VALUE" />
+              <Enumeration value="4" label="RECORD_SIZE" />
+              <Enumeration value="5" label="RECORD_SIZE_SIZE" />
+              <Enumeration value="6" label="RECORD_SIZE_VALUE" />
+              <Enumeration value="7" label="PARAMETER_ID" />
+              <Enumeration value="8" label="PARAMETER_ID_SIZE" />
+              <Enumeration value="9" label="PARAMETER_VALUE" />
+              <Enumeration value="10" label="PARAMETER_VALUE_SIZE" />
+              <Enumeration value="11" label="CRC" />
+              <Enumeration value="12" label="CRC_SIZE" />
+              <Enumeration value="13" label="CRC_BUFFER" />
+              <Enumeration value="14" label="SEEK_ZERO" />
+            </EnumerationList>
+          </EnumeratedArgumentType>
           <EnumeratedArgumentType name="PrmLoadAction">
             <IntegerDataEncoding sizeInBits="8" encoding="unsigned" byteOrder="mostSignificantByteFirst" />
             <EnumerationList>
@@ -3550,22 +3524,6 @@
               <Enumeration value="1" label="RESET" />
             </EnumerationList>
           </EnumeratedArgumentType>
-          <EnumeratedArgumentType name="PrmReadError" shortDescription="Parameter read error">
-            <IntegerDataEncoding sizeInBits="8" encoding="unsigned" byteOrder="mostSignificantByteFirst" />
-            <EnumerationList>
-              <Enumeration value="0" label="OPEN" />
-              <Enumeration value="1" label="DELIMITER" />
-              <Enumeration value="2" label="DELIMITER_SIZE" />
-              <Enumeration value="3" label="DELIMITER_VALUE" />
-              <Enumeration value="4" label="RECORD_SIZE" />
-              <Enumeration value="5" label="RECORD_SIZE_SIZE" />
-              <Enumeration value="6" label="RECORD_SIZE_VALUE" />
-              <Enumeration value="7" label="PARAMETER_ID" />
-              <Enumeration value="8" label="PARAMETER_ID_SIZE" />
-              <Enumeration value="9" label="PARAMETER_VALUE" />
-              <Enumeration value="10" label="PARAMETER_VALUE_SIZE" />
-            </EnumerationList>
-          </EnumeratedArgumentType>
           <EnumeratedArgumentType name="PrmWriteError" shortDescription="Parameter write error">
             <IntegerDataEncoding sizeInBits="8" encoding="unsigned" byteOrder="mostSignificantByteFirst" />
             <EnumerationList>
@@ -3578,6 +3536,11 @@
               <Enumeration value="6" label="PARAMETER_ID_SIZE" />
               <Enumeration value="7" label="PARAMETER_VALUE" />
               <Enumeration value="8" label="PARAMETER_VALUE_SIZE" />
+              <Enumeration value="9" label="CRC_PLACE" />
+              <Enumeration value="10" label="CRC_REAL" />
+              <Enumeration value="11" label="CURR_POSITION" />
+              <Enumeration value="12" label="SEEK_ZERO" />
+              <Enumeration value="13" label="SEEK_POSITION" />
             </EnumerationList>
           </EnumeratedArgumentType>
           <EnumeratedArgumentType name="PrmDbFileLoadState" shortDescription="State of parameter DB file load operations">

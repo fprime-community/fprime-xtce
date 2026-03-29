@@ -18,38 +18,8 @@ import xml.etree.ElementTree as ET
 from pathlib import Path
 from typing import Tuple, List
 
-import xmlschema
-
 from fprime_xtce.utilities import extract_namespace_components
-
-
-def validate_xtce(xml_path: Path) -> Tuple[bool, List[str]]:
-    """Validate an XTCE XML document against the XTCE schema.
-
-    Args:
-        xml_path: Path to the XML document to validate.
-
-    Returns:
-        Tuple of (is_valid, errors). `errors` contains human-readable validation issues when not valid.
-
-    Raises:
-        FileNotFoundError: If the XML file does not exist.
-        ValueError: If the schema cannot be loaded.
-    """
-    if not xml_path.exists():
-        raise FileNotFoundError(f"XML file not found: {xml_path}")
-
-    # Path to the XSD schema file relative to the test file
-    schema_location = Path(__file__).parent.parent / "src" / "fprime_xtce" / "data" / "xtce.xsd"
-    try:
-        schema = xmlschema.XMLSchema(schema_location)
-    except xmlschema.XMLSchemaException as exc:
-        raise ValueError(
-            f"Failed to load XTCE schema from {schema_location}: {exc}"
-        ) from exc
-
-    errors = [str(err) for err in schema.iter_errors(xml_path)]
-    return len(errors) == 0, errors
+from fprime_xtce.xtce import validate_xtce
 
 
 class TestNamespaceExtraction(unittest.TestCase):
@@ -189,7 +159,7 @@ class TestXTCEGeneration(unittest.TestCase):
         """Generic test function for converting a JSON dict and comparing with reference"""
         json_path = self.test_data_dir / json_filename
         ref_xml_path = self.test_data_dir / json_filename.replace(".json", ".ref.xml")
-        update_ref = os.environ.get("UPDATE_REF", "").lower() in ("1", "true", "yes")
+        update_ref = os.environ.get("UPDATE_REF", None) is not None
 
         # Verify input files exist
         self.assertTrue(json_path.exists(), f"Input file not found: {json_path}")
