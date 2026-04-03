@@ -22,18 +22,23 @@ def build_container(
         members: The list of member parameters for the container
         base_container_ref: The reference to the base container (e.g., "FPrimeTelemetryPacket" or "FPrimeEventPacket")
         id_field_parameter_ref: The reference to the parameter that contains the ID field (e.g., "FPrimePacketId" or "FPrimeEventId")
+        parameter_names: Set of valid parameter names
+        deployment: Root SpaceSystem name for fully qualified type references
     Returns:
         A dictionary representing the base container structure for the given F Prime data
     """
     # Convert to reference format for validation
-    members_ref = [convert_to_xtce_reference(member) for member in members]
+    # Parameter references use relative paths (no deployment prefix)
+    members_ref = [member.replace('.', '/') for member in members]
     for member in members_ref:
         assert (
             member in parameter_names
         ), f"Container {fprime_data['name']} has undefined parameters: {member}"
+    # Container names use relative paths
+    container_name = fprime_data['name'].replace('.', '/')
     return {
         "SequenceContainer": {
-            "name": convert_to_xtce_reference(fprime_data['name']),
+            "name": container_name,
             "EntryList": [
                 {"ParameterRefEntry": {"parameterRef": member}} for member in members_ref
             ],
@@ -116,7 +121,7 @@ def generate_xtce_containers(fprime_dict, xtce_parameters):
     return xtce_containers
 
 
-def generate_xtce_commands(fprime_dict, xtce_command_types, root_space_system=None):
+def generate_xtce_commands(fprime_dict, xtce_command_types, deployment):
     """Generate the XTCE command definitions from the F Prime dictionary
 
     XTCE commands are things that can be parameterized in an XTCE structure. In F Prime nomenclature, these will be
@@ -127,25 +132,22 @@ def generate_xtce_commands(fprime_dict, xtce_command_types, root_space_system=No
             - commands: List of command definitions
             - Other dictionary sections (telemetryChannels, events, etc.)
         xtce_command_types: List of XTCE command argument type definitions to validate against
-        root_space_system: Name of the root SpaceSystem for absolute type references (optional)
+        deployment: Root SpaceSystem name for fully qualified type references
     Returns:
         List of XTCE command definitions converted from the F Prime dictionary
     """
     commands = BASE_COMMANDS.copy()
     for fprime_command in fprime_dict["commands"]:
-        is_nested = "." in fprime_command["name"]
-        command_name = convert_to_xtce_reference(fprime_command["name"])
+        # Command names use relative paths (no deployment prefix)
+        command_name = fprime_command["name"].replace('.', '/')
 
         argument_list = []
         for param in fprime_command["formalParams"]:
+            # Argument type references use absolute paths
             if param["type"]["kind"] != "string":
-                type_ref = convert_to_xtce_reference(param["type"]["name"])
+                type_ref = convert_to_xtce_reference(param["type"]["name"], deployment)
             else:
-                type_ref = convert_to_xtce_reference(f"string{param['type']['size']}")
-
-            # Make references absolute for nested SpaceSystems
-            if root_space_system and is_nested:
-                type_ref = f"/{root_space_system}/{type_ref}"
+                type_ref = convert_to_xtce_reference(f"string{param['type']['size']}", deployment)
 
             argument_list.append({
                 "Argument": {

@@ -96,17 +96,17 @@ def main(args=None):
     #         - Telemetry values
     #         - Event formal parameters
     #         - Command formal parameters
-    xtce_parameter_types = convert_fprime_types(json_data)
+    xtce_parameter_types = convert_fprime_types(json_data, deployment=deployment)
 
     # Step 2: Generate the XTCE parameter definitions from telemetry channels and events
     #     Validates that the parameter types used are defined in the types section
-    xtce_parameters = generate_xtce_parameters(json_data, xtce_parameter_types)
+    xtce_parameters = generate_xtce_parameters(json_data, xtce_parameter_types, deployment)
 
     # Step 3: Generate containers for telemetryChannels, telemetryPackets, and events
     xtce_containers = generate_xtce_containers(json_data, xtce_parameters)
-    
+
     # Step 4: Convert types into command argument types
-    xtce_command_types = convert_fprime_types(json_data, mode=ConversionMode.COMMANDS)
+    xtce_command_types = convert_fprime_types(json_data, mode=ConversionMode.COMMANDS, deployment=deployment)
 
     # Step 5: Generate the command definitions
     xtce_commands = generate_xtce_commands(json_data, xtce_command_types, deployment)

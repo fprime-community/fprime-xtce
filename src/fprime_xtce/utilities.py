@@ -26,24 +26,27 @@ def convert_identifier(identifier: str) -> str:
     return identifier.replace('.', DELIMITER)
 
 
-def convert_to_xtce_reference(identifier: str) -> str:
-    """Convert F Prime qualified name to XTCE reference path.
+def convert_to_xtce_reference(identifier: str, root_system: str) -> str:
+    """Convert F Prime qualified name to fully qualified XTCE reference path.
 
-    In XTCE hierarchical structures, references use '/' as the path separator
-    to navigate through nested SpaceSystems.
+    In XTCE hierarchical structures, type references must use absolute paths
+    starting from the root SpaceSystem.
 
     Args:
-        identifier: Original F Prime qualified name (e.g., "FprimeSensors.GeometricVector3")
+        identifier: Original F Prime qualified name (e.g., "Fw.DpState")
+        root_system: Root SpaceSystem name (e.g., "MyDeployment")
 
     Returns:
-        str: XTCE reference path (e.g., "FprimeSensors/GeometricVector3")
+        str: Fully qualified XTCE reference path starting with / (e.g., "/MyDeployment/Fw/DpState")
 
     Examples:
-        "Component.Subsystem.Temperature" -> "Component/Subsystem/Temperature"
-        "SimpleType" -> "SimpleType"
+        "Fw.DpState", "MyDeployment" -> "/MyDeployment/Fw/DpState"
+        "Svc.VersionStatus", "MyDeployment" -> "/MyDeployment/Svc/VersionStatus"
+        "U32", "MyDeployment" -> "/MyDeployment/U32"
     """
     assert identifier and identifier[0].isalpha(), "Identifiers must start with a letter"
-    return identifier.replace('.', '/')
+    path = identifier.replace('.', '/')
+    return f"/{root_system}/{path}"
 
 
 def extract_namespace_components(identifier: str, delimiter: Optional[str] = None) -> Tuple[List[str], str]:

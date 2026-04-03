@@ -325,7 +325,7 @@
         </EnumeratedParameterType>
       </ParameterTypeSet>
       <ParameterSet>
-        <Parameter name="Status" shortDescription="Component status" parameterTypeRef="Component/Status" />
+        <Parameter name="Status" shortDescription="Component status" parameterTypeRef="/TestDeployment/Component/Status" />
       </ParameterSet>
       <ContainerSet>
         <SequenceContainer name="Status">
@@ -356,8 +356,8 @@
     <SpaceSystem name="Subsystem">
       <TelemetryMetaData>
         <ParameterSet>
-          <Parameter name="Temperature" shortDescription="Temperature reading" parameterTypeRef="F32" />
-          <Parameter name="Pressure" shortDescription="Pressure reading" parameterTypeRef="F32" />
+          <Parameter name="Temperature" shortDescription="Temperature reading" parameterTypeRef="/TestDeployment/F32" />
+          <Parameter name="Pressure" shortDescription="Pressure reading" parameterTypeRef="/TestDeployment/F32" />
         </ParameterSet>
         <ContainerSet>
           <SequenceContainer name="Temperature">
@@ -413,10 +413,10 @@
       <ParameterTypeSet>
         <AggregateParameterType name="TimeValue" shortDescription="Data structure for Time">
           <MemberList>
-            <Member name="timeBase" shortDescription="basis of time (defined by system)" typeRef="TimeBase" />
-            <Member name="timeContext" shortDescription="user settable value. Could be reboot count, node, etc" typeRef="FwTimeContextStoreType" />
-            <Member name="seconds" shortDescription="seconds portion of Time" typeRef="U32" />
-            <Member name="useconds" shortDescription="microseconds portion of Time" typeRef="U32" />
+            <Member name="timeBase" shortDescription="basis of time (defined by system)" typeRef="/TestDeployment/TimeBase" />
+            <Member name="timeContext" shortDescription="user settable value. Could be reboot count, node, etc" typeRef="/TestDeployment/FwTimeContextStoreType" />
+            <Member name="seconds" shortDescription="seconds portion of Time" typeRef="/TestDeployment/U32" />
+            <Member name="useconds" shortDescription="microseconds portion of Time" typeRef="/TestDeployment/U32" />
           </MemberList>
         </AggregateParameterType>
       </ParameterTypeSet>
@@ -425,10 +425,10 @@
       <ArgumentTypeSet>
         <AggregateArgumentType name="TimeValue" shortDescription="Data structure for Time">
           <MemberList>
-            <Member name="timeBase" shortDescription="basis of time (defined by system)" typeRef="TimeBase" />
-            <Member name="timeContext" shortDescription="user settable value. Could be reboot count, node, etc" typeRef="FwTimeContextStoreType" />
-            <Member name="seconds" shortDescription="seconds portion of Time" typeRef="U32" />
-            <Member name="useconds" shortDescription="microseconds portion of Time" typeRef="U32" />
+            <Member name="timeBase" shortDescription="basis of time (defined by system)" typeRef="/TestDeployment/TimeBase" />
+            <Member name="timeContext" shortDescription="user settable value. Could be reboot count, node, etc" typeRef="/TestDeployment/FwTimeContextStoreType" />
+            <Member name="seconds" shortDescription="seconds portion of Time" typeRef="/TestDeployment/U32" />
+            <Member name="useconds" shortDescription="microseconds portion of Time" typeRef="/TestDeployment/U32" />
           </MemberList>
         </AggregateArgumentType>
       </ArgumentTypeSet>
