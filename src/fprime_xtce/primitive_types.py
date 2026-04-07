@@ -215,7 +215,7 @@ BASE_PARAMETERS = [
     {"Parameter": { "name": "FPrimePacketId",        "parameterTypeRef": "FwTlmPacketizeIdType" }},
     {"Parameter": { "name": "FPrimeEventId",         "parameterTypeRef": "U32" }},
     {"Parameter": { "name": "FPrimeChannelId",       "parameterTypeRef": "U32" }},
-    {"Parameter": { "name": "FPrimeTime",            "parameterTypeRef": "Fw|TimeValue" }},
+    {"Parameter": { "name": "FPrimeTime",            "parameterTypeRef": "Fw/TimeValue" }},
     {"Parameter": { "name": "DataDescType",          "parameterTypeRef": "U16" }},
     {"Parameter": { "name": "CCSDS_Packet_ID",       "parameterTypeRef": "CCSDS_Packet_ID_Type" }},
     {"Parameter": { "name": "CCSDS_Packet_Sequence", "parameterTypeRef": "CCSDS_Packet_Sequence_Type" }},

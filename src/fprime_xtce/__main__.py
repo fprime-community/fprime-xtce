@@ -14,9 +14,7 @@ from pathlib import Path
 
 from .convert import convert_fprime_types, generate_xtce_parameters, ConversionMode
 from .container_generation import generate_xtce_containers, generate_xtce_commands
-from .type_converter import convert_identifier
-from .xtce import build_xtce_structure, write_xtce_xml, validate_xtce
-from .utilities import xtce_data
+from .xtce import build_xtce_structure, write_xtce_xml
 
 def exit_on_errors(result):
     """Check conversion result for errors and print them.
@@ -74,7 +72,7 @@ def main(args=None):
         args: List of arguments to parse. If None, uses sys.argv[1:].
     """
     parsed_args = parse_args(args)
-    verbose_print = lambda *a, **k: print(*a, **k) if parsed_args.verbose else lambda *a, **k: None
+    verbose_print = (lambda *a, **k: print(*a, **k)) if parsed_args.verbose else (lambda *a, **k: None)
 
     verbose_print("[INFO] Loading F Prime dictionary")
     try:
@@ -86,7 +84,9 @@ def main(args=None):
     verbose_print(f"[INFO] Converting {parsed_args.input} to {parsed_args.output}")
 
     try:
+        # Handle dots in deployment name - use underscore to avoid path separator conflicts
         deployment = json_data["metadata"]["deploymentName"]
+        deployment = deployment.replace(".", "_")
     except KeyError:
         print("[ERROR] metadata.deploymentName missing from F Prime dictionary")
         return 1
@@ -96,39 +96,33 @@ def main(args=None):
     #         - Telemetry values
     #         - Event formal parameters
     #         - Command formal parameters
-    xtce_parameter_types = convert_fprime_types(json_data)
+    xtce_parameter_types = convert_fprime_types(json_data, deployment=deployment)
 
     # Step 2: Generate the XTCE parameter definitions from telemetry channels and events
     #     Validates that the parameter types used are defined in the types section
-    xtce_parameters = generate_xtce_parameters(json_data, xtce_parameter_types)
+    xtce_parameters = generate_xtce_parameters(json_data, xtce_parameter_types, deployment)
 
     # Step 3: Generate containers for telemetryChannels, telemetryPackets, and events
     xtce_containers = generate_xtce_containers(json_data, xtce_parameters)
-    
+
     # Step 4: Convert types into command argument types
-    xtce_command_types = convert_fprime_types(json_data, mode=ConversionMode.COMMANDS)
+    xtce_command_types = convert_fprime_types(json_data, mode=ConversionMode.COMMANDS, deployment=deployment)
 
     # Step 5: Generate the command definitions
-    xtce_commands = generate_xtce_commands(json_data, xtce_command_types)
+    xtce_commands = generate_xtce_commands(json_data, xtce_command_types, deployment)
 
-    # Step 5: Build XTCE structure and write to file
-    xtce_structure = {
-		"SpaceSystem": {
-			"name": convert_identifier(deployment),
-			"TelemetryMetaData": {
-				"ParameterTypeSet": xtce_parameter_types,
-				"ParameterSet": xtce_parameters,
-				"ContainerSet": xtce_containers
-			},
-			"CommandMetaData": {
-				"ArgumentTypeSet": xtce_command_types,
-				"MetaCommandSet": xtce_commands
-			}
-		}
-	}
+    # Step 6: Build hierarchical XTCE structure and write to file
+    xtce_structure = build_xtce_structure(
+        xtce_parameter_types,
+        xtce_parameters,
+        xtce_containers,
+        xtce_command_types,
+        xtce_commands,
+        deployment
+    )
     write_xtce_xml(xtce_structure, parsed_args.output)
 
-    # Step 6: Validate output file
+    # Step 7: Validate output file
     #is_valid, errors = validate_xtce(parsed_args.output)
     if False and not is_valid:
         print(f"[ERROR] XTCE validation errors:", file=sys.stderr)

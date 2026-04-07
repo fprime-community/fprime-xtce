@@ -1,0 +1,437 @@
+<?xml version='1.0' encoding='utf-8'?>
+<SpaceSystem xmlns="http://www.omg.org/spec/XTCE/20180204" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.omg.org/spec/XTCE/20180204 https://www.omg.org/spec/XTCE/20180204/SpaceSystem.xsd" name="TestDeployment">
+  <TelemetryMetaData>
+    <ParameterTypeSet>
+      <IntegerParameterType name="U8" signed="false" sizeInBits="8">
+        <IntegerDataEncoding encoding="unsigned" sizeInBits="8" byteOrder="mostSignificantByteFirst" />
+      </IntegerParameterType>
+      <IntegerParameterType name="U16" signed="false" sizeInBits="16">
+        <IntegerDataEncoding encoding="unsigned" sizeInBits="16" byteOrder="mostSignificantByteFirst" />
+      </IntegerParameterType>
+      <IntegerParameterType name="U32" signed="false" sizeInBits="32">
+        <IntegerDataEncoding encoding="unsigned" sizeInBits="32" byteOrder="mostSignificantByteFirst" />
+      </IntegerParameterType>
+      <IntegerParameterType name="U64" signed="false" sizeInBits="64">
+        <IntegerDataEncoding encoding="unsigned" sizeInBits="64" byteOrder="mostSignificantByteFirst" />
+      </IntegerParameterType>
+      <IntegerParameterType name="char" signed="true" sizeInBits="8">
+        <IntegerDataEncoding encoding="twosComplement" sizeInBits="8" byteOrder="mostSignificantByteFirst" />
+      </IntegerParameterType>
+      <IntegerParameterType name="I8" signed="true" sizeInBits="8">
+        <IntegerDataEncoding encoding="twosComplement" sizeInBits="8" byteOrder="mostSignificantByteFirst" />
+      </IntegerParameterType>
+      <IntegerParameterType name="I16" signed="true" sizeInBits="16">
+        <IntegerDataEncoding encoding="twosComplement" sizeInBits="16" byteOrder="mostSignificantByteFirst" />
+      </IntegerParameterType>
+      <IntegerParameterType name="I32" signed="true" sizeInBits="32">
+        <IntegerDataEncoding encoding="twosComplement" sizeInBits="32" byteOrder="mostSignificantByteFirst" />
+      </IntegerParameterType>
+      <IntegerParameterType name="I64" signed="true" sizeInBits="64">
+        <IntegerDataEncoding encoding="twosComplement" sizeInBits="64" byteOrder="mostSignificantByteFirst" />
+      </IntegerParameterType>
+      <BooleanParameterType name="bool" oneStringValue="True" zeroStringValue="False">
+        <IntegerDataEncoding sizeInBits="8" encoding="unsigned" byteOrder="mostSignificantByteFirst" />
+      </BooleanParameterType>
+      <FloatParameterType name="F32" sizeInBits="32">
+        <FloatDataEncoding sizeInBits="32" encoding="IEEE754_1985" byteOrder="mostSignificantByteFirst" />
+      </FloatParameterType>
+      <FloatParameterType name="F64" sizeInBits="64">
+        <FloatDataEncoding sizeInBits="64" encoding="IEEE754_1985" byteOrder="mostSignificantByteFirst" />
+      </FloatParameterType>
+      <AggregateParameterType name="CCSDS_Packet_ID_Type">
+        <MemberList>
+          <Member name="Version" typeRef="CCSDS_Version_Type" />
+          <Member name="Type" typeRef="CCSDS_Type_Type" />
+          <Member name="SecHdrFlag" typeRef="CCSDS_Sec_Hdr_Flag_Type" />
+          <Member name="APID" typeRef="CCSDS_APID_Type" />
+        </MemberList>
+      </AggregateParameterType>
+      <IntegerParameterType name="CCSDS_Version_Type" signed="false">
+        <UnitSet />
+        <IntegerDataEncoding sizeInBits="3" />
+      </IntegerParameterType>
+      <BooleanParameterType name="CCSDS_Type_Type" zeroStringValue="TM" oneStringValue="TC">
+        <UnitSet />
+        <IntegerDataEncoding sizeInBits="1" />
+      </BooleanParameterType>
+      <BooleanParameterType name="CCSDS_Sec_Hdr_Flag_Type" zeroStringValue="NotPresent" oneStringValue="Present">
+        <UnitSet />
+        <IntegerDataEncoding sizeInBits="1" />
+      </BooleanParameterType>
+      <IntegerParameterType name="CCSDS_APID_Type" signed="false">
+        <UnitSet />
+        <IntegerDataEncoding sizeInBits="11" />
+      </IntegerParameterType>
+      <AggregateParameterType name="CCSDS_Packet_Sequence_Type">
+        <MemberList>
+          <Member name="GroupFlags" typeRef="CCSDS_Group_Flags_Type" />
+          <Member name="Count" typeRef="CCSDS_Source_Sequence_Count_Type" />
+        </MemberList>
+      </AggregateParameterType>
+      <EnumeratedParameterType name="CCSDS_Group_Flags_Type">
+        <UnitSet />
+        <IntegerDataEncoding sizeInBits="2" />
+        <EnumerationList>
+          <Enumeration value="0" label="Continuation" />
+          <Enumeration value="1" label="First" />
+          <Enumeration value="2" label="Last" />
+          <Enumeration value="3" label="Standalone" />
+        </EnumerationList>
+      </EnumeratedParameterType>
+      <IntegerParameterType name="CCSDS_Source_Sequence_Count_Type" signed="false">
+        <UnitSet />
+        <IntegerDataEncoding sizeInBits="14" />
+      </IntegerParameterType>
+      <IntegerParameterType name="CCSDS_Packet_Length_Type" signed="false">
+        <UnitSet>
+          <Unit description="Size" />
+        </UnitSet>
+        <IntegerDataEncoding sizeInBits="16" />
+      </IntegerParameterType>
+      <IntegerParameterType name="FwTlmPacketizeIdType" shortDescription="The type of a telemetry packet identifier" baseType="U16" signed="false" sizeInBits="16" />
+      <IntegerParameterType name="FwTimeContextStoreType" shortDescription="The type used to serialize a time context value" baseType="U8" signed="false" sizeInBits="8" />
+      <EnumeratedParameterType name="TimeBase" shortDescription="Define enumeration for Time base types">
+        <IntegerDataEncoding sizeInBits="16" encoding="unsigned" byteOrder="mostSignificantByteFirst" />
+        <EnumerationList>
+          <Enumeration shortDescription="No time base has been established (Required)" value="0" label="TB_NONE" />
+          <Enumeration shortDescription="Indicates time is processor cycle time. Not tied to external time" value="1" label="TB_PROC_TIME" />
+          <Enumeration shortDescription="Time as reported on workstation where software is running. For testing. (Required)" value="2" label="TB_WORKSTATION_TIME" />
+          <Enumeration shortDescription="Time as reported by the spacecraft clock." value="3" label="TB_SC_TIME" />
+          <Enumeration shortDescription="Don't care value for sequences. If FwTimeBaseStoreType is changed, value should be changed (Required)" value="65535" label="TB_DONT_CARE" />
+        </EnumerationList>
+      </EnumeratedParameterType>
+      <IntegerParameterType name="FwTimeBaseStoreType" shortDescription="The type used to serialize a time base value" baseType="U16" signed="false" sizeInBits="16" />
+    </ParameterTypeSet>
+    <ParameterSet>
+      <Parameter name="FPrimePacketId" parameterTypeRef="FwTlmPacketizeIdType" />
+      <Parameter name="FPrimeEventId" parameterTypeRef="U32" />
+      <Parameter name="FPrimeChannelId" parameterTypeRef="U32" />
+      <Parameter name="FPrimeTime" parameterTypeRef="Fw/TimeValue" />
+      <Parameter name="DataDescType" parameterTypeRef="U16" />
+      <Parameter name="CCSDS_Packet_ID" parameterTypeRef="CCSDS_Packet_ID_Type" />
+      <Parameter name="CCSDS_Packet_Sequence" parameterTypeRef="CCSDS_Packet_Sequence_Type" />
+      <Parameter name="CCSDS_Packet_Length" parameterTypeRef="CCSDS_Packet_Length_Type" />
+    </ParameterSet>
+    <ContainerSet>
+      <SequenceContainer name="CCSDSSpacePacket" abstract="true">
+        <EntryList>
+          <ParameterRefEntry parameterRef="CCSDS_Packet_ID" />
+          <ParameterRefEntry parameterRef="CCSDS_Packet_Sequence" />
+          <ParameterRefEntry parameterRef="CCSDS_Packet_Length" />
+        </EntryList>
+      </SequenceContainer>
+      <SequenceContainer name="FPrimeTelemetryPacket" abstract="true">
+        <EntryList>
+          <ParameterRefEntry parameterRef="DataDescType" />
+          <ParameterRefEntry parameterRef="FPrimePacketId" />
+          <ParameterRefEntry parameterRef="FPrimeTime" />
+        </EntryList>
+        <BaseContainer containerRef="CCSDSSpacePacket">
+          <RestrictionCriteria>
+            <ComparisonList>
+              <Comparison parameterRef="CCSDS_Packet_ID/Version" value="0" />
+              <Comparison parameterRef="CCSDS_Packet_ID/APID" value="4" />
+            </ComparisonList>
+          </RestrictionCriteria>
+        </BaseContainer>
+      </SequenceContainer>
+      <SequenceContainer name="FPrimeTelemetryChannel" abstract="true">
+        <EntryList>
+          <ParameterRefEntry parameterRef="DataDescType" />
+          <ParameterRefEntry parameterRef="FPrimeChannelId" />
+          <ParameterRefEntry parameterRef="FPrimeTime" />
+        </EntryList>
+        <BaseContainer containerRef="CCSDSSpacePacket">
+          <RestrictionCriteria>
+            <ComparisonList>
+              <Comparison parameterRef="CCSDS_Packet_ID/Version" value="0" />
+              <Comparison parameterRef="CCSDS_Packet_ID/APID" value="1" />
+            </ComparisonList>
+          </RestrictionCriteria>
+        </BaseContainer>
+      </SequenceContainer>
+      <SequenceContainer name="FPrimeEvent" abstract="true">
+        <EntryList>
+          <ParameterRefEntry parameterRef="DataDescType" />
+          <ParameterRefEntry parameterRef="FPrimeEventId" />
+          <ParameterRefEntry parameterRef="FPrimeTime" />
+        </EntryList>
+        <BaseContainer containerRef="CCSDSSpacePacket">
+          <RestrictionCriteria>
+            <ComparisonList>
+              <Comparison parameterRef="CCSDS_Packet_ID/Version" value="0" />
+              <Comparison parameterRef="CCSDS_Packet_ID/APID" value="2" />
+            </ComparisonList>
+          </RestrictionCriteria>
+        </BaseContainer>
+      </SequenceContainer>
+    </ContainerSet>
+  </TelemetryMetaData>
+  <CommandMetaData>
+    <ArgumentTypeSet>
+      <IntegerArgumentType name="U8" signed="false" sizeInBits="8">
+        <IntegerDataEncoding encoding="unsigned" sizeInBits="8" byteOrder="mostSignificantByteFirst" />
+      </IntegerArgumentType>
+      <IntegerArgumentType name="U16" signed="false" sizeInBits="16">
+        <IntegerDataEncoding encoding="unsigned" sizeInBits="16" byteOrder="mostSignificantByteFirst" />
+      </IntegerArgumentType>
+      <IntegerArgumentType name="U32" signed="false" sizeInBits="32">
+        <IntegerDataEncoding encoding="unsigned" sizeInBits="32" byteOrder="mostSignificantByteFirst" />
+      </IntegerArgumentType>
+      <IntegerArgumentType name="U64" signed="false" sizeInBits="64">
+        <IntegerDataEncoding encoding="unsigned" sizeInBits="64" byteOrder="mostSignificantByteFirst" />
+      </IntegerArgumentType>
+      <IntegerArgumentType name="char" signed="true" sizeInBits="8">
+        <IntegerDataEncoding encoding="twosComplement" sizeInBits="8" byteOrder="mostSignificantByteFirst" />
+      </IntegerArgumentType>
+      <IntegerArgumentType name="I8" signed="true" sizeInBits="8">
+        <IntegerDataEncoding encoding="twosComplement" sizeInBits="8" byteOrder="mostSignificantByteFirst" />
+      </IntegerArgumentType>
+      <IntegerArgumentType name="I16" signed="true" sizeInBits="16">
+        <IntegerDataEncoding encoding="twosComplement" sizeInBits="16" byteOrder="mostSignificantByteFirst" />
+      </IntegerArgumentType>
+      <IntegerArgumentType name="I32" signed="true" sizeInBits="32">
+        <IntegerDataEncoding encoding="twosComplement" sizeInBits="32" byteOrder="mostSignificantByteFirst" />
+      </IntegerArgumentType>
+      <IntegerArgumentType name="I64" signed="true" sizeInBits="64">
+        <IntegerDataEncoding encoding="twosComplement" sizeInBits="64" byteOrder="mostSignificantByteFirst" />
+      </IntegerArgumentType>
+      <BooleanArgumentType name="bool" oneStringValue="True" zeroStringValue="False">
+        <IntegerDataEncoding sizeInBits="8" encoding="unsigned" byteOrder="mostSignificantByteFirst" />
+      </BooleanArgumentType>
+      <FloatArgumentType name="F32" sizeInBits="32">
+        <FloatDataEncoding sizeInBits="32" encoding="IEEE754_1985" byteOrder="mostSignificantByteFirst" />
+      </FloatArgumentType>
+      <FloatArgumentType name="F64" sizeInBits="64">
+        <FloatDataEncoding sizeInBits="64" encoding="IEEE754_1985" byteOrder="mostSignificantByteFirst" />
+      </FloatArgumentType>
+      <AggregateArgumentType name="CCSDS_Packet_ID_Type">
+        <MemberList>
+          <Member name="Version" typeRef="CCSDS_Version_Type" />
+          <Member name="Type" typeRef="CCSDS_Type_Type" />
+          <Member name="SecHdrFlag" typeRef="CCSDS_Sec_Hdr_Flag_Type" />
+          <Member name="APID" typeRef="CCSDS_APID_Type" />
+        </MemberList>
+      </AggregateArgumentType>
+      <IntegerArgumentType name="CCSDS_Version_Type" signed="false">
+        <UnitSet />
+        <IntegerDataEncoding sizeInBits="3" />
+      </IntegerArgumentType>
+      <BooleanArgumentType name="CCSDS_Type_Type" zeroStringValue="TM" oneStringValue="TC">
+        <UnitSet />
+        <IntegerDataEncoding sizeInBits="1" />
+      </BooleanArgumentType>
+      <BooleanArgumentType name="CCSDS_Sec_Hdr_Flag_Type" zeroStringValue="NotPresent" oneStringValue="Present">
+        <UnitSet />
+        <IntegerDataEncoding sizeInBits="1" />
+      </BooleanArgumentType>
+      <IntegerArgumentType name="CCSDS_APID_Type" signed="false">
+        <UnitSet />
+        <IntegerDataEncoding sizeInBits="11" />
+      </IntegerArgumentType>
+      <AggregateArgumentType name="CCSDS_Packet_Sequence_Type">
+        <MemberList>
+          <Member name="GroupFlags" typeRef="CCSDS_Group_Flags_Type" />
+          <Member name="Count" typeRef="CCSDS_Source_Sequence_Count_Type" />
+        </MemberList>
+      </AggregateArgumentType>
+      <EnumeratedArgumentType name="CCSDS_Group_Flags_Type">
+        <UnitSet />
+        <IntegerDataEncoding sizeInBits="2" />
+        <EnumerationList>
+          <Enumeration value="0" label="Continuation" />
+          <Enumeration value="1" label="First" />
+          <Enumeration value="2" label="Last" />
+          <Enumeration value="3" label="Standalone" />
+        </EnumerationList>
+      </EnumeratedArgumentType>
+      <IntegerArgumentType name="CCSDS_Source_Sequence_Count_Type" signed="false">
+        <UnitSet />
+        <IntegerDataEncoding sizeInBits="14" />
+      </IntegerArgumentType>
+      <IntegerArgumentType name="CCSDS_Packet_Length_Type" signed="false">
+        <UnitSet>
+          <Unit description="Size" />
+        </UnitSet>
+        <IntegerDataEncoding sizeInBits="16" />
+      </IntegerArgumentType>
+      <IntegerArgumentType name="FwTlmPacketizeIdType" shortDescription="The type of a telemetry packet identifier" baseType="U16" signed="false" sizeInBits="16" />
+      <IntegerArgumentType name="FwTimeContextStoreType" shortDescription="The type used to serialize a time context value" baseType="U8" signed="false" sizeInBits="8" />
+      <EnumeratedArgumentType name="TimeBase" shortDescription="Define enumeration for Time base types">
+        <IntegerDataEncoding sizeInBits="16" encoding="unsigned" byteOrder="mostSignificantByteFirst" />
+        <EnumerationList>
+          <Enumeration shortDescription="No time base has been established (Required)" value="0" label="TB_NONE" />
+          <Enumeration shortDescription="Indicates time is processor cycle time. Not tied to external time" value="1" label="TB_PROC_TIME" />
+          <Enumeration shortDescription="Time as reported on workstation where software is running. For testing. (Required)" value="2" label="TB_WORKSTATION_TIME" />
+          <Enumeration shortDescription="Time as reported by the spacecraft clock." value="3" label="TB_SC_TIME" />
+          <Enumeration shortDescription="Don't care value for sequences. If FwTimeBaseStoreType is changed, value should be changed (Required)" value="65535" label="TB_DONT_CARE" />
+        </EnumerationList>
+      </EnumeratedArgumentType>
+      <IntegerArgumentType name="FwTimeBaseStoreType" shortDescription="The type used to serialize a time base value" baseType="U16" signed="false" sizeInBits="16" />
+    </ArgumentTypeSet>
+    <MetaCommandSet>
+      <MetaCommand name="CCSDSPacket" abstract="true">
+        <ArgumentList>
+          <Argument name="CCSDS_Version" argumentTypeRef="CCSDS_Version_Type" />
+          <Argument name="CCSDS_Type" argumentTypeRef="CCSDS_Type_Type" />
+          <Argument name="CCSDS_Sec_Hdr_Flag" argumentTypeRef="CCSDS_Sec_Hdr_Flag_Type" />
+          <Argument name="CCSDS_APID" argumentTypeRef="CCSDS_APID_Type" />
+          <Argument name="CCSDS_Group_Flags" argumentTypeRef="CCSDS_Group_Flags_Type" />
+        </ArgumentList>
+        <CommandContainer name="CCSDSPacket">
+          <EntryList>
+            <ArgumentRefEntry argumentRef="CCSDS_Version" />
+            <ArgumentRefEntry argumentRef="CCSDS_Type" />
+            <ArgumentRefEntry argumentRef="CCSDS_Sec_Hdr_Flag" />
+            <ArgumentRefEntry argumentRef="CCSDS_APID" />
+            <ArgumentRefEntry argumentRef="CCSDS_Group_Flags" />
+            <FixedValueEntry name="CCSDS_Source_Sequence_Count" binaryValue="0000" sizeInBits="14" />
+            <FixedValueEntry name="CCSDS_Packet_Length" binaryValue="0000" sizeInBits="16" />
+          </EntryList>
+        </CommandContainer>
+      </MetaCommand>
+      <MetaCommand name="FPrimeCommand" abstract="true">
+        <BaseMetaCommand metaCommandRef="CCSDSPacket">
+          <ArgumentAssignmentList>
+            <ArgumentAssignment argumentName="CCSDS_Version" argumentValue="0" />
+            <ArgumentAssignment argumentName="CCSDS_Type" argumentValue="TC" />
+            <ArgumentAssignment argumentName="CCSDS_Sec_Hdr_Flag" argumentValue="NotPresent" />
+            <ArgumentAssignment argumentName="CCSDS_APID" argumentValue="0" />
+            <ArgumentAssignment argumentName="CCSDS_Group_Flags" argumentValue="Standalone" />
+          </ArgumentAssignmentList>
+        </BaseMetaCommand>
+        <ArgumentList>
+          <Argument name="OpCode" argumentTypeRef="FwOpcodeType" />
+        </ArgumentList>
+        <CommandContainer name="FPrimeCommand">
+          <EntryList>
+            <FixedValueEntry name="Fprime_FW_PACKET_COMMAND" binaryValue="0000" sizeInBits="16" />
+            <ArgumentRefEntry argumentRef="OpCode" />
+          </EntryList>
+          <BaseContainer containerRef="CCSDSPacket" />
+        </CommandContainer>
+      </MetaCommand>
+    </MetaCommandSet>
+  </CommandMetaData>
+  <SpaceSystem name="Component">
+    <TelemetryMetaData>
+      <ParameterTypeSet>
+        <EnumeratedParameterType name="Status" shortDescription="Component status enumeration">
+          <IntegerDataEncoding sizeInBits="8" encoding="unsigned" byteOrder="mostSignificantByteFirst" />
+          <EnumerationList>
+            <Enumeration value="0" label="OK" />
+            <Enumeration value="1" label="ERROR" />
+          </EnumerationList>
+        </EnumeratedParameterType>
+      </ParameterTypeSet>
+      <ParameterSet>
+        <Parameter name="Status" shortDescription="Component status" parameterTypeRef="/TestDeployment/Component/Status" />
+      </ParameterSet>
+      <ContainerSet>
+        <SequenceContainer name="Status">
+          <EntryList>
+            <ParameterRefEntry parameterRef="Component/Status" />
+          </EntryList>
+          <BaseContainer containerRef="FPrimeTelemetryChannel">
+            <RestrictionCriteria>
+              <ComparisonList>
+                <Comparison parameterRef="FPrimeChannelId" value="102" />
+              </ComparisonList>
+            </RestrictionCriteria>
+          </BaseContainer>
+        </SequenceContainer>
+      </ContainerSet>
+    </TelemetryMetaData>
+    <CommandMetaData>
+      <ArgumentTypeSet>
+        <EnumeratedArgumentType name="Status" shortDescription="Component status enumeration">
+          <IntegerDataEncoding sizeInBits="8" encoding="unsigned" byteOrder="mostSignificantByteFirst" />
+          <EnumerationList>
+            <Enumeration value="0" label="OK" />
+            <Enumeration value="1" label="ERROR" />
+          </EnumerationList>
+        </EnumeratedArgumentType>
+      </ArgumentTypeSet>
+    </CommandMetaData>
+    <SpaceSystem name="Subsystem">
+      <TelemetryMetaData>
+        <ParameterSet>
+          <Parameter name="Temperature" shortDescription="Temperature reading" parameterTypeRef="/TestDeployment/F32" />
+          <Parameter name="Pressure" shortDescription="Pressure reading" parameterTypeRef="/TestDeployment/F32" />
+        </ParameterSet>
+        <ContainerSet>
+          <SequenceContainer name="Temperature">
+            <EntryList>
+              <ParameterRefEntry parameterRef="Component/Subsystem/Temperature" />
+            </EntryList>
+            <BaseContainer containerRef="FPrimeTelemetryChannel">
+              <RestrictionCriteria>
+                <ComparisonList>
+                  <Comparison parameterRef="FPrimeChannelId" value="100" />
+                </ComparisonList>
+              </RestrictionCriteria>
+            </BaseContainer>
+          </SequenceContainer>
+          <SequenceContainer name="Pressure">
+            <EntryList>
+              <ParameterRefEntry parameterRef="Component/Subsystem/Pressure" />
+            </EntryList>
+            <BaseContainer containerRef="FPrimeTelemetryChannel">
+              <RestrictionCriteria>
+                <ComparisonList>
+                  <Comparison parameterRef="FPrimeChannelId" value="101" />
+                </ComparisonList>
+              </RestrictionCriteria>
+            </BaseContainer>
+          </SequenceContainer>
+        </ContainerSet>
+      </TelemetryMetaData>
+      <CommandMetaData>
+        <MetaCommandSet>
+          <MetaCommand name="SetThreshold">
+            <BaseMetaCommand metaCommandRef="FPrimeCommand">
+              <ArgumentAssignmentList>
+                <ArgumentAssignment argumentName="OpCode" argumentValue="300" />
+              </ArgumentAssignmentList>
+            </BaseMetaCommand>
+            <ArgumentList>
+              <Argument name="value" argumentTypeRef="/TestDeployment/F32" />
+            </ArgumentList>
+            <CommandContainer name="SetThreshold">
+              <EntryList>
+                <ArgumentRefEntry argumentRef="value" />
+              </EntryList>
+              <BaseContainer containerRef="FPrimeCommand" />
+            </CommandContainer>
+          </MetaCommand>
+        </MetaCommandSet>
+      </CommandMetaData>
+    </SpaceSystem>
+  </SpaceSystem>
+  <SpaceSystem name="Fw">
+    <TelemetryMetaData>
+      <ParameterTypeSet>
+        <AggregateParameterType name="TimeValue" shortDescription="Data structure for Time">
+          <MemberList>
+            <Member name="timeBase" shortDescription="basis of time (defined by system)" typeRef="/TestDeployment/TimeBase" />
+            <Member name="timeContext" shortDescription="user settable value. Could be reboot count, node, etc" typeRef="/TestDeployment/FwTimeContextStoreType" />
+            <Member name="seconds" shortDescription="seconds portion of Time" typeRef="/TestDeployment/U32" />
+            <Member name="useconds" shortDescription="microseconds portion of Time" typeRef="/TestDeployment/U32" />
+          </MemberList>
+        </AggregateParameterType>
+      </ParameterTypeSet>
+    </TelemetryMetaData>
+    <CommandMetaData>
+      <ArgumentTypeSet>
+        <AggregateArgumentType name="TimeValue" shortDescription="Data structure for Time">
+          <MemberList>
+            <Member name="timeBase" shortDescription="basis of time (defined by system)" typeRef="/TestDeployment/TimeBase" />
+            <Member name="timeContext" shortDescription="user settable value. Could be reboot count, node, etc" typeRef="/TestDeployment/FwTimeContextStoreType" />
+            <Member name="seconds" shortDescription="seconds portion of Time" typeRef="/TestDeployment/U32" />
+            <Member name="useconds" shortDescription="microseconds portion of Time" typeRef="/TestDeployment/U32" />
+          </MemberList>
+        </AggregateArgumentType>
+      </ArgumentTypeSet>
+    </CommandMetaData>
+  </SpaceSystem>
+</SpaceSystem>
