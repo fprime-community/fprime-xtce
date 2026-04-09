@@ -109,6 +109,24 @@ BASE_FPRIME_TYPES = [
             "FloatDataEncoding": {"sizeInBits": 64, "encoding": "IEEE754_1985", "byteOrder": "mostSignificantByteFirst"},
         },
     },
+    # Fw::FilePacket::PathName: U8 length prefix + ASCII chars (max 255 bytes).
+    # Distinct from F´'s general string type (which uses a U16 length prefix).
+    # See lib/fprime/Fw/FilePacket/PathName.cpp.
+    {
+        "StringParameterType": {
+            "name": "FPrimeFilePathType",
+            "StringDataEncoding": {
+                "encoding": "UTF-8",
+                "Variable": {
+                    "maxSizeInBits": 255 * 8,
+                    "DynamicValue": {
+                        "ParameterInstanceRef": {"parameterRef": "_yamcs_ignore"},
+                    },
+                    "LeadingSize": {"sizeInBitsOfSizeTag": 8},
+                },
+            },
+        },
+    },
 ]
 
 SPACE_PACKET_TYPES = [
@@ -220,4 +238,14 @@ BASE_PARAMETERS = [
     {"Parameter": { "name": "CCSDS_Packet_ID",       "parameterTypeRef": "CCSDS_Packet_ID_Type" }},
     {"Parameter": { "name": "CCSDS_Packet_Sequence", "parameterTypeRef": "CCSDS_Packet_Sequence_Type" }},
     {"Parameter": { "name": "CCSDS_Packet_Length",   "parameterTypeRef": "CCSDS_Packet_Length_Type" }},
+    # Fw::FilePacket parameters (file APID = 3 = FW_PACKET_FILE).
+    # See lib/fprime/Fw/FilePacket/FilePacket.hpp for the wire format.
+    {"Parameter": { "name": "FPrimeFilePacketType",            "parameterTypeRef": "U8" }},
+    {"Parameter": { "name": "FPrimeFilePacketSeqIndex",        "parameterTypeRef": "U32" }},
+    {"Parameter": { "name": "FPrimeFilePacketFileSize",        "parameterTypeRef": "U32" }},
+    {"Parameter": { "name": "FPrimeFilePacketByteOffset",      "parameterTypeRef": "U32" }},
+    {"Parameter": { "name": "FPrimeFilePacketDataSize",        "parameterTypeRef": "U16" }},
+    {"Parameter": { "name": "FPrimeFilePacketChecksum",        "parameterTypeRef": "U32" }},
+    {"Parameter": { "name": "FPrimeFilePacketSourcePath",      "parameterTypeRef": "FPrimeFilePathType" }},
+    {"Parameter": { "name": "FPrimeFilePacketDestinationPath", "parameterTypeRef": "FPrimeFilePathType" }},
 ]
