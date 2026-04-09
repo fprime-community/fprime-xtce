@@ -108,6 +108,139 @@ BASE_CONTAINERS = [
             },
         }
     },
+    # ------------------------------------------------------------
+    # Fw::FilePacket containers (file APID = 3 = FW_PACKET_FILE)
+    # ------------------------------------------------------------
+    #
+    # Abstract base: parses the F´ ComPacket descriptor (DataDescType, U16)
+    # followed by Fw::FilePacket::Header (U8 type + U32 sequenceIndex).
+    #
+    # Wire format reference: lib/fprime/Fw/FilePacket/FilePacket.hpp.
+    # The U16 ComPacket descriptor prefix is added by FileDownlink in
+    # lib/fprime/Svc/FileDownlink/FileDownlink.cpp::readPacket_start() /
+    # ::readPacket_data() / ::finishHelper() — it is NOT part of the
+    # Fw::FilePacket struct itself.
+    {
+        "SequenceContainer": {
+            "name": "FPrimeFilePacket",
+            "abstract": "true",
+            "EntryList": [
+                {"ParameterRefEntry": {"parameterRef": "DataDescType"}},
+                {"ParameterRefEntry": {"parameterRef": "FPrimeFilePacketType"}},
+                {"ParameterRefEntry": {"parameterRef": "FPrimeFilePacketSeqIndex"}},
+            ],
+            "BaseContainer": {
+                "containerRef": "CCSDSSpacePacket",
+                "RestrictionCriteria": {
+                    "ComparisonList": [
+                        {
+                            "Comparison": {
+                                "parameterRef": "CCSDS_Packet_ID/Version",
+                                "value": "0",
+                            }
+                        },
+                        {
+                            "Comparison": {
+                                "parameterRef": "CCSDS_Packet_ID/APID",
+                                "value": "3",
+                            }
+                        },
+                    ]
+                },
+            },
+        }
+    },
+    # Concrete subcontainers: gated on the U8 Fw::FilePacket::Type
+    # discriminator value defined in FilePacket.hpp:40.
+    #   T_START = 0, T_DATA = 1, T_END = 2, T_CANCEL = 3
+    {
+        "SequenceContainer": {
+            "name": "FPrimeFilePacketStart",
+            "EntryList": [
+                {"ParameterRefEntry": {"parameterRef": "FPrimeFilePacketFileSize"}},
+                {"ParameterRefEntry": {"parameterRef": "FPrimeFilePacketSourcePath"}},
+                {"ParameterRefEntry": {"parameterRef": "FPrimeFilePacketDestinationPath"}},
+            ],
+            "BaseContainer": {
+                "containerRef": "FPrimeFilePacket",
+                "RestrictionCriteria": {
+                    "ComparisonList": [
+                        {
+                            "Comparison": {
+                                "parameterRef": "FPrimeFilePacketType",
+                                "value": "0",
+                            }
+                        },
+                    ]
+                },
+            },
+        }
+    },
+    {
+        "SequenceContainer": {
+            "name": "FPrimeFilePacketData",
+            "EntryList": [
+                {"ParameterRefEntry": {"parameterRef": "FPrimeFilePacketByteOffset"}},
+                {"ParameterRefEntry": {"parameterRef": "FPrimeFilePacketDataSize"}},
+                # Payload bytes follow but are intentionally not modeled
+                # as a parameter; they are consumed by downstream code
+                # (e.g. a YAMCS service) directly from the raw stream.
+            ],
+            "BaseContainer": {
+                "containerRef": "FPrimeFilePacket",
+                "RestrictionCriteria": {
+                    "ComparisonList": [
+                        {
+                            "Comparison": {
+                                "parameterRef": "FPrimeFilePacketType",
+                                "value": "1",
+                            }
+                        },
+                    ]
+                },
+            },
+        }
+    },
+    {
+        "SequenceContainer": {
+            "name": "FPrimeFilePacketEnd",
+            "EntryList": [
+                {"ParameterRefEntry": {"parameterRef": "FPrimeFilePacketChecksum"}},
+            ],
+            "BaseContainer": {
+                "containerRef": "FPrimeFilePacket",
+                "RestrictionCriteria": {
+                    "ComparisonList": [
+                        {
+                            "Comparison": {
+                                "parameterRef": "FPrimeFilePacketType",
+                                "value": "2",
+                            }
+                        },
+                    ]
+                },
+            },
+        }
+    },
+    {
+        "SequenceContainer": {
+            "name": "FPrimeFilePacketCancel",
+            "EntryList": [],
+            "BaseContainer": {
+                "containerRef": "FPrimeFilePacket",
+                "RestrictionCriteria": {
+                    "ComparisonList": [
+                        {
+                            "Comparison": {
+                                "parameterRef": "FPrimeFilePacketType",
+                                "value": "3",
+                            }
+                        },
+                    ]
+                },
+            },
+        }
+    },
 ]
 
 BASE_COMMANDS = [
