@@ -115,27 +115,29 @@ def _convert_float_type(fprime_type_desc, deployment):
 
 def _convert_boolean_type(fprime_type_desc, deployment):
     """
-    Convert F Prime bool type to XTCE BooleanParameterType.
+    Convert F Prime bool type to XTCE EnumeratedParameterType.
 
-    Maps:
-    - bool (8-bit boolean) to BooleanParameterType
+    F Prime serializes True as 0xFF (255) and False as 0x00, so we use an
+    enumeration rather than BooleanParameterType (which hardcodes one=1).
     """
     name = fprime_type_desc["name"]
     size_in_bits = fprime_type_desc.get("size", 8)
-    
+
     xtce_type = {
-        "BooleanParameterType": {
+        "EnumeratedParameterType": {
             "name": name,
-            "oneStringValue": "True",
-            "zeroStringValue": "False",
             "IntegerDataEncoding": {
                 "sizeInBits": size_in_bits,
                 "encoding": "unsigned",
                 "byteOrder": "mostSignificantByteFirst"
-            }
+            },
+            "EnumerationList": [
+                {"Enumeration": {"label": "False", "value": 0}},
+                {"Enumeration": {"label": "True", "value": 255}},
+            ],
         }
     }
-    
+
     return xtce_type
 
 
@@ -418,7 +420,7 @@ def convert_alias_definition(fprime_alias_def, deployment):
         }
     elif underlying_kind == "bool":
         xtce_type = {
-            "BooleanParameterType": {
+            "EnumeratedParameterType": {
                 "name": name,
                 "baseType": aliased_type["name"]
             }
