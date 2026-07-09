@@ -135,12 +135,10 @@ def _convert_boolean_type(fprime_type_desc, deployment):
                 "encoding": "unsigned",
                 "byteOrder": "mostSignificantByteFirst"
             },
-            "EnumerationList": {
-                "Enumeration": [
-                    {"label": "False", "value": 0},
-                    {"label": "True", "value": 255}
-                ]
-            }
+            "EnumerationList": [
+                {"Enumeration": {"value": "0", "label": "False"}},
+                {"Enumeration": {"value": "255", "label": "True"}}
+            ]
         }
     }
 

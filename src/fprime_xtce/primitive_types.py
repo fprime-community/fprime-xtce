@@ -91,12 +91,10 @@ BASE_FPRIME_TYPES = [
                 "encoding": "unsigned",
                 "byteOrder": "mostSignificantByteFirst",
             },
-            "EnumerationList": {
-                "Enumeration": [
-                    {"label": "False", "value": 0},
-                    {"label": "True", "value": 255}
-                ]
-            }
+            "EnumerationList": [
+                {"Enumeration": {"value": "0", "label": "False"}},
+                {"Enumeration": {"value": "255", "label": "True"}}
+            ]
         }
     },
     {
