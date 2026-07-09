@@ -117,10 +117,6 @@ def _convert_boolean_type(fprime_type_desc, deployment):
     """
     Convert F Prime bool type to XTCE EnumeratedParameterType.
 
-    F' encodes booleans as 8-bit integers where true=0xFF (255) and false=0x00 (0).
-    YAMCS BooleanParameterType expects standard 0/1 encoding, so we use
-    EnumeratedParameterType with explicit 0/255 values to match F' wire format.
-
     Maps:
     - bool (8-bit boolean) to EnumeratedParameterType with values 0 (False) and 255 (True)
     """
