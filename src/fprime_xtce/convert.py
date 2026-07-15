@@ -24,7 +24,7 @@ class ConversionMode(Enum):
 def commandTypeRewriter(type_data):
     """ ParameterType -> ArgumentType for use in commands"""
     if isinstance(type_data, Mapping):
-        # F' telemetry serializes strings as fixed-size (zero-padded) fields, so their ParameterType uses a fixed-size box so YAMCS advances to the next field correctly.
+        # F' serializes strings as variable [length][data]. For XTCE telemetry we use a Fixed box so YAMCS can parse consecutive strings.
         if "SizeInBits" in type_data and "encoding" in type_data:
             size = type_data["SizeInBits"]
             return {
