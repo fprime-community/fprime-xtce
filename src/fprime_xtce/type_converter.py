@@ -162,14 +162,8 @@ def _convert_string_type(fprime_type_desc, detected_string_types, deployment):
             "name": string_type_name,
             "StringDataEncoding": {
                 "encoding": "UTF-8",
-                "Variable": {
-                    "maxSizeInBits": size_in_bits + 16,  # Add 16 bits for length prefix if variable
-                    "DynamicValue": {
-                        "ParameterInstanceRef": {
-                            # This is resolved from the top level parameter definition and injected by the container
-                            "parameterRef": "_yamcs_ignore"
-                        },
-                    },
+                "SizeInBits": {
+                    "Fixed": {"FixedValue": size_in_bits + 16},
                     "LeadingSize": {"sizeInBitsOfSizeTag": 16}
                 }
             }

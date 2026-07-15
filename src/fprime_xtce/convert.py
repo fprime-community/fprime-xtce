@@ -24,6 +24,23 @@ class ConversionMode(Enum):
 def commandTypeRewriter(type_data):
     """ ParameterType -> ArgumentType for use in commands"""
     if isinstance(type_data, Mapping):
+        # F' telemetry serializes strings as fixed-size (zero-padded) fields, so their
+        # ParameterType uses a fixed-size box (SizeInBits/Fixed) so YAMCS advances to the
+        # next field correctly. F' command deserialization instead expects a variable-length
+        # [leading-size][chars] argument with no padding, so rewrite the string encoding back
+        # to the variable form for command ArgumentTypes.
+        if "SizeInBits" in type_data and "encoding" in type_data:
+            size = type_data["SizeInBits"]
+            return {
+                "encoding": type_data.get("encoding", "UTF-8"),
+                "Variable": {
+                    "maxSizeInBits": size.get("Fixed", {}).get("FixedValue"),
+                    "DynamicValue": {
+                        "ParameterInstanceRef": {"parameterRef": "_yamcs_ignore"}
+                    },
+                    "LeadingSize": size.get("LeadingSize", {"sizeInBitsOfSizeTag": 16}),
+                },
+            }
         def renamer(key, value):
             """ Rename function that will rename ParameterType to ArgumentType
             
