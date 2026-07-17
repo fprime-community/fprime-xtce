@@ -24,22 +24,9 @@ class ConversionMode(Enum):
 def commandTypeRewriter(type_data):
     """ ParameterType -> ArgumentType for use in commands"""
     if isinstance(type_data, Mapping):
-        # F' serializes strings as variable [length][data]. For XTCE telemetry we use a Fixed box so YAMCS can parse consecutive strings.
-        if "SizeInBits" in type_data and "encoding" in type_data:
-            size = type_data["SizeInBits"]
-            return {
-                "encoding": type_data.get("encoding", "UTF-8"),
-                "Variable": {
-                    "maxSizeInBits": size.get("Fixed", {}).get("FixedValue"),
-                    "DynamicValue": {
-                        "ParameterInstanceRef": {"parameterRef": "_yamcs_ignore"}
-                    },
-                    "LeadingSize": size.get("LeadingSize", {"sizeInBitsOfSizeTag": 16}),
-                },
-            }
         def renamer(key, value):
             """ Rename function that will rename ParameterType to ArgumentType
-            
+
             Note: this function skips "_yamcs_ignore" values, which are used to bypass the the XTCE spec in YAMCS. This
             allows strings to be length-data encoded without maximum fixed sizes.
             """
