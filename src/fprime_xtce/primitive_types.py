@@ -84,15 +84,17 @@ BASE_FPRIME_TYPES = [
         }
     },
     {
-        "BooleanParameterType": {
+        "EnumeratedParameterType": {
             "name": "bool",
-            "oneStringValue": "True",
-            "zeroStringValue": "False",
             "IntegerDataEncoding": {
                 "sizeInBits": 8,
                 "encoding": "unsigned",
                 "byteOrder": "mostSignificantByteFirst",
             },
+            "EnumerationList": [
+                {"Enumeration": {"value": "0", "label": "False"}},
+                {"Enumeration": {"value": "255", "label": "True"}}
+            ]
         }
     },
     {
