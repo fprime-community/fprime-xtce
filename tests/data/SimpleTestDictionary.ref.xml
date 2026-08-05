@@ -29,15 +29,29 @@
       <IntegerParameterType name="I64" signed="true" sizeInBits="64">
         <IntegerDataEncoding encoding="twosComplement" sizeInBits="64" byteOrder="mostSignificantByteFirst" />
       </IntegerParameterType>
-      <BooleanParameterType name="bool" oneStringValue="True" zeroStringValue="False">
+      <EnumeratedParameterType name="bool">
         <IntegerDataEncoding sizeInBits="8" encoding="unsigned" byteOrder="mostSignificantByteFirst" />
-      </BooleanParameterType>
+        <EnumerationList>
+          <Enumeration value="0" label="False" />
+          <Enumeration value="255" label="True" />
+        </EnumerationList>
+      </EnumeratedParameterType>
       <FloatParameterType name="F32" sizeInBits="32">
         <FloatDataEncoding sizeInBits="32" encoding="IEEE754_1985" byteOrder="mostSignificantByteFirst" />
       </FloatParameterType>
       <FloatParameterType name="F64" sizeInBits="64">
         <FloatDataEncoding sizeInBits="64" encoding="IEEE754_1985" byteOrder="mostSignificantByteFirst" />
       </FloatParameterType>
+      <StringParameterType name="FPrimeFilePathType">
+        <StringDataEncoding encoding="UTF-8">
+          <Variable maxSizeInBits="2040">
+            <DynamicValue>
+              <ParameterInstanceRef parameterRef="_yamcs_ignore" />
+            </DynamicValue>
+            <LeadingSize sizeInBitsOfSizeTag="8" />
+          </Variable>
+        </StringDataEncoding>
+      </StringParameterType>
       <AggregateParameterType name="CCSDS_Packet_ID_Type">
         <MemberList>
           <Member name="Version" typeRef="CCSDS_Version_Type" />
@@ -111,6 +125,14 @@
       <Parameter name="CCSDS_Packet_ID" parameterTypeRef="CCSDS_Packet_ID_Type" />
       <Parameter name="CCSDS_Packet_Sequence" parameterTypeRef="CCSDS_Packet_Sequence_Type" />
       <Parameter name="CCSDS_Packet_Length" parameterTypeRef="CCSDS_Packet_Length_Type" />
+      <Parameter name="FPrimeFilePacketType" parameterTypeRef="U8" />
+      <Parameter name="FPrimeFilePacketSeqIndex" parameterTypeRef="U32" />
+      <Parameter name="FPrimeFilePacketFileSize" parameterTypeRef="U32" />
+      <Parameter name="FPrimeFilePacketByteOffset" parameterTypeRef="U32" />
+      <Parameter name="FPrimeFilePacketDataSize" parameterTypeRef="U16" />
+      <Parameter name="FPrimeFilePacketChecksum" parameterTypeRef="U32" />
+      <Parameter name="FPrimeFilePacketSourcePath" parameterTypeRef="FPrimeFilePathType" />
+      <Parameter name="FPrimeFilePacketDestinationPath" parameterTypeRef="FPrimeFilePathType" />
     </ParameterSet>
     <ContainerSet>
       <SequenceContainer name="CCSDSSpacePacket" abstract="true">
@@ -165,6 +187,70 @@
           </RestrictionCriteria>
         </BaseContainer>
       </SequenceContainer>
+      <SequenceContainer name="FPrimeFilePacket" abstract="true">
+        <EntryList>
+          <ParameterRefEntry parameterRef="DataDescType" />
+          <ParameterRefEntry parameterRef="FPrimeFilePacketType" />
+          <ParameterRefEntry parameterRef="FPrimeFilePacketSeqIndex" />
+        </EntryList>
+        <BaseContainer containerRef="CCSDSSpacePacket">
+          <RestrictionCriteria>
+            <ComparisonList>
+              <Comparison parameterRef="CCSDS_Packet_ID/Version" value="0" />
+              <Comparison parameterRef="CCSDS_Packet_ID/APID" value="3" />
+            </ComparisonList>
+          </RestrictionCriteria>
+        </BaseContainer>
+      </SequenceContainer>
+      <SequenceContainer name="FPrimeFilePacketStart">
+        <EntryList>
+          <ParameterRefEntry parameterRef="FPrimeFilePacketFileSize" />
+          <ParameterRefEntry parameterRef="FPrimeFilePacketSourcePath" />
+          <ParameterRefEntry parameterRef="FPrimeFilePacketDestinationPath" />
+        </EntryList>
+        <BaseContainer containerRef="FPrimeFilePacket">
+          <RestrictionCriteria>
+            <ComparisonList>
+              <Comparison parameterRef="FPrimeFilePacketType" value="0" />
+            </ComparisonList>
+          </RestrictionCriteria>
+        </BaseContainer>
+      </SequenceContainer>
+      <SequenceContainer name="FPrimeFilePacketData">
+        <EntryList>
+          <ParameterRefEntry parameterRef="FPrimeFilePacketByteOffset" />
+          <ParameterRefEntry parameterRef="FPrimeFilePacketDataSize" />
+        </EntryList>
+        <BaseContainer containerRef="FPrimeFilePacket">
+          <RestrictionCriteria>
+            <ComparisonList>
+              <Comparison parameterRef="FPrimeFilePacketType" value="1" />
+            </ComparisonList>
+          </RestrictionCriteria>
+        </BaseContainer>
+      </SequenceContainer>
+      <SequenceContainer name="FPrimeFilePacketEnd">
+        <EntryList>
+          <ParameterRefEntry parameterRef="FPrimeFilePacketChecksum" />
+        </EntryList>
+        <BaseContainer containerRef="FPrimeFilePacket">
+          <RestrictionCriteria>
+            <ComparisonList>
+              <Comparison parameterRef="FPrimeFilePacketType" value="2" />
+            </ComparisonList>
+          </RestrictionCriteria>
+        </BaseContainer>
+      </SequenceContainer>
+      <SequenceContainer name="FPrimeFilePacketCancel">
+        <EntryList />
+        <BaseContainer containerRef="FPrimeFilePacket">
+          <RestrictionCriteria>
+            <ComparisonList>
+              <Comparison parameterRef="FPrimeFilePacketType" value="3" />
+            </ComparisonList>
+          </RestrictionCriteria>
+        </BaseContainer>
+      </SequenceContainer>
     </ContainerSet>
   </TelemetryMetaData>
   <CommandMetaData>
@@ -196,15 +282,29 @@
       <IntegerArgumentType name="I64" signed="true" sizeInBits="64">
         <IntegerDataEncoding encoding="twosComplement" sizeInBits="64" byteOrder="mostSignificantByteFirst" />
       </IntegerArgumentType>
-      <BooleanArgumentType name="bool" oneStringValue="True" zeroStringValue="False">
+      <EnumeratedArgumentType name="bool">
         <IntegerDataEncoding sizeInBits="8" encoding="unsigned" byteOrder="mostSignificantByteFirst" />
-      </BooleanArgumentType>
+        <EnumerationList>
+          <Enumeration value="0" label="False" />
+          <Enumeration value="255" label="True" />
+        </EnumerationList>
+      </EnumeratedArgumentType>
       <FloatArgumentType name="F32" sizeInBits="32">
         <FloatDataEncoding sizeInBits="32" encoding="IEEE754_1985" byteOrder="mostSignificantByteFirst" />
       </FloatArgumentType>
       <FloatArgumentType name="F64" sizeInBits="64">
         <FloatDataEncoding sizeInBits="64" encoding="IEEE754_1985" byteOrder="mostSignificantByteFirst" />
       </FloatArgumentType>
+      <StringArgumentType name="FPrimeFilePathType">
+        <StringDataEncoding encoding="UTF-8">
+          <Variable maxSizeInBits="2040">
+            <DynamicValue>
+              <ParameterInstanceRef parameterRef="_yamcs_ignore" />
+            </DynamicValue>
+            <LeadingSize sizeInBitsOfSizeTag="8" />
+          </Variable>
+        </StringDataEncoding>
+      </StringArgumentType>
       <AggregateArgumentType name="CCSDS_Packet_ID_Type">
         <MemberList>
           <Member name="Version" typeRef="CCSDS_Version_Type" />
