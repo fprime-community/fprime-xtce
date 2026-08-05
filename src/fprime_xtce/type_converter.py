@@ -284,7 +284,8 @@ def convert_array_definition(fprime_array_def, detected_string_types, deployment
 
     if element_type["kind"] == "string":
         element_type_name = f"{element_type_name}{element_type['size']}"
-        detected_string_types[element_type_name] = element_type
+        if detected_string_types is not None:
+            detected_string_types[element_type_name] = element_type
 
     xtce_type = {
         "ArrayParameterType": {
@@ -339,6 +340,20 @@ def convert_struct_definition(fprime_struct_def, detected_string_types, deployme
         if member_type["kind"] == "string":
             member_type_name = f"{member_type_name}{member_type['size']}"
             detected_string_types[member_type_name] = member_type
+
+        # Inline member arrays (e.g. `pixels: [3200] U8`) carry a "size" on the
+        # member itself. XTCE members reference types by name, so synthesize a
+        # named ArrayParameterType for the member and reference that instead of
+        # the (scalar) element type.
+        if "size" in member_desc:
+            array_type_name = f"{name}_{member_name}"
+            detected_string_types[array_type_name] = {
+                "kind": "array",
+                "qualifiedName": array_type_name,
+                "size": member_desc["size"],
+                "elementType": member_type,
+            }
+            member_type_name = convert_to_xtce_reference(array_type_name, deployment)
 
         member_entry = {
             "name": member_name,
