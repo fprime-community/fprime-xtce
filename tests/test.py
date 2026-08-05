@@ -18,6 +18,10 @@ import xml.etree.ElementTree as ET
 from pathlib import Path
 from typing import Tuple, List
 
+from fprime_xtce.type_converter import (
+    convert_struct_definition,
+    convert_type_definitions,
+)
 from fprime_xtce.utilities import extract_namespace_components
 from fprime_xtce.xtce import validate_xtce
 
@@ -360,6 +364,62 @@ class TestHierarchicalStructure(unittest.TestCase):
         finally:
             if output_path.exists():
                 output_path.unlink()
+
+
+class TestInlineMemberArrays(unittest.TestCase):
+    """Test struct members that are inline arrays (a "size" on the member)"""
+
+    STRUCT_DEF = {
+        "kind": "struct",
+        "qualifiedName": "Doom.FrameChunk",
+        "members": {
+            "frame": {
+                "type": {"name": "U32", "kind": "integer", "size": 32, "signed": False},
+                "index": 0,
+            },
+            "pixels": {
+                "type": {"name": "U8", "kind": "integer", "size": 8, "signed": False},
+                "index": 1,
+                "size": 3200,
+            },
+        },
+    }
+
+    def test_member_references_synthesized_array_type(self):
+        """An inline array member must reference a synthesized ArrayParameterType"""
+        detected = {}
+        result = convert_struct_definition(self.STRUCT_DEF, detected, "Deployment")
+
+        members = {
+            m["Member"]["name"]: m["Member"]
+            for m in result["AggregateParameterType"]["MemberList"]
+        }
+        self.assertTrue(members["pixels"]["typeRef"].endswith("Doom/FrameChunk_pixels"))
+        # Scalar members are unaffected
+        self.assertTrue(members["frame"]["typeRef"].endswith("U32"))
+
+        # The synthesized array definition is registered for later conversion
+        array_def = detected["Doom.FrameChunk_pixels"]
+        self.assertEqual(array_def["kind"], "array")
+        self.assertEqual(array_def["size"], 3200)
+        self.assertEqual(array_def["elementType"]["name"], "U8")
+
+    def test_synthesized_array_type_is_emitted(self):
+        """convert_type_definitions must emit the ArrayParameterType for the member"""
+        result = convert_type_definitions([self.STRUCT_DEF], {}, "Deployment")
+
+        array_types = [
+            t["ArrayParameterType"]
+            for t in result
+            if isinstance(t, dict) and "ArrayParameterType" in t
+        ]
+        self.assertEqual(len(array_types), 1)
+        array_type = array_types[0]
+        self.assertEqual(array_type["name"], "Doom.FrameChunk_pixels")
+        self.assertTrue(array_type["arrayTypeRef"].endswith("U8"))
+        dimension = array_type["DimensionList"]["Dimension"]
+        self.assertEqual(dimension["StartingIndex"]["FixedValue"], 0)
+        self.assertEqual(dimension["EndingIndex"]["FixedValue"], 3199)
 
 
 if __name__ == "__main__":

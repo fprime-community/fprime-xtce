@@ -29,15 +29,29 @@
       <IntegerParameterType name="I64" signed="true" sizeInBits="64">
         <IntegerDataEncoding encoding="twosComplement" sizeInBits="64" byteOrder="mostSignificantByteFirst" />
       </IntegerParameterType>
-      <BooleanParameterType name="bool" oneStringValue="True" zeroStringValue="False">
+      <EnumeratedParameterType name="bool">
         <IntegerDataEncoding sizeInBits="8" encoding="unsigned" byteOrder="mostSignificantByteFirst" />
-      </BooleanParameterType>
+        <EnumerationList>
+          <Enumeration value="0" label="False" />
+          <Enumeration value="255" label="True" />
+        </EnumerationList>
+      </EnumeratedParameterType>
       <FloatParameterType name="F32" sizeInBits="32">
         <FloatDataEncoding sizeInBits="32" encoding="IEEE754_1985" byteOrder="mostSignificantByteFirst" />
       </FloatParameterType>
       <FloatParameterType name="F64" sizeInBits="64">
         <FloatDataEncoding sizeInBits="64" encoding="IEEE754_1985" byteOrder="mostSignificantByteFirst" />
       </FloatParameterType>
+      <StringParameterType name="FPrimeFilePathType">
+        <StringDataEncoding encoding="UTF-8">
+          <Variable maxSizeInBits="2040">
+            <DynamicValue>
+              <ParameterInstanceRef parameterRef="_yamcs_ignore" />
+            </DynamicValue>
+            <LeadingSize sizeInBitsOfSizeTag="8" />
+          </Variable>
+        </StringDataEncoding>
+      </StringParameterType>
       <AggregateParameterType name="CCSDS_Packet_ID_Type">
         <MemberList>
           <Member name="Version" typeRef="CCSDS_Version_Type" />
@@ -90,12 +104,12 @@
       </IntegerParameterType>
       <StringParameterType name="string80">
         <StringDataEncoding encoding="UTF-8">
-          <Variable maxSizeInBits="656">
-            <DynamicValue>
-              <ParameterInstanceRef parameterRef="_yamcs_ignore" />
-            </DynamicValue>
+          <SizeInBits>
+            <Fixed>
+              <FixedValue>656</FixedValue>
+            </Fixed>
             <LeadingSize sizeInBitsOfSizeTag="16" />
-          </Variable>
+          </SizeInBits>
         </StringDataEncoding>
       </StringParameterType>
       <IntegerParameterType name="PlatformSizeType" shortDescription="The unsigned type of larger sizes internal to the software,&#10;e.g., memory buffer sizes, file sizes. Must be unsigned.&#10;Supplied by platform, overridable by project." baseType="U64" signed="false" sizeInBits="64" />
@@ -126,52 +140,52 @@
       <IntegerParameterType name="FwEventIdType" shortDescription="The type of an event identifier" baseType="FwIdType" signed="false" sizeInBits="32" />
       <StringParameterType name="string40">
         <StringDataEncoding encoding="UTF-8">
-          <Variable maxSizeInBits="336">
-            <DynamicValue>
-              <ParameterInstanceRef parameterRef="_yamcs_ignore" />
-            </DynamicValue>
+          <SizeInBits>
+            <Fixed>
+              <FixedValue>336</FixedValue>
+            </Fixed>
             <LeadingSize sizeInBitsOfSizeTag="16" />
-          </Variable>
+          </SizeInBits>
         </StringDataEncoding>
       </StringParameterType>
       <StringParameterType name="string100">
         <StringDataEncoding encoding="UTF-8">
-          <Variable maxSizeInBits="816">
-            <DynamicValue>
-              <ParameterInstanceRef parameterRef="_yamcs_ignore" />
-            </DynamicValue>
+          <SizeInBits>
+            <Fixed>
+              <FixedValue>816</FixedValue>
+            </Fixed>
             <LeadingSize sizeInBitsOfSizeTag="16" />
-          </Variable>
+          </SizeInBits>
         </StringDataEncoding>
       </StringParameterType>
       <StringParameterType name="string200">
         <StringDataEncoding encoding="UTF-8">
-          <Variable maxSizeInBits="1616">
-            <DynamicValue>
-              <ParameterInstanceRef parameterRef="_yamcs_ignore" />
-            </DynamicValue>
+          <SizeInBits>
+            <Fixed>
+              <FixedValue>1616</FixedValue>
+            </Fixed>
             <LeadingSize sizeInBitsOfSizeTag="16" />
-          </Variable>
+          </SizeInBits>
         </StringDataEncoding>
       </StringParameterType>
       <StringParameterType name="string256">
         <StringDataEncoding encoding="UTF-8">
-          <Variable maxSizeInBits="2064">
-            <DynamicValue>
-              <ParameterInstanceRef parameterRef="_yamcs_ignore" />
-            </DynamicValue>
+          <SizeInBits>
+            <Fixed>
+              <FixedValue>2064</FixedValue>
+            </Fixed>
             <LeadingSize sizeInBitsOfSizeTag="16" />
-          </Variable>
+          </SizeInBits>
         </StringDataEncoding>
       </StringParameterType>
       <StringParameterType name="string60">
         <StringDataEncoding encoding="UTF-8">
-          <Variable maxSizeInBits="496">
-            <DynamicValue>
-              <ParameterInstanceRef parameterRef="_yamcs_ignore" />
-            </DynamicValue>
+          <SizeInBits>
+            <Fixed>
+              <FixedValue>496</FixedValue>
+            </Fixed>
             <LeadingSize sizeInBitsOfSizeTag="16" />
-          </Variable>
+          </SizeInBits>
         </StringDataEncoding>
       </StringParameterType>
     </ParameterTypeSet>
@@ -184,6 +198,14 @@
       <Parameter name="CCSDS_Packet_ID" parameterTypeRef="CCSDS_Packet_ID_Type" />
       <Parameter name="CCSDS_Packet_Sequence" parameterTypeRef="CCSDS_Packet_Sequence_Type" />
       <Parameter name="CCSDS_Packet_Length" parameterTypeRef="CCSDS_Packet_Length_Type" />
+      <Parameter name="FPrimeFilePacketType" parameterTypeRef="U8" />
+      <Parameter name="FPrimeFilePacketSeqIndex" parameterTypeRef="U32" />
+      <Parameter name="FPrimeFilePacketFileSize" parameterTypeRef="U32" />
+      <Parameter name="FPrimeFilePacketByteOffset" parameterTypeRef="U32" />
+      <Parameter name="FPrimeFilePacketDataSize" parameterTypeRef="U16" />
+      <Parameter name="FPrimeFilePacketChecksum" parameterTypeRef="U32" />
+      <Parameter name="FPrimeFilePacketSourcePath" parameterTypeRef="FPrimeFilePathType" />
+      <Parameter name="FPrimeFilePacketDestinationPath" parameterTypeRef="FPrimeFilePathType" />
     </ParameterSet>
     <ContainerSet>
       <SequenceContainer name="CCSDSSpacePacket" abstract="true">
@@ -234,6 +256,70 @@
             <ComparisonList>
               <Comparison parameterRef="CCSDS_Packet_ID/Version" value="0" />
               <Comparison parameterRef="CCSDS_Packet_ID/APID" value="2" />
+            </ComparisonList>
+          </RestrictionCriteria>
+        </BaseContainer>
+      </SequenceContainer>
+      <SequenceContainer name="FPrimeFilePacket" abstract="true">
+        <EntryList>
+          <ParameterRefEntry parameterRef="DataDescType" />
+          <ParameterRefEntry parameterRef="FPrimeFilePacketType" />
+          <ParameterRefEntry parameterRef="FPrimeFilePacketSeqIndex" />
+        </EntryList>
+        <BaseContainer containerRef="CCSDSSpacePacket">
+          <RestrictionCriteria>
+            <ComparisonList>
+              <Comparison parameterRef="CCSDS_Packet_ID/Version" value="0" />
+              <Comparison parameterRef="CCSDS_Packet_ID/APID" value="3" />
+            </ComparisonList>
+          </RestrictionCriteria>
+        </BaseContainer>
+      </SequenceContainer>
+      <SequenceContainer name="FPrimeFilePacketStart">
+        <EntryList>
+          <ParameterRefEntry parameterRef="FPrimeFilePacketFileSize" />
+          <ParameterRefEntry parameterRef="FPrimeFilePacketSourcePath" />
+          <ParameterRefEntry parameterRef="FPrimeFilePacketDestinationPath" />
+        </EntryList>
+        <BaseContainer containerRef="FPrimeFilePacket">
+          <RestrictionCriteria>
+            <ComparisonList>
+              <Comparison parameterRef="FPrimeFilePacketType" value="0" />
+            </ComparisonList>
+          </RestrictionCriteria>
+        </BaseContainer>
+      </SequenceContainer>
+      <SequenceContainer name="FPrimeFilePacketData">
+        <EntryList>
+          <ParameterRefEntry parameterRef="FPrimeFilePacketByteOffset" />
+          <ParameterRefEntry parameterRef="FPrimeFilePacketDataSize" />
+        </EntryList>
+        <BaseContainer containerRef="FPrimeFilePacket">
+          <RestrictionCriteria>
+            <ComparisonList>
+              <Comparison parameterRef="FPrimeFilePacketType" value="1" />
+            </ComparisonList>
+          </RestrictionCriteria>
+        </BaseContainer>
+      </SequenceContainer>
+      <SequenceContainer name="FPrimeFilePacketEnd">
+        <EntryList>
+          <ParameterRefEntry parameterRef="FPrimeFilePacketChecksum" />
+        </EntryList>
+        <BaseContainer containerRef="FPrimeFilePacket">
+          <RestrictionCriteria>
+            <ComparisonList>
+              <Comparison parameterRef="FPrimeFilePacketType" value="2" />
+            </ComparisonList>
+          </RestrictionCriteria>
+        </BaseContainer>
+      </SequenceContainer>
+      <SequenceContainer name="FPrimeFilePacketCancel">
+        <EntryList />
+        <BaseContainer containerRef="FPrimeFilePacket">
+          <RestrictionCriteria>
+            <ComparisonList>
+              <Comparison parameterRef="FPrimeFilePacketType" value="3" />
             </ComparisonList>
           </RestrictionCriteria>
         </BaseContainer>
@@ -589,15 +675,29 @@
       <IntegerArgumentType name="I64" signed="true" sizeInBits="64">
         <IntegerDataEncoding encoding="twosComplement" sizeInBits="64" byteOrder="mostSignificantByteFirst" />
       </IntegerArgumentType>
-      <BooleanArgumentType name="bool" oneStringValue="True" zeroStringValue="False">
+      <EnumeratedArgumentType name="bool">
         <IntegerDataEncoding sizeInBits="8" encoding="unsigned" byteOrder="mostSignificantByteFirst" />
-      </BooleanArgumentType>
+        <EnumerationList>
+          <Enumeration value="0" label="False" />
+          <Enumeration value="255" label="True" />
+        </EnumerationList>
+      </EnumeratedArgumentType>
       <FloatArgumentType name="F32" sizeInBits="32">
         <FloatDataEncoding sizeInBits="32" encoding="IEEE754_1985" byteOrder="mostSignificantByteFirst" />
       </FloatArgumentType>
       <FloatArgumentType name="F64" sizeInBits="64">
         <FloatDataEncoding sizeInBits="64" encoding="IEEE754_1985" byteOrder="mostSignificantByteFirst" />
       </FloatArgumentType>
+      <StringArgumentType name="FPrimeFilePathType">
+        <StringDataEncoding encoding="UTF-8">
+          <Variable maxSizeInBits="2040">
+            <DynamicValue>
+              <ParameterInstanceRef parameterRef="_yamcs_ignore" />
+            </DynamicValue>
+            <LeadingSize sizeInBitsOfSizeTag="8" />
+          </Variable>
+        </StringDataEncoding>
+      </StringArgumentType>
       <AggregateArgumentType name="CCSDS_Packet_ID_Type">
         <MemberList>
           <Member name="Version" typeRef="CCSDS_Version_Type" />
@@ -650,7 +750,7 @@
       </IntegerArgumentType>
       <StringArgumentType name="string80">
         <StringDataEncoding encoding="UTF-8">
-          <Variable maxSizeInBits="656">
+          <Variable maxSizeInBits="640">
             <DynamicValue>
               <ParameterInstanceRef parameterRef="_yamcs_ignore" />
             </DynamicValue>
@@ -686,7 +786,7 @@
       <IntegerArgumentType name="FwEventIdType" shortDescription="The type of an event identifier" baseType="FwIdType" signed="false" sizeInBits="32" />
       <StringArgumentType name="string100">
         <StringDataEncoding encoding="UTF-8">
-          <Variable maxSizeInBits="816">
+          <Variable maxSizeInBits="800">
             <DynamicValue>
               <ParameterInstanceRef parameterRef="_yamcs_ignore" />
             </DynamicValue>
@@ -696,7 +796,7 @@
       </StringArgumentType>
       <StringArgumentType name="string200">
         <StringDataEncoding encoding="UTF-8">
-          <Variable maxSizeInBits="1616">
+          <Variable maxSizeInBits="1600">
             <DynamicValue>
               <ParameterInstanceRef parameterRef="_yamcs_ignore" />
             </DynamicValue>
@@ -706,7 +806,7 @@
       </StringArgumentType>
       <StringArgumentType name="string240">
         <StringDataEncoding encoding="UTF-8">
-          <Variable maxSizeInBits="1936">
+          <Variable maxSizeInBits="1920">
             <DynamicValue>
               <ParameterInstanceRef parameterRef="_yamcs_ignore" />
             </DynamicValue>
@@ -716,7 +816,7 @@
       </StringArgumentType>
       <StringArgumentType name="string256">
         <StringDataEncoding encoding="UTF-8">
-          <Variable maxSizeInBits="2064">
+          <Variable maxSizeInBits="2048">
             <DynamicValue>
               <ParameterInstanceRef parameterRef="_yamcs_ignore" />
             </DynamicValue>
@@ -726,7 +826,7 @@
       </StringArgumentType>
       <StringArgumentType name="string40">
         <StringDataEncoding encoding="UTF-8">
-          <Variable maxSizeInBits="336">
+          <Variable maxSizeInBits="320">
             <DynamicValue>
               <ParameterInstanceRef parameterRef="_yamcs_ignore" />
             </DynamicValue>
