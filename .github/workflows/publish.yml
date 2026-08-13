@@ -1,0 +1,35 @@
+name: Build and Publish Package
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  Release-PyPI-Package:
+    runs-on: ubuntu-latest
+    permissions:
+      # this permission is mandatory for trusted publishing
+      id-token: write
+    steps:
+      - name: "Checkout Repository"
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Upgrade Python Build Tools
+        run: pip install -U build twine
+      - name: Build distributions
+        run: python -m build
+      - name: Check distributions
+        run: twine check dist/*
+      - name: Publish distributions to TestPyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          repository-url: https://test.pypi.org/legacy/
+      - name: Clean-Up Attestations
+        run: rm dist/*.attestation
+      - name: Publish distributions to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
