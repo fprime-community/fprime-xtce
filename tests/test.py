@@ -19,6 +19,7 @@ from pathlib import Path
 from typing import Tuple, List
 
 from fprime_xtce.type_converter import (
+    convert_array_definition,
     convert_struct_definition,
     convert_type_definitions,
 )
@@ -420,6 +421,106 @@ class TestInlineMemberArrays(unittest.TestCase):
         dimension = array_type["DimensionList"]["Dimension"]
         self.assertEqual(dimension["StartingIndex"]["FixedValue"], 0)
         self.assertEqual(dimension["EndingIndex"]["FixedValue"], 3199)
+
+
+class TestBinaryAnnotation(unittest.TestCase):
+    """Test the "!binary" annotation marker, which requests an opaque BinaryParameterType
+    instead of decoding an 8-bit array element-by-element."""
+
+    def test_top_level_array_with_marker_becomes_binary(self):
+        array_def = {
+            "kind": "array",
+            "qualifiedName": "Doom.CostMap",
+            "size": 512,
+            "elementType": {"name": "U8", "kind": "integer", "size": 8, "signed": False},
+            "annotation": "!binary",
+        }
+        result = convert_array_definition(array_def, {}, "Deployment")
+        self.assertIn("BinaryParameterType", result)
+        binary_type = result["BinaryParameterType"]
+        self.assertEqual(binary_type["name"], "Doom.CostMap")
+        self.assertEqual(binary_type["BinaryDataEncoding"]["SizeInBits"]["FixedValue"], 4096)
+        self.assertNotIn("shortDescription", binary_type)
+
+    def test_marker_with_additional_description_is_preserved(self):
+        array_def = {
+            "kind": "array",
+            "qualifiedName": "Doom.CostMap",
+            "size": 10,
+            "elementType": {"name": "U8", "kind": "integer", "size": 8, "signed": False},
+            "annotation": "!binary\nRaw cost-map payload",
+        }
+        result = convert_array_definition(array_def, {}, "Deployment")
+        self.assertEqual(
+            result["BinaryParameterType"]["shortDescription"], "Raw cost-map payload"
+        )
+
+    def test_marker_after_description_is_still_detected(self):
+        """A leading "@" doc comment and a trailing "@<" comment on the same declaration join
+        with the doc comment first, so `data: [256] U8 @< !binary` combined with a description
+        above it puts the marker last, not first."""
+        array_def = {
+            "kind": "array",
+            "qualifiedName": "Doom.CostMap",
+            "size": 10,
+            "elementType": {"name": "U8", "kind": "integer", "size": 8, "signed": False},
+            "annotation": "Raw cost-map payload\n!binary",
+        }
+        result = convert_array_definition(array_def, {}, "Deployment")
+        self.assertIn("BinaryParameterType", result)
+        self.assertEqual(
+            result["BinaryParameterType"]["shortDescription"], "Raw cost-map payload"
+        )
+
+    def test_array_without_marker_is_unaffected(self):
+        array_def = {
+            "kind": "array",
+            "qualifiedName": "Doom.CostMap",
+            "size": 10,
+            "elementType": {"name": "U8", "kind": "integer", "size": 8, "signed": False},
+        }
+        result = convert_array_definition(array_def, {}, "Deployment")
+        self.assertIn("ArrayParameterType", result)
+
+    def test_marker_on_non_8_bit_element_raises(self):
+        array_def = {
+            "kind": "array",
+            "qualifiedName": "Doom.CostMap",
+            "size": 10,
+            "elementType": {"name": "U32", "kind": "integer", "size": 32, "signed": False},
+            "annotation": "!binary",
+        }
+        with self.assertRaises(ValueError):
+            convert_array_definition(array_def, {}, "Deployment")
+
+    def test_inline_struct_member_with_marker_becomes_binary(self):
+        """The "!binary" marker also works on an inline array member (a "size" on the member),
+        e.g. `data: [256] U8 @< !binary`, since it's synthesized into the same array machinery."""
+        struct_def = {
+            "kind": "struct",
+            "qualifiedName": "Doom.FrameChunk",
+            "members": {
+                "data": {
+                    "type": {"name": "U8", "kind": "integer", "size": 8, "signed": False},
+                    "index": 0,
+                    "size": 256,
+                    "annotation": "!binary",
+                },
+            },
+        }
+        detected = {}
+        result = convert_struct_definition(struct_def, detected, "Deployment")
+        member = result["AggregateParameterType"]["MemberList"][0]["Member"]
+        self.assertTrue(member["typeRef"].endswith("Doom/FrameChunk_data"))
+        self.assertNotIn("shortDescription", member)
+
+        synthesized = detected["Doom.FrameChunk_data"]
+        converted = convert_array_definition(synthesized, {}, "Deployment")
+        self.assertIn("BinaryParameterType", converted)
+        self.assertEqual(
+            converted["BinaryParameterType"]["BinaryDataEncoding"]["SizeInBits"]["FixedValue"],
+            2048,
+        )
 
 
 if __name__ == "__main__":

@@ -10,6 +10,37 @@ import itertools
 from typing import List, Dict, Union, Tuple, Any, Optional
 DELIMITER = "|"
 
+# A line of an annotation, on its own, that requests an opaque XTCE BinaryParameterType instead
+# of decoding an 8-bit array element-by-element as an ArrayParameterType.
+BINARY_ANNOTATION_MARKER = "!binary"
+
+
+def extract_binary_marker(annotation: Optional[str]) -> Tuple[bool, Optional[str]]:
+    """Check whether any line of an annotation is exactly the BINARY_ANNOTATION_MARKER.
+
+    Looks at every line rather than just the first: F Prime joins a declaration's own leading
+    "@" doc comment and a member's trailing "@<" comment into one annotation with the leading
+    comment *first*, so a marker meant to apply to the whole declaration (e.g. `data: [256] U8
+    @< !binary`) can end up on the last line, not the first, once a human-readable description
+    is also present.
+
+    Args:
+        annotation: The raw F Prime "annotation" string (doc comment text), or None.
+
+    Returns:
+        Tuple of (is_binary, remaining_description), where `remaining_description` has the
+        marker line removed (None if nothing is left, or if there was no annotation at all).
+    """
+    if not annotation:
+        return False, annotation
+    lines = annotation.split("\n")
+    marker_lines = [i for i, line in enumerate(lines) if line.strip() == BINARY_ANNOTATION_MARKER]
+    if not marker_lines:
+        return False, annotation
+    del lines[marker_lines[0]]
+    remaining = "\n".join(lines)
+    return True, (remaining if remaining else None)
+
 def convert_identifier(identifier: str) -> str:
     """Convert F Prime qualified FPP names to XTCE-compatible names.
 

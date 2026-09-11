@@ -8,7 +8,7 @@ This software is Licensed under the Apache 2.0 License. See LICENSE for details.
 """
 
 from collections.abc import Iterable, Mapping
-from .utilities import convert_to_xtce_reference
+from .utilities import convert_to_xtce_reference, extract_binary_marker
 
 
 def convert_type_definitions(fprime_type_def_or_defs, detected_string_types, deployment, is_command=False):
@@ -259,6 +259,12 @@ def convert_enum_definition(fprime_enum_def, deployment):
     return xtce_type
 
 
+def _is_8_bit_integer(type_desc):
+    """True if a type descriptor is an 8-bit integer (U8/I8), the only element type a "!binary"
+    array/member may use."""
+    return type_desc.get("kind") == "integer" and type_desc.get("size") == 8
+
+
 def convert_array_definition(fprime_array_def, detected_string_types, deployment):
     """
     Convert F Prime array type definition to XTCE ArrayParameterType.
@@ -270,15 +276,35 @@ def convert_array_definition(fprime_array_def, detected_string_types, deployment
             - size: Number of elements
             - elementType: Type descriptor of array elements
             - default: Default array value (optional)
-            - annotation: Description (optional)
+            - annotation: Description (optional); a "!binary" first line emits a
+              BinaryParameterType instead (requires an 8-bit elementType)
         detected_string_types: set to add strings to
 
     Returns:
-        dict: XTCE ArrayParameterType structure
+        dict: XTCE ArrayParameterType or BinaryParameterType structure
     """
     name = fprime_array_def["qualifiedName"]
     array_size = fprime_array_def["size"]
     element_type = fprime_array_def["elementType"]
+
+    is_binary, remaining_description = extract_binary_marker(fprime_array_def.get("annotation"))
+    if is_binary:
+        if not _is_8_bit_integer(element_type):
+            raise ValueError(
+                f"'!binary' annotation on array/member '{name}' requires an 8-bit element type "
+                f"(U8 or I8); got element type {element_type}"
+            )
+        xtce_type = {
+            "BinaryParameterType": {
+                "name": name,
+                "BinaryDataEncoding": {
+                    "SizeInBits": {"FixedValue": array_size * element_type["size"]}
+                },
+            }
+        }
+        if remaining_description:
+            xtce_type["BinaryParameterType"]["shortDescription"] = remaining_description
+        return xtce_type
 
     element_type_name = convert_to_xtce_reference(element_type["name"], deployment)
 
@@ -345,23 +371,32 @@ def convert_struct_definition(fprime_struct_def, detected_string_types, deployme
         # member itself. XTCE members reference types by name, so synthesize a
         # named ArrayParameterType for the member and reference that instead of
         # the (scalar) element type.
+        member_annotation = member_desc.get("annotation")
         if "size" in member_desc:
             array_type_name = f"{name}_{member_name}"
-            detected_string_types[array_type_name] = {
+            synthesized_array_def = {
                 "kind": "array",
                 "qualifiedName": array_type_name,
                 "size": member_desc["size"],
                 "elementType": member_type,
             }
+            # Carries the member's own annotation, so a "!binary" marker reaches
+            # convert_array_definition the same way it would on a top-level array.
+            if member_annotation is not None:
+                synthesized_array_def["annotation"] = member_annotation
+            detected_string_types[array_type_name] = synthesized_array_def
             member_type_name = convert_to_xtce_reference(array_type_name, deployment)
+            # The synthesized type above owns the description now; strip the marker line so
+            # it isn't duplicated verbatim onto the Member itself.
+            _, member_annotation = extract_binary_marker(member_annotation)
 
         member_entry = {
             "name": member_name,
             "typeRef": member_type_name
         }
 
-        if "annotation" in member_desc:
-            member_entry["shortDescription"] = member_desc["annotation"]
+        if member_annotation:
+            member_entry["shortDescription"] = member_annotation
 
         # TODO: Add support for initialValue when XTCE processors support it
         # if "default" in fprime_struct_def and member_type["kind"] == "enum":
