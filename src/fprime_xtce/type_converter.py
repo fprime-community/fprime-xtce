@@ -8,7 +8,11 @@ This software is Licensed under the Apache 2.0 License. See LICENSE for details.
 """
 
 from collections.abc import Iterable, Mapping
-from .utilities import convert_to_xtce_reference, extract_binary_marker
+from .utilities import (
+    BINARY_ELEMENT_TYPE_ALIAS_NAMESPACE,
+    convert_to_xtce_reference,
+    extract_binary_marker,
+)
 
 
 def convert_type_definitions(fprime_type_def_or_defs, detected_string_types, deployment, is_command=False):
@@ -259,10 +263,10 @@ def convert_enum_definition(fprime_enum_def, deployment):
     return xtce_type
 
 
-def _is_8_bit_integer(type_desc):
-    """True if a type descriptor is an 8-bit integer (U8/I8), the only element type a "!binary"
-    array/member may use."""
-    return type_desc.get("kind") == "integer" and type_desc.get("size") == 8
+def _is_numeric_type(type_desc):
+    """True if a type descriptor is a plain numeric primitive (any integer or float size),
+    the only element types a "!binary" array/member may use."""
+    return type_desc.get("kind") in ("integer", "float")
 
 
 def convert_array_definition(fprime_array_def, detected_string_types, deployment):
@@ -277,7 +281,8 @@ def convert_array_definition(fprime_array_def, detected_string_types, deployment
             - elementType: Type descriptor of array elements
             - default: Default array value (optional)
             - annotation: Description (optional); a "!binary" first line emits a
-              BinaryParameterType instead (requires an 8-bit elementType)
+              BinaryParameterType instead (requires a numeric elementType), tagged with an
+              Alias (nameSpace BINARY_ELEMENT_TYPE_ALIAS_NAMESPACE) naming that element type
         detected_string_types: set to add strings to
 
     Returns:
@@ -289,14 +294,22 @@ def convert_array_definition(fprime_array_def, detected_string_types, deployment
 
     is_binary, remaining_description = extract_binary_marker(fprime_array_def.get("annotation"))
     if is_binary:
-        if not _is_8_bit_integer(element_type):
+        if not _is_numeric_type(element_type):
             raise ValueError(
-                f"'!binary' annotation on array/member '{name}' requires an 8-bit element type "
-                f"(U8 or I8); got element type {element_type}"
+                f"'!binary' annotation on array/member '{name}' requires a numeric element type "
+                f"(integer or float); got element type {element_type}"
             )
         xtce_type = {
             "BinaryParameterType": {
                 "name": name,
+                "AliasSet": [
+                    {
+                        "Alias": {
+                            "nameSpace": BINARY_ELEMENT_TYPE_ALIAS_NAMESPACE,
+                            "alias": element_type["name"],
+                        }
+                    }
+                ],
                 "BinaryDataEncoding": {
                     "SizeInBits": {"FixedValue": array_size * element_type["size"]}
                 },

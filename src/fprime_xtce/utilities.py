@@ -11,8 +11,13 @@ from typing import List, Dict, Union, Tuple, Any, Optional
 DELIMITER = "|"
 
 # A line of an annotation, on its own, that requests an opaque XTCE BinaryParameterType instead
-# of decoding an 8-bit array element-by-element as an ArrayParameterType.
+# of decoding a numeric array element-by-element as an ArrayParameterType.
 BINARY_ANNOTATION_MARKER = "!binary"
+
+# AliasSet nameSpace used to tag a "!binary" BinaryParameterType with the F Prime numeric type
+# (e.g. "F32") its bytes actually represent, so a consumer can reconstruct a typed array
+# instead of treating the value as opaque.
+BINARY_ELEMENT_TYPE_ALIAS_NAMESPACE = "fprime:elementType"
 
 
 def extract_binary_marker(annotation: Optional[str]) -> Tuple[bool, Optional[str]]:

@@ -425,9 +425,13 @@ class TestInlineMemberArrays(unittest.TestCase):
 
 class TestBinaryAnnotation(unittest.TestCase):
     """Test the "!binary" annotation marker, which requests an opaque BinaryParameterType
-    instead of decoding an 8-bit array element-by-element."""
+    instead of decoding a numeric array element-by-element, tagged with an Alias naming the
+    real element type so a consumer can reconstruct a typed array."""
 
-    def test_top_level_array_with_marker_becomes_binary(self):
+    def _alias(self, binary_type):
+        return binary_type["AliasSet"][0]["Alias"]
+
+    def test_u8_array_with_marker_becomes_binary(self):
         array_def = {
             "kind": "array",
             "qualifiedName": "Doom.CostMap",
@@ -440,7 +444,21 @@ class TestBinaryAnnotation(unittest.TestCase):
         binary_type = result["BinaryParameterType"]
         self.assertEqual(binary_type["name"], "Doom.CostMap")
         self.assertEqual(binary_type["BinaryDataEncoding"]["SizeInBits"]["FixedValue"], 4096)
+        self.assertEqual(self._alias(binary_type), {"nameSpace": "fprime:elementType", "alias": "U8"})
         self.assertNotIn("shortDescription", binary_type)
+
+    def test_float_array_with_marker_becomes_binary_tagged_f32(self):
+        array_def = {
+            "kind": "array",
+            "qualifiedName": "Doom.CostMap",
+            "size": 64,
+            "elementType": {"name": "F32", "kind": "float", "size": 32},
+            "annotation": "!binary",
+        }
+        result = convert_array_definition(array_def, {}, "Deployment")
+        binary_type = result["BinaryParameterType"]
+        self.assertEqual(binary_type["BinaryDataEncoding"]["SizeInBits"]["FixedValue"], 2048)
+        self.assertEqual(self._alias(binary_type), {"nameSpace": "fprime:elementType", "alias": "F32"})
 
     def test_marker_with_additional_description_is_preserved(self):
         array_def = {
@@ -482,12 +500,12 @@ class TestBinaryAnnotation(unittest.TestCase):
         result = convert_array_definition(array_def, {}, "Deployment")
         self.assertIn("ArrayParameterType", result)
 
-    def test_marker_on_non_8_bit_element_raises(self):
+    def test_marker_on_non_numeric_element_raises(self):
         array_def = {
             "kind": "array",
             "qualifiedName": "Doom.CostMap",
             "size": 10,
-            "elementType": {"name": "U32", "kind": "integer", "size": 32, "signed": False},
+            "elementType": {"name": "Doom.Level", "kind": "qualifiedIdentifier"},
             "annotation": "!binary",
         }
         with self.assertRaises(ValueError):
@@ -521,6 +539,7 @@ class TestBinaryAnnotation(unittest.TestCase):
             converted["BinaryParameterType"]["BinaryDataEncoding"]["SizeInBits"]["FixedValue"],
             2048,
         )
+        self.assertEqual(self._alias(converted["BinaryParameterType"]), {"nameSpace": "fprime:elementType", "alias": "U8"})
 
 
 if __name__ == "__main__":
