@@ -513,7 +513,12 @@ class TestBinaryAnnotation(unittest.TestCase):
 
     def test_inline_struct_member_with_marker_becomes_binary(self):
         """The "!binary" marker also works on an inline array member (a "size" on the member),
-        e.g. `data: [256] U8 @< !binary`, since it's synthesized into the same array machinery."""
+        e.g. `data: [256] U8 @< !binary`, since it's synthesized into the same array machinery.
+
+        Also covers the trickiest part of that synthesis: a member with a marker *and*
+        additional description text must reach the synthesized type with the marker intact
+        (so it's still detected as binary there), while the Member itself ends up with the
+        stripped remainder, not the raw marker line and not the untouched original text."""
         struct_def = {
             "kind": "struct",
             "qualifiedName": "Doom.FrameChunk",
@@ -522,7 +527,7 @@ class TestBinaryAnnotation(unittest.TestCase):
                     "type": {"name": "U8", "kind": "integer", "size": 8, "signed": False},
                     "index": 0,
                     "size": 256,
-                    "annotation": "!binary",
+                    "annotation": "!binary\nRaw frame payload",
                 },
             },
         }
@@ -530,7 +535,7 @@ class TestBinaryAnnotation(unittest.TestCase):
         result = convert_struct_definition(struct_def, detected, "Deployment")
         member = result["AggregateParameterType"]["MemberList"][0]["Member"]
         self.assertTrue(member["typeRef"].endswith("Doom/FrameChunk_data"))
-        self.assertNotIn("shortDescription", member)
+        self.assertEqual(member["shortDescription"], "Raw frame payload")
 
         synthesized = detected["Doom.FrameChunk_data"]
         converted = convert_array_definition(synthesized, {}, "Deployment")
@@ -540,6 +545,7 @@ class TestBinaryAnnotation(unittest.TestCase):
             2048,
         )
         self.assertEqual(self._alias(converted["BinaryParameterType"]), {"nameSpace": "fprime:elementType", "alias": "U8"})
+        self.assertEqual(converted["BinaryParameterType"]["shortDescription"], "Raw frame payload")
 
     def test_whole_struct_with_marker_becomes_binary(self):
         """A "!binary" marker on the struct's own annotation flattens every member into one
