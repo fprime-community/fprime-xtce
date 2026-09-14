@@ -351,6 +351,29 @@ def convert_array_definition(fprime_array_def, detected_string_types, deployment
     return xtce_type
 
 
+def _member_size_in_bits(member_name, member_desc):
+    """Bit width of one flattened struct member, for a whole-struct "!binary" blob.
+
+    Raises:
+        ValueError: naming the member, if its width isn't statically known (e.g. a
+            variable-length string, or a nested type with no fixed size of its own).
+    """
+    member_type = member_desc["type"]
+    if member_type["kind"] == "string":
+        raise ValueError(
+            f"member '{member_name}' is a variable-length string, which has no fixed size; "
+            f"a whole-struct '!binary' annotation requires every member to have one"
+        )
+    element_bits = member_type.get("size")
+    if element_bits is None:
+        raise ValueError(
+            f"member '{member_name}' (type '{member_type.get('name')}') has no fixed bit "
+            f"width; a whole-struct '!binary' annotation requires every member to have one"
+        )
+    element_count = member_desc.get("size", 1)  # inline array member's element count
+    return element_bits * element_count
+
+
 def convert_struct_definition(fprime_struct_def, detected_string_types, deployment):
     """
     Convert F Prime struct type definition to XTCE AggregateParameterType.
@@ -362,14 +385,35 @@ def convert_struct_definition(fprime_struct_def, detected_string_types, deployme
             - members: Dict of member names to member descriptors
                 - Each member has: type, index, size?, format?, annotation?
             - default: Default struct value (optional)
-            - annotation: Description (optional)
+            - annotation: Description (optional); a "!binary" first line flattens the whole
+              struct into one opaque BinaryParameterType instead of an AggregateParameterType
+              (every member must have a statically-known fixed bit width - see
+              _member_size_in_bits). Unlike the array/member case, no AliasSet is emitted: a
+              struct's members generally aren't all the same type, so there's no single
+              "element type" to name.
         detected_string_types: set to add strings to
 
     Returns:
-        dict: XTCE AggregateParameterType structure
+        dict: XTCE AggregateParameterType or BinaryParameterType structure
     """
     name = fprime_struct_def["qualifiedName"]
     members = fprime_struct_def["members"]
+
+    is_binary, remaining_description = extract_binary_marker(fprime_struct_def.get("annotation"))
+    if is_binary:
+        total_bits = sum(
+            _member_size_in_bits(member_name, member_desc)
+            for member_name, member_desc in members.items()
+        )
+        xtce_type = {
+            "BinaryParameterType": {
+                "name": name,
+                "BinaryDataEncoding": {"SizeInBits": {"FixedValue": total_bits}},
+            }
+        }
+        if remaining_description:
+            xtce_type["BinaryParameterType"]["shortDescription"] = remaining_description
+        return xtce_type
 
     # Build member list - sort by index to maintain order
     member_list = []

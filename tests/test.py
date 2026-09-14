@@ -541,6 +541,56 @@ class TestBinaryAnnotation(unittest.TestCase):
         )
         self.assertEqual(self._alias(converted["BinaryParameterType"]), {"nameSpace": "fprime:elementType", "alias": "U8"})
 
+    def test_whole_struct_with_marker_becomes_binary(self):
+        """A "!binary" marker on the struct's own annotation flattens every member into one
+        opaque blob, sized from each member's fixed bit width - no AliasSet, since a struct's
+        members generally aren't all the same type."""
+        struct_def = {
+            "kind": "struct",
+            "qualifiedName": "Doom.Header",
+            "annotation": "!binary\nPacked telemetry header",
+            "members": {
+                "id": {"type": {"name": "U32", "kind": "integer", "size": 32, "signed": False}, "index": 0},
+                "flags": {"type": {"name": "U8", "kind": "integer", "size": 8, "signed": False}, "index": 1},
+                "samples": {
+                    "type": {"name": "F32", "kind": "float", "size": 32},
+                    "index": 2,
+                    "size": 4,
+                },
+            },
+        }
+        result = convert_struct_definition(struct_def, {}, "Deployment")
+        self.assertIn("BinaryParameterType", result)
+        binary_type = result["BinaryParameterType"]
+        self.assertEqual(binary_type["name"], "Doom.Header")
+        # 32 + 8 + (4 * 32) = 168 bits
+        self.assertEqual(binary_type["BinaryDataEncoding"]["SizeInBits"]["FixedValue"], 168)
+        self.assertNotIn("AliasSet", binary_type)
+        self.assertEqual(binary_type["shortDescription"], "Packed telemetry header")
+
+    def test_whole_struct_marker_with_string_member_raises(self):
+        struct_def = {
+            "kind": "struct",
+            "qualifiedName": "Doom.Header",
+            "annotation": "!binary",
+            "members": {
+                "label": {"type": {"name": "string", "kind": "string", "size": 32}, "index": 0},
+            },
+        }
+        with self.assertRaises(ValueError):
+            convert_struct_definition(struct_def, {}, "Deployment")
+
+    def test_struct_without_marker_is_unaffected(self):
+        struct_def = {
+            "kind": "struct",
+            "qualifiedName": "Doom.Header",
+            "members": {
+                "id": {"type": {"name": "U32", "kind": "integer", "size": 32, "signed": False}, "index": 0},
+            },
+        }
+        result = convert_struct_definition(struct_def, {}, "Deployment")
+        self.assertIn("AggregateParameterType", result)
+
 
 if __name__ == "__main__":
     unittest.main()
