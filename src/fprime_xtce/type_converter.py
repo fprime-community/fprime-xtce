@@ -297,7 +297,8 @@ def convert_array_definition(fprime_array_def, detected_string_types, deployment
         if not _is_numeric_type(element_type):
             raise ValueError(
                 f"'!binary' annotation on array/member '{name}' requires a numeric element type "
-                f"(integer or float); got element type {element_type}"
+                f"(integer or float); got element type '{element_type.get('name')}' "
+                f"(kind={element_type.get('kind')})"
             )
         xtce_type = {
             "BinaryParameterType": {

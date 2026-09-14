@@ -46,6 +46,7 @@ def extract_binary_marker(annotation: Optional[str]) -> Tuple[bool, Optional[str
     remaining = "\n".join(lines)
     return True, (remaining if remaining else None)
 
+
 def convert_identifier(identifier: str) -> str:
     """Convert F Prime qualified FPP names to XTCE-compatible names.
 
