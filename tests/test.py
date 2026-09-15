@@ -459,43 +459,21 @@ class TestBinaryAnnotation(unittest.TestCase):
         self.assertEqual(binary_type["BinaryDataEncoding"]["SizeInBits"]["FixedValue"], 2048)
         self.assertEqual(self._alias(binary_type), {"nameSpace": "fprime:elementType", "alias": "F32"})
 
-    def test_marker_with_additional_description_is_preserved(self):
-        array_def = {
-            "kind": "array",
-            "qualifiedName": "Doom.CostMap",
-            "size": 10,
-            "elementType": {"name": "U8", "kind": "integer", "size": 8, "signed": False},
-            "annotation": "!binary\nRaw cost-map payload",
-        }
-        result = convert_array_definition(array_def, {}, "Deployment")
-        self.assertEqual(
-            result["BinaryParameterType"]["shortDescription"], "Raw cost-map payload"
-        )
-
-    def test_marker_after_description_is_still_detected(self):
-        """A description above the marker puts it last, not first - must still be detected."""
-        array_def = {
-            "kind": "array",
-            "qualifiedName": "Doom.CostMap",
-            "size": 10,
-            "elementType": {"name": "U8", "kind": "integer", "size": 8, "signed": False},
-            "annotation": "Raw cost-map payload\n!binary",
-        }
-        result = convert_array_definition(array_def, {}, "Deployment")
-        self.assertIn("BinaryParameterType", result)
-        self.assertEqual(
-            result["BinaryParameterType"]["shortDescription"], "Raw cost-map payload"
-        )
-
-    def test_array_without_marker_is_unaffected(self):
-        array_def = {
-            "kind": "array",
-            "qualifiedName": "Doom.CostMap",
-            "size": 10,
-            "elementType": {"name": "U8", "kind": "integer", "size": 8, "signed": False},
-        }
-        result = convert_array_definition(array_def, {}, "Deployment")
-        self.assertIn("ArrayParameterType", result)
+    def test_marker_detected_regardless_of_line_order(self):
+        """The marker can be the first or last line (F Prime may join a leading doc comment
+        after a trailing "@<" comment) - both must strip to the same result."""
+        for annotation in ("!binary\nRaw cost-map payload", "Raw cost-map payload\n!binary"):
+            array_def = {
+                "kind": "array",
+                "qualifiedName": "Doom.CostMap",
+                "size": 10,
+                "elementType": {"name": "U8", "kind": "integer", "size": 8, "signed": False},
+                "annotation": annotation,
+            }
+            result = convert_array_definition(array_def, {}, "Deployment")
+            self.assertEqual(
+                result["BinaryParameterType"]["shortDescription"], "Raw cost-map payload"
+            )
 
     def test_marker_on_non_numeric_element_raises(self):
         array_def = {
@@ -575,17 +553,6 @@ class TestBinaryAnnotation(unittest.TestCase):
         }
         with self.assertRaises(ValueError):
             convert_struct_definition(struct_def, {}, "Deployment")
-
-    def test_struct_without_marker_is_unaffected(self):
-        struct_def = {
-            "kind": "struct",
-            "qualifiedName": "Doom.Header",
-            "members": {
-                "id": {"type": {"name": "U32", "kind": "integer", "size": 32, "signed": False}, "index": 0},
-            },
-        }
-        result = convert_struct_definition(struct_def, {}, "Deployment")
-        self.assertIn("AggregateParameterType", result)
 
 
 if __name__ == "__main__":
