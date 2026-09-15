@@ -19,6 +19,7 @@ from pathlib import Path
 from typing import Tuple, List
 
 from fprime_xtce.type_converter import (
+    convert_array_definition,
     convert_struct_definition,
     convert_type_definitions,
 )
@@ -420,6 +421,138 @@ class TestInlineMemberArrays(unittest.TestCase):
         dimension = array_type["DimensionList"]["Dimension"]
         self.assertEqual(dimension["StartingIndex"]["FixedValue"], 0)
         self.assertEqual(dimension["EndingIndex"]["FixedValue"], 3199)
+
+
+class TestBinaryAnnotation(unittest.TestCase):
+    """Test the "!binary" annotation marker: opaque BinaryParameterType instead of per-element
+    decoding, tagged with an Alias naming the real element type."""
+
+    def _alias(self, binary_type):
+        return binary_type["AliasSet"][0]["Alias"]
+
+    def test_u8_array_with_marker_becomes_binary(self):
+        array_def = {
+            "kind": "array",
+            "qualifiedName": "Doom.CostMap",
+            "size": 512,
+            "elementType": {"name": "U8", "kind": "integer", "size": 8, "signed": False},
+            "annotation": "!binary",
+        }
+        result = convert_array_definition(array_def, {}, "Deployment")
+        self.assertIn("BinaryParameterType", result)
+        binary_type = result["BinaryParameterType"]
+        self.assertEqual(binary_type["name"], "Doom.CostMap")
+        self.assertEqual(binary_type["BinaryDataEncoding"]["SizeInBits"]["FixedValue"], 4096)
+        self.assertEqual(self._alias(binary_type), {"nameSpace": "fprime:elementType", "alias": "U8"})
+        self.assertNotIn("shortDescription", binary_type)
+
+    def test_float_array_with_marker_becomes_binary_tagged_f32(self):
+        array_def = {
+            "kind": "array",
+            "qualifiedName": "Doom.CostMap",
+            "size": 64,
+            "elementType": {"name": "F32", "kind": "float", "size": 32},
+            "annotation": "!binary",
+        }
+        result = convert_array_definition(array_def, {}, "Deployment")
+        binary_type = result["BinaryParameterType"]
+        self.assertEqual(binary_type["BinaryDataEncoding"]["SizeInBits"]["FixedValue"], 2048)
+        self.assertEqual(self._alias(binary_type), {"nameSpace": "fprime:elementType", "alias": "F32"})
+
+    def test_marker_detected_regardless_of_line_order(self):
+        """The marker can be the first or last line (F Prime may join a leading doc comment
+        after a trailing "@<" comment) - both must strip to the same result."""
+        for annotation in ("!binary\nRaw cost-map payload", "Raw cost-map payload\n!binary"):
+            array_def = {
+                "kind": "array",
+                "qualifiedName": "Doom.CostMap",
+                "size": 10,
+                "elementType": {"name": "U8", "kind": "integer", "size": 8, "signed": False},
+                "annotation": annotation,
+            }
+            result = convert_array_definition(array_def, {}, "Deployment")
+            self.assertEqual(
+                result["BinaryParameterType"]["shortDescription"], "Raw cost-map payload"
+            )
+
+    def test_marker_on_non_numeric_element_raises(self):
+        array_def = {
+            "kind": "array",
+            "qualifiedName": "Doom.CostMap",
+            "size": 10,
+            "elementType": {"name": "Doom.Level", "kind": "qualifiedIdentifier"},
+            "annotation": "!binary",
+        }
+        with self.assertRaises(ValueError):
+            convert_array_definition(array_def, {}, "Deployment")
+
+    def test_inline_struct_member_with_marker_becomes_binary(self):
+        """"!binary" works on an inline array member too; the Member gets the stripped
+        description while the synthesized type still sees the marker intact."""
+        struct_def = {
+            "kind": "struct",
+            "qualifiedName": "Doom.FrameChunk",
+            "members": {
+                "data": {
+                    "type": {"name": "U8", "kind": "integer", "size": 8, "signed": False},
+                    "index": 0,
+                    "size": 256,
+                    "annotation": "!binary\nRaw frame payload",
+                },
+            },
+        }
+        detected = {}
+        result = convert_struct_definition(struct_def, detected, "Deployment")
+        member = result["AggregateParameterType"]["MemberList"][0]["Member"]
+        self.assertTrue(member["typeRef"].endswith("Doom/FrameChunk_data"))
+        self.assertEqual(member["shortDescription"], "Raw frame payload")
+
+        synthesized = detected["Doom.FrameChunk_data"]
+        converted = convert_array_definition(synthesized, {}, "Deployment")
+        self.assertIn("BinaryParameterType", converted)
+        self.assertEqual(
+            converted["BinaryParameterType"]["BinaryDataEncoding"]["SizeInBits"]["FixedValue"],
+            2048,
+        )
+        self.assertEqual(self._alias(converted["BinaryParameterType"]), {"nameSpace": "fprime:elementType", "alias": "U8"})
+        self.assertEqual(converted["BinaryParameterType"]["shortDescription"], "Raw frame payload")
+
+    def test_whole_struct_with_marker_becomes_binary(self):
+        """"!binary" on a struct flattens every member into one opaque blob, no AliasSet."""
+        struct_def = {
+            "kind": "struct",
+            "qualifiedName": "Doom.Header",
+            "annotation": "!binary\nPacked telemetry header",
+            "members": {
+                "id": {"type": {"name": "U32", "kind": "integer", "size": 32, "signed": False}, "index": 0},
+                "flags": {"type": {"name": "U8", "kind": "integer", "size": 8, "signed": False}, "index": 1},
+                "samples": {
+                    "type": {"name": "F32", "kind": "float", "size": 32},
+                    "index": 2,
+                    "size": 4,
+                },
+            },
+        }
+        result = convert_struct_definition(struct_def, {}, "Deployment")
+        self.assertIn("BinaryParameterType", result)
+        binary_type = result["BinaryParameterType"]
+        self.assertEqual(binary_type["name"], "Doom.Header")
+        # 32 + 8 + (4 * 32) = 168 bits
+        self.assertEqual(binary_type["BinaryDataEncoding"]["SizeInBits"]["FixedValue"], 168)
+        self.assertNotIn("AliasSet", binary_type)
+        self.assertEqual(binary_type["shortDescription"], "Packed telemetry header")
+
+    def test_whole_struct_marker_with_string_member_raises(self):
+        struct_def = {
+            "kind": "struct",
+            "qualifiedName": "Doom.Header",
+            "annotation": "!binary",
+            "members": {
+                "label": {"type": {"name": "string", "kind": "string", "size": 32}, "index": 0},
+            },
+        }
+        with self.assertRaises(ValueError):
+            convert_struct_definition(struct_def, {}, "Deployment")
 
 
 if __name__ == "__main__":

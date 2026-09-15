@@ -8,7 +8,11 @@ This software is Licensed under the Apache 2.0 License. See LICENSE for details.
 """
 
 from collections.abc import Iterable, Mapping
-from .utilities import convert_to_xtce_reference
+from .utilities import (
+    BINARY_ELEMENT_TYPE_ALIAS_NAMESPACE,
+    convert_to_xtce_reference,
+    extract_binary_marker,
+)
 
 
 def convert_type_definitions(fprime_type_def_or_defs, detected_string_types, deployment, is_command=False):
@@ -259,6 +263,12 @@ def convert_enum_definition(fprime_enum_def, deployment):
     return xtce_type
 
 
+def _is_numeric_type(type_desc):
+    """True if a type descriptor is numeric (integer or float) - the only valid "!binary"
+    element type."""
+    return type_desc.get("kind") in ("integer", "float")
+
+
 def convert_array_definition(fprime_array_def, detected_string_types, deployment):
     """
     Convert F Prime array type definition to XTCE ArrayParameterType.
@@ -270,15 +280,44 @@ def convert_array_definition(fprime_array_def, detected_string_types, deployment
             - size: Number of elements
             - elementType: Type descriptor of array elements
             - default: Default array value (optional)
-            - annotation: Description (optional)
+            - annotation: Description (optional); a "!binary" first line emits a
+              BinaryParameterType tagged with an Alias naming the (numeric) element type
         detected_string_types: set to add strings to
 
     Returns:
-        dict: XTCE ArrayParameterType structure
+        dict: XTCE ArrayParameterType or BinaryParameterType structure
     """
     name = fprime_array_def["qualifiedName"]
     array_size = fprime_array_def["size"]
     element_type = fprime_array_def["elementType"]
+
+    is_binary, remaining_description = extract_binary_marker(fprime_array_def.get("annotation"))
+    if is_binary:
+        if not _is_numeric_type(element_type):
+            raise ValueError(
+                f"'!binary' annotation on array/member '{name}' requires a numeric element type "
+                f"(integer or float); got element type '{element_type.get('name')}' "
+                f"(kind={element_type.get('kind')})"
+            )
+        xtce_type = {
+            "BinaryParameterType": {
+                "name": name,
+                "AliasSet": [
+                    {
+                        "Alias": {
+                            "nameSpace": BINARY_ELEMENT_TYPE_ALIAS_NAMESPACE,
+                            "alias": element_type["name"],
+                        }
+                    }
+                ],
+                "BinaryDataEncoding": {
+                    "SizeInBits": {"FixedValue": array_size * element_type["size"]}
+                },
+            }
+        }
+        if remaining_description:
+            xtce_type["BinaryParameterType"]["shortDescription"] = remaining_description
+        return xtce_type
 
     element_type_name = convert_to_xtce_reference(element_type["name"], deployment)
 
@@ -311,6 +350,28 @@ def convert_array_definition(fprime_array_def, detected_string_types, deployment
     return xtce_type
 
 
+def _member_size_in_bits(member_name, member_desc):
+    """Bit width of one flattened struct member, for a whole-struct "!binary" blob.
+
+    Raises:
+        ValueError: if the member's width isn't statically known (e.g. a string).
+    """
+    member_type = member_desc["type"]
+    if member_type["kind"] == "string":
+        raise ValueError(
+            f"member '{member_name}' is a variable-length string, which has no fixed size; "
+            f"a whole-struct '!binary' annotation requires every member to have one"
+        )
+    element_bits = member_type.get("size")
+    if element_bits is None:
+        raise ValueError(
+            f"member '{member_name}' (type '{member_type.get('name')}') has no fixed bit "
+            f"width; a whole-struct '!binary' annotation requires every member to have one"
+        )
+    element_count = member_desc.get("size", 1)  # inline array member's element count
+    return element_bits * element_count
+
+
 def convert_struct_definition(fprime_struct_def, detected_string_types, deployment):
     """
     Convert F Prime struct type definition to XTCE AggregateParameterType.
@@ -322,14 +383,31 @@ def convert_struct_definition(fprime_struct_def, detected_string_types, deployme
             - members: Dict of member names to member descriptors
                 - Each member has: type, index, size?, format?, annotation?
             - default: Default struct value (optional)
-            - annotation: Description (optional)
+            - annotation: Description (optional); a "!binary" first line flattens the struct
+              into one opaque BinaryParameterType (no AliasSet - members aren't all one type)
         detected_string_types: set to add strings to
 
     Returns:
-        dict: XTCE AggregateParameterType structure
+        dict: XTCE AggregateParameterType or BinaryParameterType structure
     """
     name = fprime_struct_def["qualifiedName"]
     members = fprime_struct_def["members"]
+
+    is_binary, remaining_description = extract_binary_marker(fprime_struct_def.get("annotation"))
+    if is_binary:
+        total_bits = sum(
+            _member_size_in_bits(member_name, member_desc)
+            for member_name, member_desc in members.items()
+        )
+        xtce_type = {
+            "BinaryParameterType": {
+                "name": name,
+                "BinaryDataEncoding": {"SizeInBits": {"FixedValue": total_bits}},
+            }
+        }
+        if remaining_description:
+            xtce_type["BinaryParameterType"]["shortDescription"] = remaining_description
+        return xtce_type
 
     # Build member list - sort by index to maintain order
     member_list = []
@@ -345,23 +423,30 @@ def convert_struct_definition(fprime_struct_def, detected_string_types, deployme
         # member itself. XTCE members reference types by name, so synthesize a
         # named ArrayParameterType for the member and reference that instead of
         # the (scalar) element type.
+        member_annotation = member_desc.get("annotation")
         if "size" in member_desc:
             array_type_name = f"{name}_{member_name}"
-            detected_string_types[array_type_name] = {
+            synthesized_array_def = {
                 "kind": "array",
                 "qualifiedName": array_type_name,
                 "size": member_desc["size"],
                 "elementType": member_type,
             }
+            # Carry the marker through so it's detected the same way as a top-level array.
+            if member_annotation is not None:
+                synthesized_array_def["annotation"] = member_annotation
+            detected_string_types[array_type_name] = synthesized_array_def
             member_type_name = convert_to_xtce_reference(array_type_name, deployment)
+            # Strip the marker so it isn't duplicated onto the Member itself.
+            _, member_annotation = extract_binary_marker(member_annotation)
 
         member_entry = {
             "name": member_name,
             "typeRef": member_type_name
         }
 
-        if "annotation" in member_desc:
-            member_entry["shortDescription"] = member_desc["annotation"]
+        if member_annotation:
+            member_entry["shortDescription"] = member_annotation
 
         # TODO: Add support for initialValue when XTCE processors support it
         # if "default" in fprime_struct_def and member_type["kind"] == "enum":
