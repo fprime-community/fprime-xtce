@@ -264,8 +264,8 @@ def convert_enum_definition(fprime_enum_def, deployment):
 
 
 def _is_numeric_type(type_desc):
-    """True if a type descriptor is a plain numeric primitive (any integer or float size),
-    the only element types a "!binary" array/member may use."""
+    """True if a type descriptor is numeric (integer or float) - the only valid "!binary"
+    element type."""
     return type_desc.get("kind") in ("integer", "float")
 
 
@@ -281,8 +281,7 @@ def convert_array_definition(fprime_array_def, detected_string_types, deployment
             - elementType: Type descriptor of array elements
             - default: Default array value (optional)
             - annotation: Description (optional); a "!binary" first line emits a
-              BinaryParameterType instead (requires a numeric elementType), tagged with an
-              Alias (nameSpace BINARY_ELEMENT_TYPE_ALIAS_NAMESPACE) naming that element type
+              BinaryParameterType tagged with an Alias naming the (numeric) element type
         detected_string_types: set to add strings to
 
     Returns:
@@ -355,8 +354,7 @@ def _member_size_in_bits(member_name, member_desc):
     """Bit width of one flattened struct member, for a whole-struct "!binary" blob.
 
     Raises:
-        ValueError: naming the member, if its width isn't statically known (e.g. a
-            variable-length string, or a nested type with no fixed size of its own).
+        ValueError: if the member's width isn't statically known (e.g. a string).
     """
     member_type = member_desc["type"]
     if member_type["kind"] == "string":
@@ -385,12 +383,8 @@ def convert_struct_definition(fprime_struct_def, detected_string_types, deployme
             - members: Dict of member names to member descriptors
                 - Each member has: type, index, size?, format?, annotation?
             - default: Default struct value (optional)
-            - annotation: Description (optional); a "!binary" first line flattens the whole
-              struct into one opaque BinaryParameterType instead of an AggregateParameterType
-              (every member must have a statically-known fixed bit width - see
-              _member_size_in_bits). Unlike the array/member case, no AliasSet is emitted: a
-              struct's members generally aren't all the same type, so there's no single
-              "element type" to name.
+            - annotation: Description (optional); a "!binary" first line flattens the struct
+              into one opaque BinaryParameterType (no AliasSet - members aren't all one type)
         detected_string_types: set to add strings to
 
     Returns:
@@ -438,14 +432,12 @@ def convert_struct_definition(fprime_struct_def, detected_string_types, deployme
                 "size": member_desc["size"],
                 "elementType": member_type,
             }
-            # Carries the member's own annotation, so a "!binary" marker reaches
-            # convert_array_definition the same way it would on a top-level array.
+            # Carry the marker through so it's detected the same way as a top-level array.
             if member_annotation is not None:
                 synthesized_array_def["annotation"] = member_annotation
             detected_string_types[array_type_name] = synthesized_array_def
             member_type_name = convert_to_xtce_reference(array_type_name, deployment)
-            # The synthesized type above owns the description now; strip the marker line so
-            # it isn't duplicated verbatim onto the Member itself.
+            # Strip the marker so it isn't duplicated onto the Member itself.
             _, member_annotation = extract_binary_marker(member_annotation)
 
         member_entry = {

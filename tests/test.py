@@ -424,9 +424,8 @@ class TestInlineMemberArrays(unittest.TestCase):
 
 
 class TestBinaryAnnotation(unittest.TestCase):
-    """Test the "!binary" annotation marker, which requests an opaque BinaryParameterType
-    instead of decoding a numeric array element-by-element, tagged with an Alias naming the
-    real element type so a consumer can reconstruct a typed array."""
+    """Test the "!binary" annotation marker: opaque BinaryParameterType instead of per-element
+    decoding, tagged with an Alias naming the real element type."""
 
     def _alias(self, binary_type):
         return binary_type["AliasSet"][0]["Alias"]
@@ -474,9 +473,7 @@ class TestBinaryAnnotation(unittest.TestCase):
         )
 
     def test_marker_after_description_is_still_detected(self):
-        """A leading "@" doc comment and a trailing "@<" comment on the same declaration join
-        with the doc comment first, so `data: [256] U8 @< !binary` combined with a description
-        above it puts the marker last, not first."""
+        """A description above the marker puts it last, not first - must still be detected."""
         array_def = {
             "kind": "array",
             "qualifiedName": "Doom.CostMap",
@@ -512,13 +509,8 @@ class TestBinaryAnnotation(unittest.TestCase):
             convert_array_definition(array_def, {}, "Deployment")
 
     def test_inline_struct_member_with_marker_becomes_binary(self):
-        """The "!binary" marker also works on an inline array member (a "size" on the member),
-        e.g. `data: [256] U8 @< !binary`, since it's synthesized into the same array machinery.
-
-        Also covers the trickiest part of that synthesis: a member with a marker *and*
-        additional description text must reach the synthesized type with the marker intact
-        (so it's still detected as binary there), while the Member itself ends up with the
-        stripped remainder, not the raw marker line and not the untouched original text."""
+        """"!binary" works on an inline array member too; the Member gets the stripped
+        description while the synthesized type still sees the marker intact."""
         struct_def = {
             "kind": "struct",
             "qualifiedName": "Doom.FrameChunk",
@@ -548,9 +540,7 @@ class TestBinaryAnnotation(unittest.TestCase):
         self.assertEqual(converted["BinaryParameterType"]["shortDescription"], "Raw frame payload")
 
     def test_whole_struct_with_marker_becomes_binary(self):
-        """A "!binary" marker on the struct's own annotation flattens every member into one
-        opaque blob, sized from each member's fixed bit width - no AliasSet, since a struct's
-        members generally aren't all the same type."""
+        """"!binary" on a struct flattens every member into one opaque blob, no AliasSet."""
         struct_def = {
             "kind": "struct",
             "qualifiedName": "Doom.Header",

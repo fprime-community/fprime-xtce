@@ -10,31 +10,21 @@ import itertools
 from typing import List, Dict, Union, Tuple, Any, Optional
 DELIMITER = "|"
 
-# A line of an annotation, on its own, that requests an opaque XTCE BinaryParameterType instead
-# of decoding a numeric array element-by-element as an ArrayParameterType.
+# Annotation line requesting an opaque BinaryParameterType instead of per-element decoding.
 BINARY_ANNOTATION_MARKER = "!binary"
 
-# AliasSet nameSpace used to tag a "!binary" BinaryParameterType with the F Prime numeric type
-# (e.g. "F32") its bytes actually represent, so a consumer can reconstruct a typed array
-# instead of treating the value as opaque.
+# AliasSet nameSpace tagging a "!binary" type with its real element type (e.g. "F32").
 BINARY_ELEMENT_TYPE_ALIAS_NAMESPACE = "fprime:elementType"
 
 
 def extract_binary_marker(annotation: Optional[str]) -> Tuple[bool, Optional[str]]:
     """Check whether any line of an annotation is exactly the BINARY_ANNOTATION_MARKER.
 
-    Looks at every line rather than just the first: F Prime joins a declaration's own leading
-    "@" doc comment and a member's trailing "@<" comment into one annotation with the leading
-    comment *first*, so a marker meant to apply to the whole declaration (e.g. `data: [256] U8
-    @< !binary`) can end up on the last line, not the first, once a human-readable description
-    is also present.
-
-    Args:
-        annotation: The raw F Prime "annotation" string (doc comment text), or None.
+    Checks every line, not just the first: F Prime can join a leading doc comment and a
+    trailing "@<" comment so the marker ends up last, not first.
 
     Returns:
-        Tuple of (is_binary, remaining_description), where `remaining_description` has the
-        marker line removed (None if nothing is left, or if there was no annotation at all).
+        Tuple of (is_binary, remaining_description), with the marker line removed.
     """
     if not annotation:
         return False, annotation
