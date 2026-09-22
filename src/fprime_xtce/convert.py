@@ -9,7 +9,7 @@ This software is Licensed under the Apache 2.0 License. See LICENSE for details.
 import itertools
 from enum import Enum
 from collections.abc import Mapping
-from .type_converter import convert_type_definitions, convert_to_xtce_reference
+from .type_converter import convert_type_definitions, convert_to_xtce_reference, string_size_tag_bits
 from .primitive_types import BASE_FPRIME_TYPES, SPACE_PACKET_TYPES, BASE_PARAMETERS
 from .utilities import safe_combine, formal_parameter_types, xtce_names
 
@@ -65,22 +65,27 @@ def convert_fprime_types(fprime_dict, mode=ConversionMode.TELEMETRY_AND_EVENTS, 
     xtce_types = BASE_FPRIME_TYPES + SPACE_PACKET_TYPES
     detected_string_types = {}
     is_command = (mode == ConversionMode.COMMANDS)
+    # String length prefixes are serialized as FwSizeStoreType, whose width the dictionary defines
+    size_tag_bits = string_size_tag_bits(fprime_dict["typeDefinitions"])
 
     # First, convert the type definitions provided directly from the dictionary
-    xtce_types = safe_combine(xtce_types, convert_type_definitions(fprime_dict["typeDefinitions"], detected_string_types, deployment, is_command))
+    xtce_types = safe_combine(xtce_types, convert_type_definitions(fprime_dict["typeDefinitions"], detected_string_types,
+                                                                  deployment, is_command, size_tag_bits))
 
     # Second, convert channel types from the telemetry channel definitions. This must strip out qualified identifiers
     # since those be defined in step one.
     if mode in [ConversionMode.TELEMETRY, ConversionMode.TELEMETRY_AND_EVENTS]:
         channel_types = [channel["type"] for channel in fprime_dict["telemetryChannels"]]
         channel_types = [channel_type for channel_type in channel_types if channel_type["kind"] != "qualifiedIdentifier"]
-        xtce_types = safe_combine(xtce_types, convert_type_definitions(channel_types, detected_string_types, deployment, False))
+        xtce_types = safe_combine(xtce_types, convert_type_definitions(channel_types, detected_string_types, deployment,
+                                                                      False, size_tag_bits))
 
     # Third, convert event and command types
     if mode in [ConversionMode.COMMANDS, ConversionMode.TELEMETRY_AND_EVENTS]:
         parameters = formal_parameter_types(fprime_dict[mode.value])
         parameters = [param for param in parameters if param["kind"] != "qualifiedIdentifier"]
-        xtce_types = safe_combine(xtce_types, convert_type_definitions(parameters, detected_string_types, deployment, is_command))
+        xtce_types = safe_combine(xtce_types, convert_type_definitions(parameters, detected_string_types, deployment,
+                                                                      is_command, size_tag_bits))
 
     # Rewrite for commands
     if mode == ConversionMode.COMMANDS:

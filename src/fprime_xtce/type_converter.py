@@ -10,8 +10,34 @@ This software is Licensed under the Apache 2.0 License. See LICENSE for details.
 from collections.abc import Iterable, Mapping
 from .utilities import convert_to_xtce_reference
 
+# Serialized width of a string's length prefix when the dictionary does not define FwSizeStoreType
+DEFAULT_STRING_SIZE_TAG_BITS = 16
 
-def convert_type_definitions(fprime_type_def_or_defs, detected_string_types, deployment, is_command=False):
+
+def string_size_tag_bits(fprime_type_definitions):
+    """ Determine the width in bits of the length prefix F Prime serializes ahead of each string.
+
+    F Prime serializes string lengths as FwSizeStoreType, which projects may configure. The dictionary exposes this as
+    an alias type definition whose underlying integer type gives the width. When the dictionary does not define it, the
+    historical default of 16 bits is used.
+
+    Args:
+        fprime_type_definitions: List of F Prime type definitions from the dictionary "typeDefinitions" section
+
+    Returns:
+        width of the string length prefix in bits
+    """
+    for type_definition in fprime_type_definitions:
+        if type_definition.get("kind") == "alias" and type_definition.get("qualifiedName") == "FwSizeStoreType":
+            underlying_type = type_definition["underlyingType"]
+            if underlying_type.get("kind") != "integer":
+                raise ValueError(f"FwSizeStoreType must alias an integer type, found: {underlying_type.get('kind')}")
+            return underlying_type["size"]
+    return DEFAULT_STRING_SIZE_TAG_BITS
+
+
+def convert_type_definitions(fprime_type_def_or_defs, detected_string_types, deployment, is_command=False,
+                             size_tag_bits=DEFAULT_STRING_SIZE_TAG_BITS):
     """ Convert an F Prime type definition or list of type definitions to XTCE ParameterType equivalents.
 
     This dispatcher iterates over F Prime type definitions and routes each to the appropriate converter based on the
@@ -22,6 +48,7 @@ def convert_type_definitions(fprime_type_def_or_defs, detected_string_types, dep
         detected_string_types: Dictionary to track detected string types
         deployment: Root SpaceSystem name for fully qualified type references
         is_command: True if converting for commands (uses Variable string encoding), False for telemetry (uses Fixed box)
+        size_tag_bits: width in bits of the string length prefix (see string_size_tag_bits)
 
     Returns:
         list of XTCE ParameterType dictionaries
@@ -30,10 +57,12 @@ def convert_type_definitions(fprime_type_def_or_defs, detected_string_types, dep
     assert isinstance(fprime_type_def_or_defs, (Iterable)) and not isinstance(fprime_type_def_or_defs, (bytes, str)), \
         "Expected a list of type definitions or a single type definition"
     if isinstance(fprime_type_def_or_defs, Iterable) and not isinstance(fprime_type_def_or_defs, Mapping):
-        type_definitions = [convert_type_definitions(item, detected_string_types, deployment, is_command) for item in fprime_type_def_or_defs]
+        type_definitions = [convert_type_definitions(item, detected_string_types, deployment, is_command, size_tag_bits)
+                            for item in fprime_type_def_or_defs]
         # Sort detected string types by name for deterministic output
         sorted_string_types = sorted(detected_string_types.items(), key=lambda x: x[0])
-        return [convert_type_definitions(string, None, deployment, is_command) for _, string in sorted_string_types] + type_definitions
+        return [convert_type_definitions(string, None, deployment, is_command, size_tag_bits)
+                for _, string in sorted_string_types] + type_definitions
     # Otherwise convert one entry based on its kind
     kind = fprime_type_def_or_defs.get("kind")
     if kind == "enum":
@@ -51,7 +80,7 @@ def convert_type_definitions(fprime_type_def_or_defs, detected_string_types, dep
     elif kind == "bool":
         return _convert_boolean_type(fprime_type_def_or_defs, deployment)
     elif kind == "string":
-        return _convert_string_type(fprime_type_def_or_defs, detected_string_types, deployment, is_command)
+        return _convert_string_type(fprime_type_def_or_defs, detected_string_types, deployment, is_command, size_tag_bits)
     elif kind == "qualifiedIdentifier":
         # References to other types (enums, arrays, structs)
         # These need to be resolved in the type definitions section
@@ -142,9 +171,12 @@ def _convert_boolean_type(fprime_type_desc, deployment):
     return xtce_type
 
 
-def _convert_string_type(fprime_type_desc, detected_string_types, deployment, is_command=False):
+def _convert_string_type(fprime_type_desc, detected_string_types, deployment, is_command=False,
+                         size_tag_bits=DEFAULT_STRING_SIZE_TAG_BITS):
     """
     Convert F Prime string type to XTCE StringParameterType.
+
+    The string is serialized as a length prefix of size_tag_bits followed by the characters.
     """
     name = fprime_type_desc["name"]
     size_in_bytes = fprime_type_desc["size"]
@@ -163,15 +195,15 @@ def _convert_string_type(fprime_type_desc, detected_string_types, deployment, is
                 "DynamicValue": {
                     "ParameterInstanceRef": {"parameterRef": "_yamcs_ignore"}
                 },
-                "LeadingSize": {"sizeInBitsOfSizeTag": 16},
+                "LeadingSize": {"sizeInBitsOfSizeTag": size_tag_bits},
             },
         }
     else:
         string_data_encoding = {
             "encoding": "UTF-8",
             "SizeInBits": {
-                "Fixed": {"FixedValue": size_in_bits + 16},
-                "LeadingSize": {"sizeInBitsOfSizeTag": 16}
+                "Fixed": {"FixedValue": size_in_bits + size_tag_bits},
+                "LeadingSize": {"sizeInBitsOfSizeTag": size_tag_bits}
             }
         }
 

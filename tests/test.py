@@ -8,7 +8,10 @@ Copyright (c) 2026 Andrei Tumbar. All rights reserved.
 This software is Licensed under the Apache 2.0 License. See LICENSE for details.
 """
 
+import copy
+import json
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -19,11 +22,15 @@ from pathlib import Path
 from typing import Tuple, List
 
 from fprime_xtce.type_converter import (
+    DEFAULT_STRING_SIZE_TAG_BITS,
     convert_struct_definition,
     convert_type_definitions,
+    string_size_tag_bits,
 )
 from fprime_xtce.utilities import extract_namespace_components
 from fprime_xtce.xtce import validate_xtce
+
+XTCE_NS = "{http://www.omg.org/spec/XTCE/20180204}"
 
 
 class TestNamespaceExtraction(unittest.TestCase):
@@ -63,6 +70,121 @@ class TestNamespaceExtraction(unittest.TestCase):
         # When both delimiters exist, dots should be used for splitting
         self.assertEqual(namespace, ["A", "B|C"])
         self.assertEqual(base, "D")
+
+
+def _size_store_alias(underlying):
+    """Build an FwSizeStoreType alias type definition with the given underlying type descriptor"""
+    return {
+        "kind": "alias",
+        "qualifiedName": "FwSizeStoreType",
+        "type": underlying,
+        "underlyingType": underlying,
+    }
+
+
+U16_TYPE = {"name": "U16", "kind": "integer", "size": 16, "signed": False}
+U64_TYPE = {"name": "U64", "kind": "integer", "size": 64, "signed": False}
+
+
+class TestStringSizeTag(unittest.TestCase):
+    """Test that the string length prefix width follows FwSizeStoreType from the dictionary"""
+
+    def test_default_when_undefined(self):
+        """Dictionaries without FwSizeStoreType fall back to the historical 16-bit prefix"""
+        self.assertEqual(string_size_tag_bits([]), DEFAULT_STRING_SIZE_TAG_BITS)
+        self.assertEqual(DEFAULT_STRING_SIZE_TAG_BITS, 16)
+
+    def test_u16(self):
+        """FwSizeStoreType = U16 yields a 16-bit prefix"""
+        self.assertEqual(string_size_tag_bits([_size_store_alias(U16_TYPE)]), 16)
+
+    def test_u64(self):
+        """FwSizeStoreType = U64 yields a 64-bit prefix"""
+        self.assertEqual(string_size_tag_bits([_size_store_alias(U64_TYPE)]), 64)
+
+    def test_alias_chain_uses_underlying_type(self):
+        """FwSizeStoreType = FwSizeType resolves through the dictionary's underlyingType"""
+        alias = _size_store_alias(U64_TYPE)
+        alias["type"] = {"name": "FwSizeType", "kind": "qualifiedIdentifier"}
+        self.assertEqual(string_size_tag_bits([alias]), 64)
+
+    def test_non_integer_rejected(self):
+        """FwSizeStoreType aliasing a non-integer type is an error"""
+        with self.assertRaises(ValueError):
+            string_size_tag_bits([_size_store_alias({"name": "F32", "kind": "float", "size": 32})])
+
+
+class TestStringSizeTagGeneration(unittest.TestCase):
+    """Test that generated string encodings carry the FwSizeStoreType width end-to-end"""
+
+    @classmethod
+    def setUpClass(cls):
+        """Set up test fixtures"""
+        cls.test_data_dir = Path(__file__).parent / "data"
+        with open(cls.test_data_dir / "ReferenceDeploymentTopologyDictionary.json") as file_handle:
+            cls.reference_dictionary = json.load(file_handle)
+
+    def _generate_with_size_store_type(self, underlying) -> ET.Element:
+        """Rewrite FwSizeStoreType in the reference dictionary, run the CLI, and return the parsed XTCE root"""
+        dictionary = copy.deepcopy(self.reference_dictionary)
+        dictionary["typeDefinitions"] = [
+            _size_store_alias(underlying) if item.get("qualifiedName") == "FwSizeStoreType" else item
+            for item in dictionary["typeDefinitions"]
+        ]
+        with tempfile.TemporaryDirectory() as temp_dir:
+            json_path = Path(temp_dir) / "dictionary.json"
+            output_path = Path(temp_dir) / "dictionary.xml"
+            with open(json_path, "w") as file_handle:
+                json.dump(dictionary, file_handle)
+            result = subprocess.run(
+                [sys.executable, "-m", "fprime_xtce", str(json_path), "-o", str(output_path)],
+                capture_output=True,
+                text=True,
+            )
+            self.assertEqual(result.returncode, 0, f"CLI failed\nStdout: {result.stdout}\nStderr: {result.stderr}")
+            is_valid, errors = validate_xtce(output_path)
+            self.assertTrue(is_valid, f"Generated XML does not validate against XSD schema. Errors: {errors[:5]}")
+            return ET.parse(output_path).getroot()
+
+    def _assert_string_encodings(self, root: ET.Element, expected_tag_bits: int):
+        """Assert every F Prime string parameter/argument type uses the expected length prefix width"""
+        string_types = [
+            element for tag in ("StringParameterType", "StringArgumentType")
+            for element in root.iter(f"{XTCE_NS}{tag}")
+            if re.fullmatch(r"string\d+", element.get("name", ""))
+        ]
+        self.assertGreater(len(string_types), 0, "Reference dictionary should define F Prime string types")
+        for string_type in string_types:
+            max_chars = int(string_type.get("name")[len("string"):])
+            leading_sizes = list(string_type.iter(f"{XTCE_NS}LeadingSize"))
+            self.assertEqual(len(leading_sizes), 1, f"{string_type.get('name')} should have one LeadingSize")
+            self.assertEqual(int(leading_sizes[0].get("sizeInBitsOfSizeTag")), expected_tag_bits, string_type.get("name"))
+            # Telemetry strings are fixed boxes sized for the prefix plus the maximum characters
+            for fixed_value in string_type.iter(f"{XTCE_NS}FixedValue"):
+                self.assertEqual(int(fixed_value.text), max_chars * 8 + expected_tag_bits, string_type.get("name"))
+            # Command strings are variable and bounded by the maximum characters
+            for variable in string_type.iter(f"{XTCE_NS}Variable"):
+                self.assertEqual(int(variable.get("maxSizeInBits")), max_chars * 8, string_type.get("name"))
+
+    def test_u16_size_store_type(self):
+        """FwSizeStoreType = U16 produces 16-bit string length prefixes"""
+        self._assert_string_encodings(self._generate_with_size_store_type(U16_TYPE), 16)
+
+    def test_u64_size_store_type(self):
+        """FwSizeStoreType = U64 produces 64-bit string length prefixes"""
+        self._assert_string_encodings(self._generate_with_size_store_type(U64_TYPE), 64)
+
+    def test_file_path_type_unaffected(self):
+        """Fw::FilePacket::PathName keeps its U8 length prefix regardless of FwSizeStoreType"""
+        root = self._generate_with_size_store_type(U64_TYPE)
+        path_types = [
+            element for tag in ("StringParameterType", "StringArgumentType")
+            for element in root.iter(f"{XTCE_NS}{tag}") if element.get("name") == "FPrimeFilePathType"
+        ]
+        self.assertGreater(len(path_types), 0)
+        for path_type in path_types:
+            for leading_size in path_type.iter(f"{XTCE_NS}LeadingSize"):
+                self.assertEqual(int(leading_size.get("sizeInBitsOfSizeTag")), 8)
 
 
 class TestXTCEGeneration(unittest.TestCase):
