@@ -14,7 +14,7 @@ from pathlib import Path
 
 from .convert import convert_fprime_types, generate_xtce_parameters, ConversionMode
 from .container_generation import generate_xtce_containers, generate_xtce_commands
-from .xtce import build_xtce_structure, write_xtce_xml
+from .xtce import build_xtce_structure, write_xtce_xml, validate_xtce
 
 def exit_on_errors(result):
     """Check conversion result for errors and print them.
@@ -123,12 +123,19 @@ def main(args=None):
     write_xtce_xml(xtce_structure, parsed_args.output)
 
     # Step 7: Validate output file
-    #is_valid, errors = validate_xtce(parsed_args.output)
-    if False and not is_valid:
-        print(f"[ERROR] XTCE validation errors:", file=sys.stderr)
+    try:
+        is_valid, errors = validate_xtce(parsed_args.output)
+    except (FileNotFoundError, ValueError) as exc:
+        print(f"[ERROR] Failed to validate XTCE output: {exc}", file=sys.stderr)
+        return 1
+
+    if not is_valid:
+        print("[ERROR] XTCE validation errors:", file=sys.stderr)
         for error in errors:
             print(f"  - {error}", file=sys.stderr)
-        sys.exit(1)
+        return 1
+
+    return 0
 
 if __name__ == "__main__":
     sys.exit(main())
