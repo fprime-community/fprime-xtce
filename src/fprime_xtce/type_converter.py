@@ -176,7 +176,8 @@ def _convert_string_type(fprime_type_desc, detected_string_types, deployment, is
     """
     Convert F Prime string type to XTCE StringParameterType.
 
-    The string is serialized as a length prefix of size_tag_bits followed by the characters.
+    The string is serialized as a length prefix of size_tag_bits followed by the characters, so
+    both the fixed telemetry size and the variable command bound include the prefix.
     """
     name = fprime_type_desc["name"]
     size_in_bytes = fprime_type_desc["size"]
@@ -191,7 +192,7 @@ def _convert_string_type(fprime_type_desc, detected_string_types, deployment, is
         string_data_encoding = {
             "encoding": "UTF-8",
             "Variable": {
-                "maxSizeInBits": size_in_bits,
+                "maxSizeInBits": size_in_bits + size_tag_bits,
                 "DynamicValue": {
                     "ParameterInstanceRef": {"parameterRef": "_yamcs_ignore"}
                 },

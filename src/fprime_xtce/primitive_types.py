@@ -112,7 +112,7 @@ BASE_FPRIME_TYPES = [
         },
     },
     # Fw::FilePacket::PathName: U8 length prefix + ASCII chars (max 255 bytes).
-    # Distinct from F´'s general string type (which uses a U16 length prefix).
+    # Distinct from F´'s general string type (whose prefix width is FwSizeStoreType).
     # See lib/fprime/Fw/FilePacket/PathName.cpp.
     {
         "StringParameterType": {

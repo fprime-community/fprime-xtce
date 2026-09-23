@@ -162,9 +162,11 @@ class TestStringSizeTagGeneration(unittest.TestCase):
             # Telemetry strings are fixed boxes sized for the prefix plus the maximum characters
             for fixed_value in string_type.iter(f"{XTCE_NS}FixedValue"):
                 self.assertEqual(int(fixed_value.text), max_chars * 8 + expected_tag_bits, string_type.get("name"))
-            # Command strings are variable and bounded by the maximum characters
+            # Command strings are variable; YAMCS counts the prefix against maxSizeInBits when encoding
             for variable in string_type.iter(f"{XTCE_NS}Variable"):
-                self.assertEqual(int(variable.get("maxSizeInBits")), max_chars * 8, string_type.get("name"))
+                self.assertEqual(
+                    int(variable.get("maxSizeInBits")), max_chars * 8 + expected_tag_bits, string_type.get("name")
+                )
 
     def test_u16_size_store_type(self):
         """FwSizeStoreType = U16 produces 16-bit string length prefixes"""
