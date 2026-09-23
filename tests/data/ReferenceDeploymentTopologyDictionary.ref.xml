@@ -750,7 +750,7 @@
       </IntegerArgumentType>
       <StringArgumentType name="string80">
         <StringDataEncoding encoding="UTF-8">
-          <Variable maxSizeInBits="640">
+          <Variable maxSizeInBits="656">
             <DynamicValue>
               <ParameterInstanceRef parameterRef="_yamcs_ignore" />
             </DynamicValue>
@@ -786,7 +786,7 @@
       <IntegerArgumentType name="FwEventIdType" shortDescription="The type of an event identifier" baseType="FwIdType" signed="false" sizeInBits="32" />
       <StringArgumentType name="string100">
         <StringDataEncoding encoding="UTF-8">
-          <Variable maxSizeInBits="800">
+          <Variable maxSizeInBits="816">
             <DynamicValue>
               <ParameterInstanceRef parameterRef="_yamcs_ignore" />
             </DynamicValue>
@@ -796,7 +796,7 @@
       </StringArgumentType>
       <StringArgumentType name="string200">
         <StringDataEncoding encoding="UTF-8">
-          <Variable maxSizeInBits="1600">
+          <Variable maxSizeInBits="1616">
             <DynamicValue>
               <ParameterInstanceRef parameterRef="_yamcs_ignore" />
             </DynamicValue>
@@ -806,7 +806,7 @@
       </StringArgumentType>
       <StringArgumentType name="string240">
         <StringDataEncoding encoding="UTF-8">
-          <Variable maxSizeInBits="1920">
+          <Variable maxSizeInBits="1936">
             <DynamicValue>
               <ParameterInstanceRef parameterRef="_yamcs_ignore" />
             </DynamicValue>
@@ -816,7 +816,7 @@
       </StringArgumentType>
       <StringArgumentType name="string256">
         <StringDataEncoding encoding="UTF-8">
-          <Variable maxSizeInBits="2048">
+          <Variable maxSizeInBits="2064">
             <DynamicValue>
               <ParameterInstanceRef parameterRef="_yamcs_ignore" />
             </DynamicValue>
@@ -826,7 +826,7 @@
       </StringArgumentType>
       <StringArgumentType name="string40">
         <StringDataEncoding encoding="UTF-8">
-          <Variable maxSizeInBits="320">
+          <Variable maxSizeInBits="336">
             <DynamicValue>
               <ParameterInstanceRef parameterRef="_yamcs_ignore" />
             </DynamicValue>
