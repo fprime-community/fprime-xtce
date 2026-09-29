@@ -5,13 +5,16 @@ build-backend = "setuptools.build_meta"
 [tool.setuptools_scm]
 write_to = "src/fprime_xtce/_version.py"
 
+[tool.setuptools.package-data]
+fprime_xtce = ["data/*.xsd"]
+
 [project]
 name = "fprime-xtce"
 dynamic = ["version"]
 description = "Convert F' (F-Prime) telemetry and command definitions to XTCE format"
 readme = "README.md"
 requires-python = ">=3.8"
-license = "Apache-2.0"
+license = {text = "Apache-2.0"}
 authors = [
     {name = "Michael Starch", email = "lestarch@googlemail.com"}
 ]

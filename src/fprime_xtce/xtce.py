@@ -310,7 +310,8 @@ def write_xtce_xml(structure: Dict[str, Any], file_path: str):
 
     # Write the XML tree to file with declaration and indentation
     tree = ET.ElementTree(element)
-    ET.indent(tree, space="  ", level=0)
+    if hasattr(ET, "indent"):
+        ET.indent(tree, space="  ", level=0)
     tree.write(file_or_filename=file_path, encoding="utf-8", xml_declaration=True)
 
 
@@ -330,10 +331,12 @@ def validate_xtce(xml_path: Path) -> Tuple[bool, List[str]]:
     if not xml_path.exists():
         raise FileNotFoundError(f"XML file not found: {xml_path}")
 
-    # Path to the XSD schema file relative to the test file
-    schema_location = (
-        Path(__file__).parent.parent.parent / "src" / "fprime_xtce" / "data" / "xtce.xsd"
-    )
+    # Resolve the schema from package data so validation works both from a
+    # source checkout and from an installed wheel.
+    schema_location = Path(__file__).resolve().parent / "data" / "xtce.xsd"
+    if not schema_location.is_file():
+        raise ValueError(f"XTCE schema not found at {schema_location}")
+
     try:
         schema = xmlschema.XMLSchema(schema_location)
     except xmlschema.XMLSchemaException as exc:
