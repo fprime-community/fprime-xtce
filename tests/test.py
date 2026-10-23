@@ -27,7 +27,7 @@ from fprime_xtce.type_converter import (
     convert_type_definitions,
     string_size_tag_bits,
 )
-from fprime_xtce.utilities import extract_namespace_components
+from fprime_xtce.utilities import extract_namespace_components, invalid_command_event
 from fprime_xtce.xtce import validate_xtce
 
 XTCE_NS = "{http://www.omg.org/spec/XTCE/20180204}"
@@ -544,6 +544,16 @@ class TestInlineMemberArrays(unittest.TestCase):
         dimension = array_type["DimensionList"]["Dimension"]
         self.assertEqual(dimension["StartingIndex"]["FixedValue"], 0)
         self.assertEqual(dimension["EndingIndex"]["FixedValue"], 3199)
+
+
+class TestInvalidCommandEvent(unittest.TestCase):
+    """Test which InvalidCommand event the failed verifier watches"""
+
+    def test_other_component_has_invalid_command(self):
+        """InvalidCommand comes from the instance that emits OpCodeError, not from a Svc.FpySequencer"""
+        names = ["fpySeqA.InvalidCommand", "cmdDisp.OpCodeError", "cmdDisp.InvalidCommand", "fpySeqB.InvalidCommand"]
+        event = invalid_command_event({"events": [{"name": name} for name in names]})
+        self.assertEqual(event["name"], "cmdDisp.InvalidCommand")
 
 
 if __name__ == "__main__":

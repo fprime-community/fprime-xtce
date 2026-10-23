@@ -246,6 +246,9 @@
         </BaseContainer>
       </SequenceContainer>
       <SequenceContainer name="FPrimeEvent" abstract="true">
+        <AncillaryDataSet>
+          <AncillaryData name="Yamcs">UseAsArchivingPartition</AncillaryData>
+        </AncillaryDataSet>
         <EntryList>
           <ParameterRefEntry parameterRef="DataDescType" />
           <ParameterRefEntry parameterRef="FPrimeEventId" />
@@ -876,6 +879,45 @@
           </EntryList>
           <BaseContainer containerRef="CCSDSPacket" />
         </CommandContainer>
+        <VerifierSet>
+          <ExecutionVerifier name="Dispatched">
+            <CustomAlgorithm name="FPrimeExecutionVerifier">
+              <AlgorithmText language="java-expression">return eventOpcode.getEngValue().toLong() == commandOpcode.getEngValue().toLong() ? Boolean.TRUE : null;</AlgorithmText>
+              <InputSet>
+                <InputParameterInstanceRef parameterRef="CdhCore/cmdDisp/OpCodeDispatched/Opcode" inputName="eventOpcode" />
+                <InputParameterInstanceRef parameterRef="/yamcs/cmd/arg/OpCode" inputName="commandOpcode" />
+              </InputSet>
+            </CustomAlgorithm>
+            <CheckWindow timeToStopChecking="P365D" timeWindowIsRelativeTo="commandRelease" />
+          </ExecutionVerifier>
+          <CompleteVerifier>
+            <CustomAlgorithm name="FPrimeCompleteVerifier">
+              <AlgorithmText language="java-expression">return eventOpcode.getEngValue().toLong() == commandOpcode.getEngValue().toLong() ? Boolean.TRUE : null;</AlgorithmText>
+              <InputSet>
+                <InputParameterInstanceRef parameterRef="CdhCore/cmdDisp/OpCodeCompleted/Opcode" inputName="eventOpcode" />
+                <InputParameterInstanceRef parameterRef="/yamcs/cmd/arg/OpCode" inputName="commandOpcode" />
+              </InputSet>
+            </CustomAlgorithm>
+            <CheckWindow timeToStopChecking="P365D" timeWindowIsRelativeTo="commandRelease" />
+          </CompleteVerifier>
+          <FailedVerifier>
+            <CustomAlgorithm name="FPrimeFailedVerifier">
+              <AlgorithmText language="java-expression">long id = eventId.getEngValue().toLong();
+String reason;
+if (id == 16777219L) reason = error.getEngValue().toString();
+else if (id == 16777221L) reason = "INVALID_OPCODE";
+else return null;
+return eventOpcode.getEngValue().toLong() == commandOpcode.getEngValue().toLong() ? new org.yamcs.commanding.VerificationResult(true, reason) : null;</AlgorithmText>
+              <InputSet>
+                <InputParameterInstanceRef parameterRef="CdhCore/cmdDisp/OpCodeError/Opcode" inputName="eventOpcode" />
+                <InputParameterInstanceRef parameterRef="/yamcs/cmd/arg/OpCode" inputName="commandOpcode" />
+                <InputParameterInstanceRef parameterRef="CdhCore/cmdDisp/OpCodeError/error" inputName="error" />
+                <InputParameterInstanceRef parameterRef="FPrimeEventId" inputName="eventId" />
+              </InputSet>
+            </CustomAlgorithm>
+            <CheckWindow timeToStopChecking="P365D" timeWindowIsRelativeTo="commandRelease" />
+          </FailedVerifier>
+        </VerifierSet>
       </MetaCommand>
     </MetaCommandSet>
   </CommandMetaData>
@@ -920,6 +962,56 @@
               <RestrictionCriteria>
                 <ComparisonList>
                   <Comparison parameterRef="FPrimeChannelId" value="16777218" />
+                </ComparisonList>
+              </RestrictionCriteria>
+            </BaseContainer>
+          </SequenceContainer>
+          <SequenceContainer name="OpCodeDispatched">
+            <EntryList>
+              <ParameterRefEntry parameterRef="CdhCore/cmdDisp/OpCodeDispatched/Opcode" />
+              <ParameterRefEntry parameterRef="CdhCore/cmdDisp/OpCodeDispatched/port" />
+            </EntryList>
+            <BaseContainer containerRef="FPrimeEvent">
+              <RestrictionCriteria>
+                <ComparisonList>
+                  <Comparison parameterRef="FPrimeEventId" value="16777217" />
+                </ComparisonList>
+              </RestrictionCriteria>
+            </BaseContainer>
+          </SequenceContainer>
+          <SequenceContainer name="OpCodeCompleted">
+            <EntryList>
+              <ParameterRefEntry parameterRef="CdhCore/cmdDisp/OpCodeCompleted/Opcode" />
+            </EntryList>
+            <BaseContainer containerRef="FPrimeEvent">
+              <RestrictionCriteria>
+                <ComparisonList>
+                  <Comparison parameterRef="FPrimeEventId" value="16777218" />
+                </ComparisonList>
+              </RestrictionCriteria>
+            </BaseContainer>
+          </SequenceContainer>
+          <SequenceContainer name="OpCodeError">
+            <EntryList>
+              <ParameterRefEntry parameterRef="CdhCore/cmdDisp/OpCodeError/Opcode" />
+              <ParameterRefEntry parameterRef="CdhCore/cmdDisp/OpCodeError/error" />
+            </EntryList>
+            <BaseContainer containerRef="FPrimeEvent">
+              <RestrictionCriteria>
+                <ComparisonList>
+                  <Comparison parameterRef="FPrimeEventId" value="16777219" />
+                </ComparisonList>
+              </RestrictionCriteria>
+            </BaseContainer>
+          </SequenceContainer>
+          <SequenceContainer name="InvalidCommand">
+            <EntryList>
+              <ParameterRefEntry parameterRef="CdhCore/cmdDisp/OpCodeError/Opcode" />
+            </EntryList>
+            <BaseContainer containerRef="FPrimeEvent">
+              <RestrictionCriteria>
+                <ComparisonList>
+                  <Comparison parameterRef="FPrimeEventId" value="16777221" />
                 </ComparisonList>
               </RestrictionCriteria>
             </BaseContainer>
@@ -988,6 +1080,29 @@
           </MetaCommand>
         </MetaCommandSet>
       </CommandMetaData>
+      <SpaceSystem name="OpCodeCompleted">
+        <TelemetryMetaData>
+          <ParameterSet>
+            <Parameter name="Opcode" shortDescription="The I32 command argument" parameterTypeRef="/FprimeYamcsReference_YamcsDeployment/FwOpcodeType" />
+          </ParameterSet>
+        </TelemetryMetaData>
+      </SpaceSystem>
+      <SpaceSystem name="OpCodeDispatched">
+        <TelemetryMetaData>
+          <ParameterSet>
+            <Parameter name="Opcode" shortDescription="The opcode dispatched" parameterTypeRef="/FprimeYamcsReference_YamcsDeployment/FwOpcodeType" />
+            <Parameter name="port" shortDescription="The port dispatched to" parameterTypeRef="/FprimeYamcsReference_YamcsDeployment/I32" />
+          </ParameterSet>
+        </TelemetryMetaData>
+      </SpaceSystem>
+      <SpaceSystem name="OpCodeError">
+        <TelemetryMetaData>
+          <ParameterSet>
+            <Parameter name="Opcode" shortDescription="The opcode with the error" parameterTypeRef="/FprimeYamcsReference_YamcsDeployment/FwOpcodeType" />
+            <Parameter name="error" shortDescription="The error value" parameterTypeRef="/FprimeYamcsReference_YamcsDeployment/Fw/CmdResponse" />
+          </ParameterSet>
+        </TelemetryMetaData>
+      </SpaceSystem>
     </SpaceSystem>
     <SpaceSystem name="events">
       <CommandMetaData>

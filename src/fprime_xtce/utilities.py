@@ -187,6 +187,46 @@ def formal_parameter_types(fprime_section):
     return [parameter["type"] for parameter in formal_parameters(fprime_section)]
 
 
+# Verifiers for every command, mapped to the Svc.CommandDispatcher event each watches, in the order XTCE requires
+COMMAND_VERIFIER_EVENTS = {
+    "ExecutionVerifier": "OpCodeDispatched",
+    "CompleteVerifier": "OpCodeCompleted",
+    "FailedVerifier": "OpCodeError",
+}
+
+
+def command_verifier_events(fprime_dict):
+    """ Helper function to find the events that command verifiers watch
+
+    Args:
+        fprime_dict: F Prime dictionary (loaded from JSON)
+    Returns:
+        A dictionary mapping XTCE verifier names to F Prime events, without the verifiers whose events are missing
+    """
+    return {
+        verifier: event
+        for verifier, event_name in COMMAND_VERIFIER_EVENTS.items()
+        for event in fprime_dict["events"]
+        if event["name"].endswith(f".{event_name}")
+    }
+
+
+def invalid_command_event(fprime_dict):
+    """ Helper function to find the InvalidCommand event of the command dispatcher
+
+    Args:
+        fprime_dict: F Prime dictionary (loaded from JSON)
+    Returns:
+        The InvalidCommand event of the command dispatcher, None when the dictionary has no OpCodeError event
+    """
+    opcode_error = command_verifier_events(fprime_dict).get("FailedVerifier")
+    if not opcode_error:
+        return None
+    # Svc.FpySequencer has an InvalidCommand event too, so take the one from the instance that emits OpCodeError
+    instance = opcode_error["name"].rsplit(".", 1)[0]
+    return next(event for event in fprime_dict["events"] if event["name"] == f"{instance}.InvalidCommand")
+
+
 def get_or_create_nested_space_system(root: Dict[str, Any], namespace_path: List[str]) -> Dict[str, Any]:
     """Navigate or create nested SpaceSystem hierarchy.
 

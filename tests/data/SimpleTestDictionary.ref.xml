@@ -173,6 +173,9 @@
         </BaseContainer>
       </SequenceContainer>
       <SequenceContainer name="FPrimeEvent" abstract="true">
+        <AncillaryDataSet>
+          <AncillaryData name="Yamcs">UseAsArchivingPartition</AncillaryData>
+        </AncillaryDataSet>
         <EntryList>
           <ParameterRefEntry parameterRef="DataDescType" />
           <ParameterRefEntry parameterRef="FPrimeEventId" />

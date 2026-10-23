@@ -11,7 +11,7 @@ from enum import Enum
 from collections.abc import Mapping
 from .type_converter import convert_type_definitions, convert_to_xtce_reference, string_size_tag_bits
 from .primitive_types import BASE_FPRIME_TYPES, SPACE_PACKET_TYPES, BASE_PARAMETERS
-from .utilities import safe_combine, formal_parameter_types, xtce_names
+from .utilities import safe_combine, formal_parameter_types, xtce_names, command_verifier_events
 
 
 class ConversionMode(Enum):
@@ -152,6 +152,13 @@ def generate_xtce_parameters(fprime_dict, xtce_types, deployment, mode=Conversio
           build_parameter(param, deployment, event["name"]) for event in fprime_dict["events"] for param in event["formalParams"]
       ]
       parameters = safe_combine(parameters, event_parameters)
+    # Convert the formal parameters of the events that command verifiers watch in every mode, since their containers
+    # always exist
+    verifier_parameters = [
+        build_parameter(param, deployment, event["name"])
+        for event in command_verifier_events(fprime_dict).values() for param in event["formalParams"]
+    ]
+    parameters = safe_combine(parameters, verifier_parameters)
     
     # Note: Type reference validation is handled by XTCE schema validation
     return parameters

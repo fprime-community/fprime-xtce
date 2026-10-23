@@ -244,6 +244,9 @@ def recurse_xml_dictionary(element: Optional[ET.Element], node_data: Dict[str, A
                 ), "Dict keys must be capitalized to create child elements"
                 child = ET.SubElement(element, data_key)
                 recurse_xml_dictionary(child, data_value)
+            # If the key is "#text", set the current element's text (checked first: "#" counts as capitalized)
+            elif data_key == "#text":
+                element.text = data_value
             # If the key is capitalized, and maps to a primitive, create a child element with text
             elif data_key[0].capitalize() == data_key[0] and isinstance(
                 data_value, (str, int, float)

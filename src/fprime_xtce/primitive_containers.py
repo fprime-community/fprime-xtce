@@ -82,6 +82,10 @@ BASE_CONTAINERS = [
         "SequenceContainer": {
             "name": "FPrimeEvent",
             "abstract": "true",
+            # Archive every event packet as FPrimeEvent, including events with a container of their own
+            "AncillaryDataSet": [
+                {"AncillaryData": {"name": "Yamcs", "#text": "UseAsArchivingPartition"}},
+            ],
             "EntryList": [
                 {"ParameterRefEntry": {"parameterRef": "DataDescType"}},
                 {"ParameterRefEntry": {"parameterRef": "FPrimeEventId"}},
